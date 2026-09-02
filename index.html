@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#18120f">
+  <meta name="description" content="Cardápio digital da Churrascaria Carne de Sol, em Fortaleza.">
+  <title>Churrascaria Carne de Sol</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://pghbhyvhfiwdpyykikff.supabase.co">
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="/assets/supabase.js"></script>
+  <script defer src="/assets/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#cardapio">Ir ao cardápio</a>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Churrascaria Carne de Sol">
+      <span class="brand-mark"><img src="/assets/logo-carne-de-sol.jpg" alt=""></span>
+      <span><strong>Carne de Sol</strong><small>Churrascaria & Marmitaria</small></span>
+    </a>
+    <nav class="header-actions" aria-label="Ações">
+      <button class="button button-ghost" id="authButton" type="button">Entrar</button>
+      <a class="button button-ghost desktop-only" href="/admin.html">Painel</a>
+      <button class="button button-primary cart-button" id="cartButton" type="button" aria-label="Abrir carrinho">
+        Carrinho <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-fire" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <span class="eyebrow">CHURRASCARIA CARNE DE SOL</span>
+        <h1 id="bannerTitle">Sabor de brasa, comida de verdade</h1>
+        <p id="bannerText">Marmitas, galetos, carnes e combos preparados todos os dias.</p>
+        <div class="hero-actions">
+          <a class="button button-primary button-large" href="#cardapio">Ver cardápio</a>
+          <a class="button button-light button-large" href="https://wa.me/5585986129964" id="whatsappHero">Falar no WhatsApp</a>
+        </div>
+      </div>
+      <aside class="store-card" aria-live="polite">
+        <span class="status-dot" id="statusDot"></span>
+        <strong id="storeStatus">Consultando horário…</strong>
+        <span id="storeHours">Todos os dias, 07:00–15:00</span>
+        <small id="storeAddress">Av. Castelo de Castro, 643 — Jangurussu, Fortaleza</small>
+      </aside>
+    </section>
+
+    <section class="catalog-shell" id="cardapio">
+      <aside class="category-rail" aria-label="Categorias">
+        <div class="rail-title"><strong>Categorias</strong><span>Role para navegar</span></div>
+        <nav class="category-list" id="categoryList"></nav>
+      </aside>
+      <div class="catalog-main">
+        <div class="catalog-toolbar">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="searchInput" type="search" placeholder="Buscar prato ou bebida" autocomplete="off">
+          </label>
+          <button class="button button-ghost" id="promoFilter" type="button">Só promoções</button>
+        </div>
+        <div class="notice hidden" id="maintenanceNotice"></div>
+        <div class="loading-grid" id="loadingGrid" aria-label="Carregando cardápio">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div id="productSections"></div>
+        <div class="empty-state hidden" id="emptyState">
+          <span>🍽️</span><h2>Nenhum item encontrado</h2><p>Tente outra palavra ou categoria.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div><strong>CHURRASCARIA CARNE DE SOL</strong><p>Churrascaria e Marmitaria</p></div>
+    <div><strong>Atendimento</strong><p>Todos os dias, das 07:00 às 15:00</p></div>
+    <div><strong>Endereço</strong><p>Av. Castelo de Castro, 643 — Jangurussu<br>Fortaleza — CE, 60866-681</p></div>
+  </footer>
+
+  <dialog class="product-dialog" id="productDialog">
+    <form method="dialog" class="dialog-frame" id="productForm">
+      <button class="icon-button dialog-close" value="cancel" aria-label="Fechar">×</button>
+      <div class="dialog-product-image"><img id="dialogImage" alt=""></div>
+      <div class="dialog-content">
+        <span class="eyebrow" id="dialogCategory"></span>
+        <h2 id="dialogName"></h2>
+        <p id="dialogDescription"></p>
+        <div class="price-line" id="dialogPrice"></div>
+        <div id="optionGroups"></div>
+        <label class="field"><span>Observação do item</span><textarea id="itemNotes" maxlength="200" placeholder="Ex.: sem cebola"></textarea></label>
+        <div class="quantity-row">
+          <button class="quantity-button" id="qtyMinus" type="button" aria-label="Diminuir">−</button>
+          <output id="qtyValue">1</output>
+          <button class="quantity-button" id="qtyPlus" type="button" aria-label="Aumentar">+</button>
+          <button class="button button-primary add-cart-button" id="addToCart" type="button">Adicionar • <span id="addTotal"></span></button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="side-dialog" id="cartDialog">
+    <form method="dialog" class="side-panel">
+      <div class="side-header"><div><span class="eyebrow">SEU PEDIDO</span><h2>Carrinho</h2></div><button class="icon-button" value="cancel" aria-label="Fechar">×</button></div>
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-summary"><span>Subtotal</span><strong id="cartSubtotal">R$ 0,00</strong></div>
+      <button class="button button-primary button-large button-block" id="checkoutButton" type="button">Continuar pedido</button>
+    </form>
+  </dialog>
+
+  <dialog class="form-dialog" id="checkoutDialog">
+    <form class="dialog-frame checkout-form" id="checkoutForm">
+      <button class="icon-button dialog-close" type="button" data-close="checkout" aria-label="Fechar">×</button>
+      <span class="eyebrow">FINALIZAR PEDIDO</span><h2>Seus dados</h2>
+      <div class="form-grid">
+        <label class="field"><span>Nome completo *</span><input name="customer_name" required minlength="2" autocomplete="name"></label>
+        <label class="field"><span>WhatsApp *</span><input name="phone" required inputmode="tel" autocomplete="tel" placeholder="(85) 99999-9999"></label>
+        <label class="field wide"><span>E-mail</span><input name="email" type="email" autocomplete="email"></label>
+      </div>
+      <fieldset class="choice-cards"><legend>Como deseja receber?</legend>
+        <label><input type="radio" name="order_type" value="delivery" checked><span>🛵 Entrega</span></label>
+        <label><input type="radio" name="order_type" value="pickup"><span>🏪 Retirada</span></label>
+      </fieldset>
+      <div class="form-grid address-fields">
+        <label class="field wide"><span>Endereço *</span><input name="street" autocomplete="street-address"></label>
+        <label class="field"><span>Número *</span><input name="number"></label>
+        <label class="field"><span>Complemento</span><input name="complement"></label>
+        <label class="field"><span>Bairro *</span><input name="neighborhood"></label>
+        <label class="field"><span>Referência</span><input name="reference"></label>
+      </div>
+      <fieldset class="choice-cards"><legend>Pagamento</legend>
+        <label><input type="radio" name="payment_method" value="pix" checked><span>Pix</span></label>
+        <label><input type="radio" name="payment_method" value="card"><span>Cartão</span></label>
+        <label><input type="radio" name="payment_method" value="cash"><span>Dinheiro</span></label>
+      </fieldset>
+      <label class="field cash-field hidden"><span>Troco para quanto?</span><input name="change_for" inputmode="decimal"></label>
+      <label class="field"><span>Observações gerais</span><textarea name="notes" maxlength="500"></textarea></label>
+      <div class="checkout-total"><span>Total calculado no servidor</span><strong id="checkoutTotal"></strong></div>
+      <button class="button button-primary button-large button-block" type="submit" id="placeOrder">Enviar pedido</button>
+      <p class="form-message" id="checkoutMessage" aria-live="polite"></p>
+    </form>
+  </dialog>
+
+  <dialog class="form-dialog" id="authDialog">
+    <form class="dialog-frame auth-form" id="authForm">
+      <button class="icon-button dialog-close" type="button" data-close="auth" aria-label="Fechar">×</button>
+      <span class="eyebrow">ACESSO SEGURO</span><h2 id="authTitle">Entrar com código</h2>
+      <p id="authHelp">Digite seu e-mail. Enviaremos um código numérico de 6 dígitos.</p>
+      <div id="authRequestStep">
+        <label class="field"><span>E-mail</span><input id="authEmail" type="email" required autocomplete="email"></label>
+        <label class="field signup-only hidden"><span>Nome</span><input id="authName" autocomplete="name"></label>
+        <button class="button button-primary button-large button-block" id="sendCodeButton" type="submit">Enviar código</button>
+        <div class="auth-switches">
+          <button type="button" data-auth-mode="login">Já tenho cadastro</button>
+          <button type="button" data-auth-mode="signup">Criar cadastro</button>
+          <button type="button" data-auth-mode="recovery">Esqueci a senha</button>
+        </div>
+      </div>
+      <div id="authVerifyStep" class="hidden">
+        <label class="field"><span>Código de 6 dígitos</span><input id="authCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000"></label>
+        <button class="button button-primary button-large button-block" id="verifyCodeButton" type="button">Confirmar código</button>
+        <button class="button button-ghost button-block" id="resendCodeButton" type="button">Reenviar código</button>
+      </div>
+      <div id="passwordStep" class="hidden">
+        <label class="field"><span>Crie sua senha</span><input id="newPassword" type="password" minlength="8" autocomplete="new-password"></label>
+        <button class="button button-primary button-large button-block" id="savePasswordButton" type="button">Salvar nova senha</button>
+      </div>
+      <p class="form-message" id="authMessage" aria-live="polite"></p>
+    </form>
+  </dialog>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+</body>
+</html>

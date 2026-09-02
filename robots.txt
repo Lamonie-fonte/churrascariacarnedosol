@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://churrascariacarnedosol.vercel.app/sitemap.xml

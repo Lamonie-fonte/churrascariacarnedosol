@@ -1,0 +1,13 @@
+{
+  "name": "Churrascaria Carne de Sol",
+  "short_name": "Carne de Sol",
+  "description": "Cardápio digital da Churrascaria Carne de Sol",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff7ec",
+  "theme_color": "#18120f",
+  "icons": [
+    {"src": "/assets/logo-carne-de-sol.jpg", "sizes": "1440x1440", "type": "image/jpeg", "purpose": "any"}
+  ]
+}

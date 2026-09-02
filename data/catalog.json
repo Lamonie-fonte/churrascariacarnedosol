@@ -1,0 +1,3206 @@
+[
+  {
+    "category": "marmita grande",
+    "description": "DIREITO A 2 OPÇAO DE MISTURA",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750590166.jpeg",
+    "name": "marmita grande",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 2,
+        "min": 0,
+        "name": "MARMITA GRANDE",
+        "options": [
+          {
+            "name": "FRANGO ASSADO",
+            "price": 0,
+            "source_option_id": "5204"
+          },
+          {
+            "name": "PANELADA",
+            "price": 0,
+            "source_option_id": "5316"
+          },
+          {
+            "name": "CARNE ASSADA NA BRASA",
+            "price": 0,
+            "source_option_id": "5611"
+          },
+          {
+            "name": "OVO FRITO",
+            "price": 0,
+            "source_option_id": "5634"
+          },
+          {
+            "name": "LINGUIÇA ASSADA",
+            "price": 0,
+            "source_option_id": "5678"
+          },
+          {
+            "name": "PEITO DE FRANGO ACEBOLADO",
+            "price": 0,
+            "source_option_id": "5716"
+          },
+          {
+            "name": "CARNE MOIDA",
+            "price": 0,
+            "source_option_id": "5735"
+          },
+          {
+            "name": "SARAPATEL",
+            "price": 0,
+            "source_option_id": "5736"
+          }
+        ],
+        "required": false,
+        "source_group_id": "3",
+        "type": "multiple"
+      },
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "QUAL A SUA FORMA DE PAGAMENTO?",
+        "options": [
+          {
+            "name": "PROMOÇÃO PARA PAGAMENTO EM ESPECIE",
+            "price": 16,
+            "source_option_id": "5648"
+          },
+          {
+            "name": "NO PIX OU CARTÃO",
+            "price": 18,
+            "source_option_id": "5649"
+          }
+        ],
+        "required": false,
+        "source_group_id": "20",
+        "type": "single"
+      },
+      {
+        "max": 2,
+        "min": 1,
+        "name": "Variações",
+        "options": [
+          {
+            "name": "MARMITA GRANDE",
+            "price": 0,
+            "source_option_id": "75"
+          }
+        ],
+        "required": true,
+        "source_group_id": "flavors",
+        "type": "single"
+      }
+    ],
+    "price": null,
+    "source_id": "75",
+    "stock": 8602,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750590166.jpeg"
+  },
+  {
+    "category": "promoÇÃo",
+    "description": "DIREITO A 2 OPÇÃO DE MISTURA",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1787659900.jpg",
+    "name": "marmita grande",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "PROMOÇÃO MARMITA + 1 SUCO",
+        "options": [
+          {
+            "name": "FRANGO ASSADO",
+            "price": 0,
+            "source_option_id": "5650"
+          },
+          {
+            "name": "LINGUIÇA ASSADA",
+            "price": 0,
+            "source_option_id": "5651"
+          },
+          {
+            "name": "CARNE ASSADA NA BRASA",
+            "price": 0,
+            "source_option_id": "5652"
+          },
+          {
+            "name": "SARAPATEL",
+            "price": 0,
+            "source_option_id": "5658"
+          },
+          {
+            "name": "CARNE MOIDA",
+            "price": 0,
+            "source_option_id": "5659"
+          },
+          {
+            "name": "PANELADA",
+            "price": 0,
+            "source_option_id": "5660"
+          },
+          {
+            "name": "PEITO DE FRANGO ACEBOLADO",
+            "price": 0,
+            "source_option_id": "5744"
+          },
+          {
+            "name": "OVO FRITO",
+            "price": 0,
+            "source_option_id": "5746"
+          }
+        ],
+        "required": false,
+        "source_group_id": "21",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "QUAL A FORMA DE PAGAMENTO ?",
+        "options": [
+          {
+            "name": "DINHEIRO",
+            "price": 0,
+            "source_option_id": "5664"
+          },
+          {
+            "name": "CARTAO",
+            "price": 2,
+            "source_option_id": "5662"
+          },
+          {
+            "name": "PIX",
+            "price": 2,
+            "source_option_id": "5663"
+          }
+        ],
+        "required": false,
+        "source_group_id": "22",
+        "type": "single"
+      }
+    ],
+    "price": 16,
+    "source_id": "189",
+    "stock": 996,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1787659900.jpg"
+  },
+  {
+    "category": "promoÇÃo",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1787659746.jpg",
+    "name": "marmita grande + 1 suco",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "PROMOÇÃO MARMITA + 1 SUCO",
+        "options": [
+          {
+            "name": "FRANGO ASSADO",
+            "price": 0,
+            "source_option_id": "5650"
+          },
+          {
+            "name": "LINGUIÇA ASSADA",
+            "price": 0,
+            "source_option_id": "5651"
+          },
+          {
+            "name": "CARNE ASSADA NA BRASA",
+            "price": 0,
+            "source_option_id": "5652"
+          },
+          {
+            "name": "SARAPATEL",
+            "price": 0,
+            "source_option_id": "5658"
+          },
+          {
+            "name": "CARNE MOIDA",
+            "price": 0,
+            "source_option_id": "5659"
+          },
+          {
+            "name": "PANELADA",
+            "price": 0,
+            "source_option_id": "5660"
+          },
+          {
+            "name": "PEITO DE FRANGO ACEBOLADO",
+            "price": 0,
+            "source_option_id": "5744"
+          },
+          {
+            "name": "OVO FRITO",
+            "price": 0,
+            "source_option_id": "5746"
+          }
+        ],
+        "required": false,
+        "source_group_id": "21",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "QUAL A FORMA DE PAGAMENTO ?",
+        "options": [
+          {
+            "name": "DINHEIRO",
+            "price": 0,
+            "source_option_id": "5664"
+          },
+          {
+            "name": "CARTAO",
+            "price": 2,
+            "source_option_id": "5662"
+          },
+          {
+            "name": "PIX",
+            "price": 2,
+            "source_option_id": "5663"
+          }
+        ],
+        "required": false,
+        "source_group_id": "22",
+        "type": "single"
+      }
+    ],
+    "price": 20,
+    "source_id": "187",
+    "stock": 996,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1787659746.jpg"
+  },
+  {
+    "category": "promoÇÃo",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1787659882.jpg",
+    "name": "marmita grande + pichulinha ( coca ou cajuina )",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "PROMOÇÃO MARMITA + 1 SUCO",
+        "options": [
+          {
+            "name": "FRANGO ASSADO",
+            "price": 0,
+            "source_option_id": "5650"
+          },
+          {
+            "name": "LINGUIÇA ASSADA",
+            "price": 0,
+            "source_option_id": "5651"
+          },
+          {
+            "name": "CARNE ASSADA NA BRASA",
+            "price": 0,
+            "source_option_id": "5652"
+          },
+          {
+            "name": "SARAPATEL",
+            "price": 0,
+            "source_option_id": "5658"
+          },
+          {
+            "name": "CARNE MOIDA",
+            "price": 0,
+            "source_option_id": "5659"
+          },
+          {
+            "name": "PANELADA",
+            "price": 0,
+            "source_option_id": "5660"
+          },
+          {
+            "name": "PEITO DE FRANGO ACEBOLADO",
+            "price": 0,
+            "source_option_id": "5744"
+          },
+          {
+            "name": "OVO FRITO",
+            "price": 0,
+            "source_option_id": "5746"
+          }
+        ],
+        "required": false,
+        "source_group_id": "21",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "QUAL A FORMA DE PAGAMENTO ?",
+        "options": [
+          {
+            "name": "DINHEIRO",
+            "price": 0,
+            "source_option_id": "5664"
+          },
+          {
+            "name": "CARTAO",
+            "price": 2,
+            "source_option_id": "5662"
+          },
+          {
+            "name": "PIX",
+            "price": 2,
+            "source_option_id": "5663"
+          }
+        ],
+        "required": false,
+        "source_group_id": "22",
+        "type": "single"
+      }
+    ],
+    "price": 20,
+    "source_id": "188",
+    "stock": 996,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1787659882.jpg"
+  },
+  {
+    "category": "marmita pequena",
+    "description": "DIREITO A 1 OPÇAO DE MISTURA",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750590187.jpeg",
+    "name": "marmita pequena",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "MARMITA PEQUENA",
+        "options": [
+          {
+            "name": "FRANGO ASSADO",
+            "price": 0,
+            "source_option_id": "5203"
+          },
+          {
+            "name": "PANELADA",
+            "price": 0,
+            "source_option_id": "5317"
+          },
+          {
+            "name": "CARNE ASSADA NA BRASA",
+            "price": 0,
+            "source_option_id": "5616"
+          },
+          {
+            "name": "CARNE MOIDA",
+            "price": 0,
+            "source_option_id": "5640"
+          },
+          {
+            "name": "LINGUIÇA ASSADA",
+            "price": 0,
+            "source_option_id": "5680"
+          },
+          {
+            "name": "SARAPATEL",
+            "price": 0,
+            "source_option_id": "5703"
+          },
+          {
+            "name": "PEITO DE FRANGO AO MOLHO",
+            "price": 0,
+            "source_option_id": "5737"
+          },
+          {
+            "name": "OVO FRITO",
+            "price": 0,
+            "source_option_id": "5738"
+          }
+        ],
+        "required": false,
+        "source_group_id": "7",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA SALADA ?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5037"
+          },
+          {
+            "name": "SALADA VERDE",
+            "price": 0,
+            "source_option_id": "5369"
+          }
+        ],
+        "required": false,
+        "source_group_id": "14",
+        "type": "multiple"
+      }
+    ],
+    "price": 14,
+    "source_id": "74",
+    "stock": 9584,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750590187.jpeg"
+  },
+  {
+    "category": "marmita",
+    "description": "ACOMPANHA 1 BUCHADA + MOCOTO E CALDO EM UMA MARMITA E ACOMPANHAMENTO SEPARADO",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748887443.jpg",
+    "name": "buchada de carneiro",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      }
+    ],
+    "price": 35,
+    "source_id": "10",
+    "stock": 918,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748887443.jpg"
+  },
+  {
+    "category": "marmita",
+    "description": "ACOMPANHA CARNE MOIDA E OVO FRITO ARROZ, CUSCUZ E CHEIRO VERDE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1775993175.webp",
+    "name": "gostosinho",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      }
+    ],
+    "price": 17,
+    "source_id": "162",
+    "stock": 988,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1775993175.webp"
+  },
+  {
+    "category": "marmita",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/img/sem_foto.jpg",
+    "name": "marmita de carne do sol",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      }
+    ],
+    "price": 20,
+    "source_id": "166",
+    "stock": 995,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zcx=3&w=100&h=100&src=img/sem_foto.jpg"
+  },
+  {
+    "category": "marmita",
+    "description": "ACOMPANHA 150G DE MAMINHA ASSADA E ACOMPANHAMENTO DA SUA PREFERENCIA",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748960206.jpg",
+    "name": "marmita de maminha assada",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      }
+    ],
+    "price": 22,
+    "source_id": "68",
+    "stock": 734,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748960206.jpg"
+  },
+  {
+    "category": "marmita",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748953560.jpg",
+    "name": "marmita de panelada",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      }
+    ],
+    "price": 15,
+    "source_id": "38",
+    "stock": 779,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748953560.jpg"
+  },
+  {
+    "category": "marmita",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748954487.jpg",
+    "name": "meia panelada",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 3,
+        "min": 0,
+        "name": "ACOMPANHAMENTO",
+        "options": [
+          {
+            "name": "ARROZ BRANCO",
+            "price": 0,
+            "source_option_id": "257"
+          },
+          {
+            "name": "ARROZ TEMPERADO",
+            "price": 0,
+            "source_option_id": "5099"
+          },
+          {
+            "name": "BAIAO",
+            "price": 0,
+            "source_option_id": "5100"
+          },
+          {
+            "name": "MACARRÃO",
+            "price": 0,
+            "source_option_id": "5101"
+          },
+          {
+            "name": "FEIJAO MULATINHO",
+            "price": 0,
+            "source_option_id": "5579"
+          }
+        ],
+        "required": false,
+        "source_group_id": "4",
+        "type": "multiple"
+      },
+      {
+        "max": 100,
+        "min": 0,
+        "name": "ADICIONAL",
+        "options": [
+          {
+            "name": "CHEIRO VERDE",
+            "price": 0,
+            "source_option_id": "2871"
+          },
+          {
+            "name": "1 OVO FRITO EXTRA",
+            "price": 2,
+            "source_option_id": "3739"
+          },
+          {
+            "name": "MISTURA EM EMBALAGEM SEPARADA",
+            "price": 3,
+            "source_option_id": "77"
+          },
+          {
+            "name": "2 OVOS FRITOS EXTRA",
+            "price": 4,
+            "source_option_id": "3970"
+          },
+          {
+            "name": "1 LINGUIÇA ASSADA EXTRA",
+            "price": 5,
+            "source_option_id": "61"
+          },
+          {
+            "name": "ADICIONAL DE MISTURA EXTRA",
+            "price": 7,
+            "source_option_id": "733"
+          },
+          {
+            "name": "2 LINGUIÇA ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2464"
+          },
+          {
+            "name": "100G DE CARNE ASSADA EXTRA",
+            "price": 10,
+            "source_option_id": "2465"
+          }
+        ],
+        "required": false,
+        "source_group_id": "9",
+        "type": "multiple"
+      },
+      {
+        "max": 1,
+        "min": 0,
+        "name": "DESEJA FAROFA?",
+        "options": [
+          {
+            "name": "FAROFA TRADICIONAL",
+            "price": 0,
+            "source_option_id": "446"
+          },
+          {
+            "name": "FAROFA DE CUSCUZ",
+            "price": 0,
+            "source_option_id": "447"
+          },
+          {
+            "name": "PIRÃO",
+            "price": 0,
+            "source_option_id": "5749"
+          }
+        ],
+        "required": false,
+        "source_group_id": "12",
+        "type": "multiple"
+      },
+      {
+        "max": 2,
+        "min": 0,
+        "name": "DESEJA SALADA?",
+        "options": [
+          {
+            "name": "VINAGRETE",
+            "price": 0,
+            "source_option_id": "5035"
+          },
+          {
+            "name": "SALADA DE ALFACE",
+            "price": 0,
+            "source_option_id": "5367"
+          }
+        ],
+        "required": false,
+        "source_group_id": "13",
+        "type": "multiple"
+      }
+    ],
+    "price": 10,
+    "source_id": "29",
+    "stock": 877,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748954487.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "ACOMPANHA 400G DE CARNE DO SOL NA BRASA 1 PORÇÃO DE BAIÃO, 1 BATATA FRITA, FAROFA E VINAGRETE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748887409.jpg",
+    "name": "carne do sol completa 400g",
+    "old_price": null,
+    "option_groups": [],
+    "price": 70,
+    "source_id": "14",
+    "stock": 965,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748887409.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "300G CARNE DO SOL NA BRASA, 1 BAIAO E MEIA BATATA FRITA, FAROFA E VINAGRETE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1755342603.jpg",
+    "name": "combo carne do sol 300g",
+    "old_price": null,
+    "option_groups": [],
+    "price": 55,
+    "source_id": "122",
+    "stock": 972,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1755342603.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "ACOMPANHA 1 GALETO NA BRASA + 2 LINGUIÇA + 1 PORÇÃO DE BAIÃO, MEIA BATATA FRITA, FAROFA E VINAGRETE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748887559.jpg",
+    "name": "combo de galeto na brasa",
+    "old_price": null,
+    "option_groups": [],
+    "price": 60,
+    "source_id": "15",
+    "stock": 923,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748887559.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "ACOMPANHA 1 GALETO INTEIRO NA BRASA, 1 PORÇÃO DE BAIAO, BATATA FRITA, FAROFA E VINAGRETE + 1 SAO GERALDO 1L GRATIS",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1754743048.jpg",
+    "name": "combo frango assado + refri",
+    "old_price": null,
+    "option_groups": [],
+    "price": 65,
+    "source_id": "119",
+    "stock": 963,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1754743048.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "400G LOMBINHO SUINO, 1 BAIAO, 1 BATATA FRITA",
+    "image_url": "https://carnedosol.envoi.com.br/midias/img/sem_foto.jpg",
+    "name": "combo lombinho suino",
+    "old_price": null,
+    "option_groups": [],
+    "price": 70,
+    "source_id": "184",
+    "stock": 1000,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zcx=3&w=100&h=100&src=img/sem_foto.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "300G MAMINHA, 2 LINGUIÇA, 1 BAIAO E MEIA BATATA FAROFA E VINAGRETE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1755342744.jpg",
+    "name": "combo maminha + linguiÇa",
+    "old_price": null,
+    "option_groups": [],
+    "price": 70,
+    "source_id": "121",
+    "stock": 978,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1755342744.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "ACOMPANHA 300G DE MAMINHA ASSADA, 1 PORÇÃO DE BAIAO E MEIA BATATA FRITA FAROFA E VINAGRETE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1772887361.jpg",
+    "name": "combo maminha assada 300g",
+    "old_price": null,
+    "option_groups": [],
+    "price": 60,
+    "source_id": "158",
+    "stock": 984,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1772887361.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "1KG DE MAMINHA ASSADA 1 BAIAO 1 BATATA FRITA + 1 REFRI 2L GRATIS",
+    "image_url": "https://carnedosol.envoi.com.br/midias/img/sem_foto.jpg",
+    "name": "combo maminha promocional",
+    "old_price": null,
+    "option_groups": [],
+    "price": 150,
+    "source_id": "186",
+    "stock": 1000,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zcx=3&w=100&h=100&src=img/sem_foto.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "ACOMPANHA MEIO GALETO, 1 LINGUIÇA ASSADA, MEIO BAIAO, MEIA BATATA FRITA, FAROFA E VINAGRETE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750589975.jpeg",
+    "name": "combo meio galeto",
+    "old_price": null,
+    "option_groups": [],
+    "price": 38,
+    "source_id": "109",
+    "stock": 867,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750589975.jpeg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "ACOMPANHA MEIO FRANGO, 1 PORÇÃO DE BAIÃO E MEIA BATATA FRITA, FAROFA E VINAGRETE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/img/sem_foto.jpg",
+    "name": "kit meio frango",
+    "old_price": null,
+    "option_groups": [],
+    "price": 40,
+    "source_id": "160",
+    "stock": 989,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zcx=3&w=100&h=100&src=img/sem_foto.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "MEIO FRANGO + 2 LINGUIÇA, 1 BAIÃO, MEIA BATATA E 1 REFRI 1L GRATIS",
+    "image_url": "https://carnedosol.envoi.com.br/midias/img/sem_foto.jpg",
+    "name": "kit promocional",
+    "old_price": null,
+    "option_groups": [],
+    "price": 55,
+    "source_id": "172",
+    "stock": 996,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zcx=3&w=100&h=100&src=img/sem_foto.jpg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "ACOMPANHA 200G DE CARNE ASSADA, 200G DE PORCO ASSADO, MEIO FRANGO, 2 LINGUIÇA, 2 PORÇÃO DE BAIÃO, 1 PORÇÃO DE BATATA FRITA FAROFA E VINAGRETE",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1749381647.jpeg",
+    "name": "mistÃo completo",
+    "old_price": null,
+    "option_groups": [],
+    "price": 100,
+    "source_id": "84",
+    "stock": 962,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1749381647.jpeg"
+  },
+  {
+    "category": "combos de assados",
+    "description": "200G CARNE ASSADA, 200G PORCO ASSADO + 4 LINGUIÇA + MEIO FRANGO",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1754133907.jfif",
+    "name": "mistao de carnes",
+    "old_price": null,
+    "option_groups": [],
+    "price": 75,
+    "source_id": "113",
+    "stock": 983,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1754133907.jfif"
+  },
+  {
+    "category": "assados na brasa",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748889089.jpg",
+    "name": "frango assado",
+    "old_price": null,
+    "option_groups": [],
+    "price": 30,
+    "source_id": "20",
+    "stock": 9781,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748889089.jpg"
+  },
+  {
+    "category": "assados na brasa",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748887770.jpg",
+    "name": "linguiÇa assada",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "23",
+    "stock": 662,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748887770.jpg"
+  },
+  {
+    "category": "assados na brasa",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748889321.jpg",
+    "name": "meio frango",
+    "old_price": null,
+    "option_groups": [],
+    "price": 15,
+    "source_id": "37",
+    "stock": 61,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748889321.jpg"
+  },
+  {
+    "category": "assados na brasa",
+    "description": "ACOMPANHA 1 FRANGO ASSADO, 2 LINGUIÇA, 1 PORÇÃO DE BAIAO",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1766315220.jpg",
+    "name": "promoÇÃo galeto na brasa",
+    "old_price": null,
+    "option_groups": [],
+    "price": 50,
+    "source_id": "148",
+    "stock": 867,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1766315220.jpg"
+  },
+  {
+    "category": "carnes no peso",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750590729.jpeg",
+    "name": "bisteca suina na brasa",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 100,
+        "min": 0,
+        "name": "PESO CARNE",
+        "options": [
+          {
+            "name": "200 GRAMAS",
+            "price": 20,
+            "source_option_id": "2862"
+          },
+          {
+            "name": "300 GRAMAS",
+            "price": 30,
+            "source_option_id": "47"
+          },
+          {
+            "name": "400 GRAMAS",
+            "price": 40,
+            "source_option_id": "48"
+          },
+          {
+            "name": "500 GRAMAS",
+            "price": 50,
+            "source_option_id": "49"
+          },
+          {
+            "name": "600 GRAMAS",
+            "price": 60,
+            "source_option_id": "50"
+          },
+          {
+            "name": "700 GRAMAS",
+            "price": 70,
+            "source_option_id": "51"
+          },
+          {
+            "name": "800 GRAMAS",
+            "price": 80,
+            "source_option_id": "52"
+          },
+          {
+            "name": "900 GRAMAS",
+            "price": 90,
+            "source_option_id": "53"
+          },
+          {
+            "name": "1KG",
+            "price": 100,
+            "source_option_id": "54"
+          }
+        ],
+        "required": false,
+        "source_group_id": "2",
+        "type": "single"
+      }
+    ],
+    "price": null,
+    "source_id": "110",
+    "stock": 975,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750590729.jpeg"
+  },
+  {
+    "category": "carne no peso m",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748961154.jpeg",
+    "name": "carne do sol na brasa",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 100,
+        "min": 0,
+        "name": "PESO DA MAMINHA",
+        "options": [
+          {
+            "name": "200 GRAMA",
+            "price": 24,
+            "source_option_id": "3346"
+          },
+          {
+            "name": "300 GRAMA",
+            "price": 36,
+            "source_option_id": "3347"
+          },
+          {
+            "name": "400 GRAMA",
+            "price": 48,
+            "source_option_id": "3348"
+          },
+          {
+            "name": "450 GRAMAS",
+            "price": 54,
+            "source_option_id": "4274"
+          },
+          {
+            "name": "500 GRAMA",
+            "price": 60,
+            "source_option_id": "3349"
+          },
+          {
+            "name": "600 GRAMA",
+            "price": 72,
+            "source_option_id": "3350"
+          },
+          {
+            "name": "700 GRAMA",
+            "price": 84,
+            "source_option_id": "3351"
+          },
+          {
+            "name": "800 GRAMA",
+            "price": 96,
+            "source_option_id": "3352"
+          },
+          {
+            "name": "900 GRAMA",
+            "price": 108,
+            "source_option_id": "3353"
+          },
+          {
+            "name": "1 KG",
+            "price": 120,
+            "source_option_id": "3354"
+          }
+        ],
+        "required": false,
+        "source_group_id": "19",
+        "type": "multiple"
+      }
+    ],
+    "price": null,
+    "source_id": "64",
+    "stock": 893,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748961154.jpeg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750159015.jpg",
+    "name": "caldo",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "104",
+    "stock": 854,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750159015.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "1 PORÇÃO DE CARNEIRO GRANDE, ARROZ E CUSCUZ SEPARADO",
+    "image_url": "https://carnedosol.envoi.com.br/midias/img/sem_foto.jpg",
+    "name": "carneiro cozido pra 2 pessoas",
+    "old_price": null,
+    "option_groups": [],
+    "price": 50,
+    "source_id": "173",
+    "stock": 1000,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zcx=3&w=100&h=100&src=img/sem_foto.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158698.jpg",
+    "name": "meia batata frita",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "101",
+    "stock": 631,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158698.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750159057.jpeg",
+    "name": "meia porÇao de pirao",
+    "old_price": null,
+    "option_groups": [],
+    "price": 8,
+    "source_id": "105",
+    "stock": 961,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750159057.jpeg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750589901.jpg",
+    "name": "meia porÇao de salada",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "108",
+    "stock": 937,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750589901.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158305.jpg",
+    "name": "meio arroz branco",
+    "old_price": null,
+    "option_groups": [],
+    "price": 7,
+    "source_id": "95",
+    "stock": 902,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158305.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158607.jpg",
+    "name": "meio arroz temperado",
+    "old_price": null,
+    "option_groups": [],
+    "price": 8,
+    "source_id": "99",
+    "stock": 978,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158607.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158419.jpg",
+    "name": "meio baiÃo",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "97",
+    "stock": 741,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158419.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158973.jpeg",
+    "name": "meio feijÃo",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "103",
+    "stock": 948,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158973.jpeg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1765883640.jpg",
+    "name": "meio macarrÃo",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "143",
+    "stock": 955,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1765883640.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "ACOMPANHA 1 PORÇÃO DE PANELADA, 1 PORÇÃO DE ARROZ E CUSCUZ SEPARADO",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1755432354.jpg",
+    "name": "panelada p/ 2 pessoas",
+    "old_price": null,
+    "option_groups": [],
+    "price": 45,
+    "source_id": "126",
+    "stock": 992,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1755432354.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158475.jpg",
+    "name": "porÇao arroz temperado",
+    "old_price": null,
+    "option_groups": [],
+    "price": 13,
+    "source_id": "98",
+    "stock": 973,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158475.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158650.jpg",
+    "name": "porÇao batata frita",
+    "old_price": null,
+    "option_groups": [],
+    "price": 15,
+    "source_id": "100",
+    "stock": 770,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158650.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158197.jpg",
+    "name": "porÇao de arroz branco",
+    "old_price": null,
+    "option_groups": [],
+    "price": 12,
+    "source_id": "94",
+    "stock": 934,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158197.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158353.jpg",
+    "name": "porÇao de baiao",
+    "old_price": null,
+    "option_groups": [],
+    "price": 15,
+    "source_id": "96",
+    "stock": 380,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158353.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1757770542.jpg",
+    "name": "porÇÃo de cuscuz",
+    "old_price": null,
+    "option_groups": [],
+    "price": 8,
+    "source_id": "128",
+    "stock": 986,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1757770542.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750158881.jpeg",
+    "name": "porÇao de feijao",
+    "old_price": null,
+    "option_groups": [],
+    "price": 15,
+    "source_id": "102",
+    "stock": 866,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750158881.jpeg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1765883573.jpg",
+    "name": "porÇÃo de macarrÃo",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "142",
+    "stock": 993,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1765883573.jpg"
+  },
+  {
+    "category": "guaniÇÕes",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1750589998.jpg",
+    "name": "porÇao de salada",
+    "old_price": null,
+    "option_groups": [],
+    "price": 15,
+    "source_id": "107",
+    "stock": 977,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1750589998.jpg"
+  },
+  {
+    "category": "porÇÕes de mistura",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1753096194.jpeg",
+    "name": "porÇÃo grande de mistura",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 1,
+        "min": 0,
+        "name": "ESCOLHA SUA OPÇÃO DE MISTURA",
+        "options": [
+          {
+            "name": "PANELADA",
+            "price": 0,
+            "source_option_id": "5318"
+          },
+          {
+            "name": "PORCO FRITO",
+            "price": 0,
+            "source_option_id": "5362"
+          },
+          {
+            "name": "SARAPATEL",
+            "price": 0,
+            "source_option_id": "5713"
+          },
+          {
+            "name": "BIFE AO MOLHO",
+            "price": 0,
+            "source_option_id": "5723"
+          },
+          {
+            "name": "COSTELA DE BOI COZIDA",
+            "price": 0,
+            "source_option_id": "5750"
+          },
+          {
+            "name": "PEITO DE FRANGO ACEBOLADO",
+            "price": 0,
+            "source_option_id": "5751"
+          },
+          {
+            "name": "CARNE MOIDA",
+            "price": 5,
+            "source_option_id": "5682"
+          }
+        ],
+        "required": false,
+        "source_group_id": "8",
+        "type": "multiple"
+      }
+    ],
+    "price": 30,
+    "source_id": "31",
+    "stock": 746,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1753096194.jpeg"
+  },
+  {
+    "category": "porÇÕes de mistura",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1753096170.jpeg",
+    "name": "porÇÃo pequena de mistura",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 1,
+        "min": 0,
+        "name": "ESCOLHA SUA OPÇÃO DE MISTURA",
+        "options": [
+          {
+            "name": "PANELADA",
+            "price": 0,
+            "source_option_id": "5318"
+          },
+          {
+            "name": "PORCO FRITO",
+            "price": 0,
+            "source_option_id": "5362"
+          },
+          {
+            "name": "SARAPATEL",
+            "price": 0,
+            "source_option_id": "5713"
+          },
+          {
+            "name": "BIFE AO MOLHO",
+            "price": 0,
+            "source_option_id": "5723"
+          },
+          {
+            "name": "COSTELA DE BOI COZIDA",
+            "price": 0,
+            "source_option_id": "5750"
+          },
+          {
+            "name": "PEITO DE FRANGO ACEBOLADO",
+            "price": 0,
+            "source_option_id": "5751"
+          },
+          {
+            "name": "CARNE MOIDA",
+            "price": 5,
+            "source_option_id": "5682"
+          }
+        ],
+        "required": false,
+        "source_group_id": "8",
+        "type": "multiple"
+      }
+    ],
+    "price": 20,
+    "source_id": "32",
+    "stock": 781,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1753096170.jpeg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748866501.jpg",
+    "name": "agua com gÁs",
+    "old_price": null,
+    "option_groups": [],
+    "price": 3,
+    "source_id": "2",
+    "stock": 982,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748866501.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748954605.jpeg",
+    "name": "agua sem gas",
+    "old_price": null,
+    "option_groups": [],
+    "price": 3,
+    "source_id": "5",
+    "stock": 966,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748954605.jpeg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1777731631.jpg",
+    "name": "cajuina 1l",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "164",
+    "stock": 932,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1777731631.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748888347.jpg",
+    "name": "coca cola 250ml",
+    "old_price": null,
+    "option_groups": [],
+    "price": 4,
+    "source_id": "9",
+    "stock": 955,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748888347.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748888563.jpg",
+    "name": "coca cola 2l",
+    "old_price": null,
+    "option_groups": [],
+    "price": 15,
+    "source_id": "6",
+    "stock": 802,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748888563.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1777385861.jpg",
+    "name": "coca cola 600ml",
+    "old_price": null,
+    "option_groups": [],
+    "price": 7,
+    "source_id": "163",
+    "stock": 966,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1777385861.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1781262205.jpg",
+    "name": "coca cola 600ml zero",
+    "old_price": null,
+    "option_groups": [],
+    "price": 8,
+    "source_id": "171",
+    "stock": 988,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1781262205.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748889018.jpg",
+    "name": "coca cola lata",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "3",
+    "stock": 651,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748889018.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1779447484.jpg",
+    "name": "coca cola lata zero",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "165",
+    "stock": 944,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1779447484.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748888309.jpg",
+    "name": "coca cola pet 1l",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "7",
+    "stock": 714,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748888309.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1767186336.jpg",
+    "name": "coca cola zero 1l",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "151",
+    "stock": 912,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1767186336.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1757242052.jpg",
+    "name": "coca cola zero 2l",
+    "old_price": null,
+    "option_groups": [],
+    "price": 15,
+    "source_id": "127",
+    "stock": 947,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1757242052.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748889051.jpg",
+    "name": "fanta laranja lata",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "18",
+    "stock": 920,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748889051.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1749381102.jpeg",
+    "name": "fanta uva lata",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "83",
+    "stock": 950,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1749381102.jpeg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748889176.jpg",
+    "name": "guarana antarctica 1l",
+    "old_price": null,
+    "option_groups": [],
+    "price": 8,
+    "source_id": "22",
+    "stock": 808,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748889176.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748889355.jpg",
+    "name": "pepsi 1l",
+    "old_price": null,
+    "option_groups": [],
+    "price": 8,
+    "source_id": "67",
+    "stock": 887,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748889355.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748960749.jpg",
+    "name": "sÃo geraldo 200ml",
+    "old_price": null,
+    "option_groups": [],
+    "price": 4,
+    "source_id": "45",
+    "stock": 972,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748960749.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748960724.jpg",
+    "name": "sÃo geraldo 2l",
+    "old_price": null,
+    "option_groups": [],
+    "price": 15,
+    "source_id": "46",
+    "stock": 904,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748960724.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748960578.jpg",
+    "name": "sÃo geraldo lata",
+    "old_price": null,
+    "option_groups": [],
+    "price": 6,
+    "source_id": "47",
+    "stock": 968,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748960578.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1766163583.jpg",
+    "name": "sÃo geraldo lata zero",
+    "old_price": null,
+    "option_groups": [],
+    "price": 6,
+    "source_id": "146",
+    "stock": 988,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1766163583.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1765191844.jpg",
+    "name": "skol lata",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "131",
+    "stock": 986,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1765191844.jpg"
+  },
+  {
+    "category": "bebidas",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748960551.jpeg",
+    "name": "sprite lata",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "4",
+    "stock": 973,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748960551.jpeg"
+  },
+  {
+    "category": "sucos",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1765882738.jpg",
+    "name": "suco 1 litro",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 1,
+        "min": 0,
+        "name": "SABOR",
+        "options": [
+          {
+            "name": "GRAVIOLA",
+            "price": 0,
+            "source_option_id": "5387"
+          },
+          {
+            "name": "CAJU",
+            "price": 0,
+            "source_option_id": "5487"
+          },
+          {
+            "name": "ABACAXI",
+            "price": 0,
+            "source_option_id": "5602"
+          },
+          {
+            "name": "ACEROLA",
+            "price": 0,
+            "source_option_id": "5604"
+          },
+          {
+            "name": "GOIABA",
+            "price": 0,
+            "source_option_id": "5606"
+          },
+          {
+            "name": "CAJA",
+            "price": 0,
+            "source_option_id": "5734"
+          },
+          {
+            "name": "MANGA",
+            "price": 0,
+            "source_option_id": "5747"
+          }
+        ],
+        "required": false,
+        "source_group_id": "10",
+        "type": "multiple"
+      }
+    ],
+    "price": 15,
+    "source_id": "141",
+    "stock": 947,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1765882738.jpg"
+  },
+  {
+    "category": "sucos",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748961053.jpeg",
+    "name": "suco 300ml",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 1,
+        "min": 0,
+        "name": "SABOR",
+        "options": [
+          {
+            "name": "GRAVIOLA",
+            "price": 0,
+            "source_option_id": "5387"
+          },
+          {
+            "name": "CAJU",
+            "price": 0,
+            "source_option_id": "5487"
+          },
+          {
+            "name": "ABACAXI",
+            "price": 0,
+            "source_option_id": "5602"
+          },
+          {
+            "name": "ACEROLA",
+            "price": 0,
+            "source_option_id": "5604"
+          },
+          {
+            "name": "GOIABA",
+            "price": 0,
+            "source_option_id": "5606"
+          },
+          {
+            "name": "CAJA",
+            "price": 0,
+            "source_option_id": "5734"
+          },
+          {
+            "name": "MANGA",
+            "price": 0,
+            "source_option_id": "5747"
+          }
+        ],
+        "required": false,
+        "source_group_id": "10",
+        "type": "multiple"
+      }
+    ],
+    "price": 5,
+    "source_id": "16",
+    "stock": 585,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748961053.jpeg"
+  },
+  {
+    "category": "sucos",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1748961069.jpeg",
+    "name": "suco 500ml",
+    "old_price": null,
+    "option_groups": [
+      {
+        "max": 1,
+        "min": 0,
+        "name": "SABOR",
+        "options": [
+          {
+            "name": "GRAVIOLA",
+            "price": 0,
+            "source_option_id": "5387"
+          },
+          {
+            "name": "CAJU",
+            "price": 0,
+            "source_option_id": "5487"
+          },
+          {
+            "name": "ABACAXI",
+            "price": 0,
+            "source_option_id": "5602"
+          },
+          {
+            "name": "ACEROLA",
+            "price": 0,
+            "source_option_id": "5604"
+          },
+          {
+            "name": "GOIABA",
+            "price": 0,
+            "source_option_id": "5606"
+          },
+          {
+            "name": "CAJA",
+            "price": 0,
+            "source_option_id": "5734"
+          },
+          {
+            "name": "MANGA",
+            "price": 0,
+            "source_option_id": "5747"
+          }
+        ],
+        "required": false,
+        "source_group_id": "10",
+        "type": "multiple"
+      }
+    ],
+    "price": 10,
+    "source_id": "48",
+    "stock": 815,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1748961069.jpeg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1753201763.jfif",
+    "name": "picole de chocolate",
+    "old_price": null,
+    "option_groups": [],
+    "price": 4,
+    "source_id": "117",
+    "stock": 988,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1753201763.jfif"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1753201683.jpg",
+    "name": "picole de morango",
+    "old_price": null,
+    "option_groups": [],
+    "price": 4,
+    "source_id": "116",
+    "stock": 992,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1753201683.jpg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1749295907.jpeg",
+    "name": "picole napolitano",
+    "old_price": null,
+    "option_groups": [],
+    "price": 4,
+    "source_id": "76",
+    "stock": 970,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1749295907.jpeg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1753201264.jfif",
+    "name": "picole qmaxx brigadeiro",
+    "old_price": null,
+    "option_groups": [],
+    "price": 8,
+    "source_id": "115",
+    "stock": 987,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1753201264.jfif"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1765881980.jpg",
+    "name": "picole skimo chocolate",
+    "old_price": null,
+    "option_groups": [],
+    "price": 6,
+    "source_id": "137",
+    "stock": 991,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1765881980.jpg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1765882441.jpg",
+    "name": "picole speciale",
+    "old_price": null,
+    "option_groups": [],
+    "price": 7,
+    "source_id": "140",
+    "stock": 996,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1765882441.jpg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1779447304.jpg",
+    "name": "qcopÃo de maracuja 400ml",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "167",
+    "stock": 998,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1779447304.jpg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1779447337.jpg",
+    "name": "qcopÃo leitissimo trufado 400ml",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "169",
+    "stock": 993,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1779447337.jpg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1779447355.jpg",
+    "name": "qcopÃo napolitano 400ml",
+    "old_price": null,
+    "option_groups": [],
+    "price": 10,
+    "source_id": "170",
+    "stock": 998,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1779447355.jpg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1749295980.jpeg",
+    "name": "sorvete mini potinho morango",
+    "old_price": null,
+    "option_groups": [],
+    "price": 5,
+    "source_id": "79",
+    "stock": 947,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1749295980.jpeg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1749295633.jpeg",
+    "name": "sorvete qsundae",
+    "old_price": null,
+    "option_groups": [],
+    "price": 7,
+    "source_id": "77",
+    "stock": 981,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1749295633.jpeg"
+  },
+  {
+    "category": "sorvete",
+    "description": "",
+    "image_url": "https://carnedosol.envoi.com.br/midias/item/1749296085.jpeg",
+    "name": "sorvete speciale bombom branco",
+    "old_price": null,
+    "option_groups": [],
+    "price": 7,
+    "source_id": "80",
+    "stock": 998,
+    "thumb_url": "https://carnedosol.envoi.com.br/midias/thumb.php?zc=2&w=120&h=120&src=item/1749296085.jpeg"
+  }
+]

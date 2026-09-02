@@ -1,0 +1,9 @@
+{
+  "name": "churrascaria-carne-de-sol",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "dev": "npx serve . -l 4173"
+  }
+}
