@@ -215,7 +215,7 @@
   function groupBy(items,keyFn){return items.reduce((groups,item)=>{const key=keyFn(item);(groups[key]??=[]).push(item);return groups;},{});}
   function localImage(value){
     if(!value)return "/assets/favicon.svg";
-    try{const url=new URL(value,location.origin);if(url.hostname==="carnedosol.envoi.com.br"&&url.pathname.includes("/midias/item/"))return "/products/"+url.pathname.split("/").pop();}catch{}
+    try{const url=new URL(value,location.origin);if(url.hostname==="carnedosol.envoi.com.br"&&url.pathname.includes("/midias/"))return "/products/"+url.pathname.split("/").pop();}catch{}
     return value;
   }
 })();
