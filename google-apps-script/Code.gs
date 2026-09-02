@@ -9,6 +9,16 @@ function doGet() {
   return json_({ ok: true, service: 'carne-de-sol-mailer', time: new Date().toISOString() });
 }
 
+function testEmail() {
+  validateProperties_();
+  GmailApp.sendEmail(
+    prop_('DESTINATION_EMAIL'),
+    'Teste de e-mail — Churrascaria Carne de Sol',
+    buildPlain_('test', {}),
+    { htmlBody: buildHtml_('test', {}), name: prop_('SENDER_NAME'), noReply: true }
+  );
+}
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return json_({ ok: false, error: 'busy' });
@@ -66,7 +76,7 @@ function buildHtml_(eventName, p) {
   return '<div style="background:#f5eee7;padding:24px;font-family:Arial,sans-serif;color:#18120f">' +
     '<div style="max-width:560px;margin:auto;background:#fffdfa;border-radius:18px;overflow:hidden">' +
     '<div style="height:8px;background:#ff6b1a"></div><div style="padding:28px">' +
-    '<div style="font-size:34px">🔥</div><h1 style="font-size:24px">' + title + '</h1>' + content +
+    '<img src="' + esc_(prop_('SITE_URL') + '/assets/logo-carne-de-sol.jpg') + '" width="96" height="96" alt="Churrascaria Carne de Sol" style="display:block;width:96px;height:96px;border-radius:20px"><h1 style="font-size:24px">' + title + '</h1>' + content +
     '<p><a href="' + esc_(prop_('SITE_URL') + '/admin.html') + '" style="display:inline-block;background:#ff6b1a;color:white;padding:14px 18px;border-radius:12px;text-decoration:none;font-weight:bold">Abrir painel</a></p>' +
     '</div></div></div>';
 }
