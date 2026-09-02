@@ -15,7 +15,7 @@ function testEmail() {
     prop_('DESTINATION_EMAIL'),
     'Teste de e-mail — Churrascaria Carne de Sol',
     buildPlain_('test', {}),
-    { htmlBody: buildHtml_('test', {}), name: prop_('SENDER_NAME'), noReply: true }
+    { htmlBody: buildHtml_('test', {}), name: prop_('SENDER_NAME') }
   );
 }
 
@@ -40,8 +40,7 @@ function doPost(e) {
     const html = buildHtml_(body.event, payload);
     GmailApp.sendEmail(prop_('DESTINATION_EMAIL'), subject, plain, {
       htmlBody: html,
-      name: prop_('SENDER_NAME'),
-      noReply: true
+      name: prop_('SENDER_NAME')
     });
     return json_({ ok: true });
   } catch (error) {
