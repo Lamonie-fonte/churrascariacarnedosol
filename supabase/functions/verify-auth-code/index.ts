@@ -22,6 +22,7 @@ function response(origin: string | null, body: Record<string, unknown>, status =
 }
 
 Deno.serve(async (req: Request) => {
+  const startedAt = Date.now();
   const origin = req.headers.get("origin");
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors(origin) });
   if (req.method !== "POST" || (origin && !ALLOWED_ORIGINS.has(origin))) return response(origin, { ok: false }, 403);
@@ -45,16 +46,33 @@ Deno.serve(async (req: Request) => {
       p_code: code,
     });
     if (ticketError) throw ticketError;
-    if (!ticket?.token_hash || !ticket?.verification_type) return response(origin, { ok: false }, 400);
+    if (!ticket?.verification_type) {
+      console.warn("auth-code-rejected", { duration_ms: Date.now() - startedAt });
+      return response(origin, { ok: false }, 400);
+    }
+
+    // A resend invalidates Supabase Auth's previously generated token. Create
+    // and immediately exchange a fresh official token only after the branded
+    // six-digit code has been validated. This keeps delayed emails usable.
+    const recovery = ticket.verification_type === "recovery";
+    const { data: freshLink, error: freshLinkError } = await serviceClient.auth.admin.generateLink({
+      type: recovery ? "recovery" : "magiclink",
+      email,
+      options: { redirectTo: SITE_URL },
+    });
+    if (freshLinkError || !freshLink?.properties?.hashed_token) {
+      console.error("fresh-auth-token", { status: freshLinkError?.status, code: freshLinkError?.code });
+      return response(origin, { ok: false }, 503);
+    }
 
     const authClient = createClient(
       supabaseUrl,
       Deno.env.get("SUPABASE_ANON_KEY")!,
       { auth: { autoRefreshToken: false, persistSession: false } },
     );
-    const type = ticket.verification_type === "recovery" ? "recovery" : "email";
+    const type = recovery ? "recovery" : "email";
     const { data, error } = await authClient.auth.verifyOtp({
-      token_hash: ticket.token_hash,
+      token_hash: freshLink.properties.hashed_token,
       type,
     });
     if (error || !data.session) {
@@ -62,6 +80,7 @@ Deno.serve(async (req: Request) => {
       return response(origin, { ok: false }, 400);
     }
 
+    console.log("auth-code-verified", { duration_ms: Date.now() - startedAt, type });
     return response(origin, {
       ok: true,
       access_token: data.session.access_token,

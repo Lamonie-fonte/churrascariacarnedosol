@@ -333,7 +333,7 @@
   async function openAuth() {
     showMessage(els.authMessage, "");
     if (state.session) { await loadAccountData(); $("#authAccessPanel").classList.add("hidden"); $("#accountPanel").classList.remove("hidden"); renderAccount(); }
-    else { $("#accountPanel").classList.add("hidden"); $("#authAccessPanel").classList.remove("hidden"); setAuthMode("login"); $("#authRequestStep").classList.remove("hidden"); $("#authVerifyStep").classList.add("hidden"); $("#passwordStep").classList.add("hidden"); $("#newPassword").value = ""; $("#confirmPassword").value = ""; resetPasswordVisibility(); }
+    else { $("#accountPanel").classList.add("hidden"); $("#authAccessPanel").classList.remove("hidden"); setAuthMode("login"); $("#authRequestStep").classList.remove("hidden"); $("#authVerifyStep").classList.add("hidden"); $("#passwordStep").classList.add("hidden"); $("#authPassword").value = ""; $("#newPassword").value = ""; $("#confirmPassword").value = ""; resetPasswordVisibility(); }
     if (!els.authDialog.open) els.authDialog.showModal();
   }
   function renderAccount() {
@@ -442,13 +442,34 @@
   }
   async function signOut() { await db.auth.signOut(); state.session = null; state.profile = null; state.addresses = []; state.orders = []; els.authDialog.close(); $("#authButton").textContent = "Entrar"; toast("Você saiu da conta."); }
 
-  function setAuthMode(mode) { state.authMode = mode; const signup = mode === "signup"; $(".signup-only").classList.toggle("hidden", !signup); $("#authTitle").textContent = signup ? "Criar cadastro" : mode === "recovery" ? "Recuperar acesso" : "Entrar com código"; $("#authHelp").textContent = mode === "recovery" ? "Enviaremos um código numérico. Depois você poderá criar uma nova senha." : "Digite seu e-mail. Enviaremos um código numérico de acesso."; }
+  function setAuthMode(mode) {
+    state.authMode = mode;
+    const signup = mode === "signup", password = mode === "password";
+    $(".signup-only").classList.toggle("hidden", !signup);
+    $(".password-login-only").classList.toggle("hidden", !password);
+    $("#authPassword").required = password;
+    $("#sendCodeButton").textContent = password ? "Entrar com senha" : "Enviar código";
+    $("#authTitle").textContent = signup ? "Criar cadastro" : mode === "recovery" ? "Recuperar acesso" : password ? "Entrar com e-mail e senha" : "Entrar com código";
+    $("#authHelp").textContent = mode === "recovery" ? "Enviaremos um código numérico. Depois você poderá criar uma nova senha." : password ? "Use o e-mail e a senha cadastrados." : "Digite seu e-mail. Enviaremos um código numérico de acesso.";
+    $$("#authForm [data-auth-mode]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.authMode === mode)));
+    showMessage(els.authMessage, "");
+  }
   async function sendAuthCode(event) {
     event?.preventDefault(); const email = $("#authEmail").value.trim().toLowerCase(); if (!email || !email.includes("@")) return showMessage(els.authMessage, "Digite um e-mail válido.", "error");
-    const button = $("#sendCodeButton"), label = button.textContent; button.disabled = true; button.textContent = "Enviando código…"; showMessage(els.authMessage, "Conectando com segurança…");
+    if (state.authMode === "password") return loginWithPassword(email);
+    const button = event?.currentTarget?.id === "resendCodeButton" ? event.currentTarget : $("#sendCodeButton"), label = button.textContent; button.disabled = true; button.textContent = "Enviando código…"; showMessage(els.authMessage, "Conectando com segurança…");
     const { data, error } = await window.requestAuthCodeReliable({ email, mode: state.authMode, fullName: state.authMode === "signup" ? $("#authName").value.trim() : "" }); button.disabled = false; button.textContent = label;
     if (error || data?.ok !== true) return showMessage(els.authMessage, "Não foi possível conectar ao e-mail. Confira sua internet e tente novamente.", "error");
-    $("#authRequestStep").classList.add("hidden"); $("#authVerifyStep").classList.remove("hidden"); showMessage(els.authMessage, "Se este e-mail estiver cadastrado, enviaremos um código numérico.", "success"); $("#authCode").focus();
+    $("#authRequestStep").classList.add("hidden"); $("#authVerifyStep").classList.remove("hidden"); showMessage(els.authMessage, "Código enviado. Se precisar reenviar, qualquer código correto recebido nos próximos 10 minutos continuará válido.", "success"); $("#authCode").focus();
+  }
+  async function loginWithPassword(email) {
+    const password = $("#authPassword").value, button = $("#sendCodeButton"), label = button.textContent;
+    if (password.length < 8) return showMessage(els.authMessage, "Digite sua senha com pelo menos 8 caracteres.", "error");
+    button.disabled = true; button.textContent = "Entrando…"; showMessage(els.authMessage, "Validando acesso…");
+    const { data, error } = await db.auth.signInWithPassword({ email, password });
+    button.disabled = false; button.textContent = label;
+    if (error || !data?.session) return showMessage(els.authMessage, "E-mail ou senha incorretos. Você também pode entrar com código.", "error");
+    state.session = data.session; $("#authPassword").value = ""; await loadAccountData(); await finishLogin();
   }
   async function verifyAuthCode() {
     const code = $("#authCode").value.replace(/\D/g, ""); if (!/^\d{6}$/.test(code)) return showMessage(els.authMessage, "Digite os 6 números enviados ao seu e-mail.", "error");

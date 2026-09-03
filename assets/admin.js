@@ -13,6 +13,8 @@
     const { data: { session } } = await db.auth.getSession(); if (session) await enterAdmin(session.user); else showGate();
   }
   function bind() {
+    $("#adminPasswordLogin").addEventListener("click", loginWithPassword); $("#adminPasswordToggle").addEventListener("click", toggleAdminPassword);
+    $("#adminPassword").addEventListener("keydown", event => { if (event.key === "Enter") loginWithPassword(); });
     $("#adminSendCode").addEventListener("click", sendCode); $("#adminVerifyCode").addEventListener("click", verifyCode);
     $("#adminCode").addEventListener("input", event => event.target.value = event.target.value.replace(/\D/g, "").slice(0, 6));
     $("#adminSignOut").addEventListener("click", async () => { await db.auth.signOut(); showGate(); });
@@ -34,6 +36,20 @@
     const customer = event.target.closest("[data-customer-action]"); if (customer) customerAction(customer);
   }
   function showGate() { $("#adminGate").classList.remove("hidden"); $("#adminApp").classList.add("hidden"); }
+  async function loginWithPassword() {
+    const email = $("#adminEmail").value.trim().toLowerCase(), password = $("#adminPassword").value, button = $("#adminPasswordLogin");
+    if (!email.includes("@")) return msg($("#adminLoginMessage"), "Digite um e-mail válido.", "error");
+    if (password.length < 8) return msg($("#adminLoginMessage"), "Digite sua senha com pelo menos 8 caracteres.", "error");
+    const label = button.textContent; button.disabled = true; button.textContent = "Entrando…"; msg($("#adminLoginMessage"), "Validando acesso…");
+    const { data, error } = await db.auth.signInWithPassword({ email, password }); button.disabled = false; button.textContent = label;
+    if (error || !data?.user) return msg($("#adminLoginMessage"), "E-mail ou senha incorretos.", "error");
+    $("#adminPassword").value = ""; await enterAdmin(data.user);
+  }
+  function toggleAdminPassword() {
+    const input = $("#adminPassword"), button = $("#adminPasswordToggle"), show = input.type === "password";
+    input.type = show ? "text" : "password"; button.setAttribute("aria-pressed", String(show)); button.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha"); button.title = show ? "Ocultar senha" : "Mostrar senha";
+    button.querySelector("use")?.setAttribute("href", `/assets/icons.svg#icon-${show ? "eye-off" : "eye"}`); input.focus();
+  }
   async function sendCode() {
     const email = $("#adminEmail").value.trim().toLowerCase(), button = $("#adminSendCode"); if (!email.includes("@")) return msg($("#adminLoginMessage"), "Digite um e-mail válido.", "error");
     const label = button.textContent; button.disabled = true; button.textContent = "Enviando código…"; msg($("#adminLoginMessage"), "Conectando com segurança…");
