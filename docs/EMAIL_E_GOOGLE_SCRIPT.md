@@ -31,3 +31,5 @@ Depois de criar as propriedades, execute `testEmail` uma vez, autorize o Gmail e
 ## Integração automática de pedidos
 
 A URL publicada e o `WEBHOOK_SECRET` ficam criptografados no Supabase Vault. A migração `20260903001000_order_email_webhook.sql` instala um gatilho interno que envia cada novo pedido ao Google Apps Script por `pg_net`. O navegador nunca recebe o segredo e uma falha de e-mail não impede a criação do pedido.
+
+O teste de produção deve retornar HTTP 200 e `{\"ok\":true}` no histórico de respostas do `pg_net`. O envio do Supabase Auth também deve retornar HTTP 200 antes da validação visual do código recebido.
