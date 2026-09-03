@@ -202,13 +202,14 @@
   function setAuthMode(mode){state.authMode=mode;const signup=mode==="signup";$(".signup-only").classList.toggle("hidden",!signup);$("#authTitle").textContent=signup?"Criar cadastro":mode==="recovery"?"Recuperar acesso":"Entrar com código";$("#authHelp").textContent=mode==="recovery"?"Enviaremos um código numérico. Depois você poderá criar uma nova senha.":"Digite seu e-mail. Enviaremos um código numérico de acesso.";}
   async function sendAuthCode(event){
     event?.preventDefault();const email=$("#authEmail").value.trim().toLowerCase();if(!email||!email.includes("@")){showMessage(els.authMessage,"Digite um e-mail válido.","error");return;}
-    const button=$("#sendCodeButton");button.disabled=true;const {error}=await db.functions.invoke("request-auth-code",{body:{email,mode:state.authMode,fullName:state.authMode==="signup"?$("#authName").value.trim():""}});button.disabled=false;
+    const button=$("#sendCodeButton");button.disabled=true;const {data,error}=await db.functions.invoke("request-auth-code",{body:{email,mode:state.authMode,fullName:state.authMode==="signup"?$("#authName").value.trim():""}});button.disabled=false;
     if(error){showMessage(els.authMessage,"O serviço de e-mail está temporariamente indisponível. Tente novamente.","error");return;}
+    state.otpType=data?.verificationType||null;
     $("#authRequestStep").classList.add("hidden");$("#authVerifyStep").classList.remove("hidden");showMessage(els.authMessage,"Se este e-mail estiver cadastrado, enviaremos um código numérico.","success");$("#authCode").focus();
   }
   async function verifyAuthCode(){
     const token=$("#authCode").value.replace(/\D/g,"");if(token.length<6||token.length>8){showMessage(els.authMessage,"Digite o código numérico enviado ao seu e-mail.","error");return;}
-    const type=state.authMode==="signup"?"signup":state.authMode==="recovery"?"recovery":"email";
+    const type=state.otpType||(state.authMode==="recovery"?"recovery":"email");
     const button=$("#verifyCodeButton");button.disabled=true;const {error}=await db.auth.verifyOtp({email:$("#authEmail").value.trim().toLowerCase(),token,type});button.disabled=false;
     if(error){showMessage(els.authMessage,"Código inválido ou expirado. Solicite um novo código.","error");return;}
     if(state.authMode==="signup"||state.authMode==="recovery"){$("#authVerifyStep").classList.add("hidden");$("#passwordStep").classList.remove("hidden");showMessage(els.authMessage,"Código confirmado. Crie uma senha com pelo menos 8 caracteres.","success");}

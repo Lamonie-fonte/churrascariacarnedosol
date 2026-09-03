@@ -15,7 +15,7 @@ Configuração esperada em Authentication:
 
 Os arquivos de `supabase/email-templates` versionam os modelos usados em **Authentication > Email Templates**. O modelo de Magic Link contém `{{ .Token }}`, portanto o Supabase Auth envia um OTP numérico em vez de um link.
 
-A Edge Function `request-auth-code` usa `admin.generateLink` apenas para criar o token oficial sem disparar o modelo padrão do Supabase. No cadastro, ela fornece uma senha técnica aleatória exigida pela API; no acesso e na recuperação, usa os tipos correspondentes. Em seguida, substitui o token pendente por um código de seis dígitos e envia o HTML da churrascaria pelo SMTP protegido no Vault. Assim nenhum e-mail contém link para `localhost`. A função mantém lista de origem permitida, resposta neutra contra enumeração e limites persistentes por e-mail e por hora.
+A Edge Function `request-auth-code` usa `admin.generateLink` apenas para criar o token oficial sem disparar o modelo padrão do Supabase. No cadastro, ela fornece uma senha técnica aleatória exigida pela API; se uma tentativa anterior deixou a conta incompleta, gera um novo token de acesso para o mesmo e-mail. No acesso e na recuperação, usa os tipos correspondentes. Em seguida, substitui o token pendente por um código de seis dígitos e envia o HTML da churrascaria pelo SMTP protegido no Vault. Assim nenhum e-mail contém link para `localhost`. A função mantém lista de origem permitida, resposta neutra contra enumeração e limites persistentes por e-mail e por hora.
 
 ## Google Apps Script
 

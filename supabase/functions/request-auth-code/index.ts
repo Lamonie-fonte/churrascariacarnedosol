@@ -68,7 +68,21 @@ Deno.serve(async (req: Request) => {
       : mode === "recovery"
         ? { type: "recovery" as const, email, options: { redirectTo: SITE_URL } }
         : { type: "magiclink" as const, email, options: { redirectTo: SITE_URL } };
-    const { data: link, error: linkError } = await serviceClient.auth.admin.generateLink(linkRequest);
+    let { data: link, error: linkError } = await serviceClient.auth.admin.generateLink(linkRequest);
+    let verificationType = mode === "signup" ? "signup" : mode === "recovery" ? "recovery" : "email";
+    if (mode === "signup" && (linkError || !link?.properties?.email_otp)) {
+      // A previous failed signup can leave the address registered but not
+      // confirmed. In that case, issue a magic-link token and send its OTP
+      // instead of making the customer delete the half-created account.
+      const fallback = await serviceClient.auth.admin.generateLink({
+        type: "magiclink",
+        email,
+        options: { redirectTo: SITE_URL },
+      });
+      link = fallback.data;
+      linkError = fallback.error;
+      verificationType = "email";
+    }
     if (linkError || !link?.properties?.email_otp) {
       console.error("auth-link-generation", { mode, status: linkError?.status, code: linkError?.code });
       return response(origin, { ok: true });
@@ -98,7 +112,7 @@ Deno.serve(async (req: Request) => {
       html: emailHtml(code, mode),
     });
 
-    return response(origin, { ok: true });
+    return response(origin, { ok: true, verificationType });
   } catch (error) {
     console.error("request-auth-code-unexpected", error);
     return response(origin, { ok: false }, 503);

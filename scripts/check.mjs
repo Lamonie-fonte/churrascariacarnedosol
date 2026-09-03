@@ -29,7 +29,8 @@ if (!app.includes("requestAnimationFrame") || !app.includes("scrollTop=0")) thro
 if (!authFunction.includes("auth.admin.generateLink") || !authFunction.includes("password: generatedPassword")) throw new Error("O cadastro não gera o OTP oficial com uma senha técnica válida.");
 if (!authFunction.includes('from "npm:nodemailer') || !authFunction.includes('rpc("override_auth_otp"')) throw new Error("O envio personalizado de seis dígitos não está ativo.");
 if (authFunction.includes("auth.signInWithOtp")) throw new Error("O envio ainda pode usar o template padrão com link.");
-if (!app.includes('state.authMode==="signup"?"signup":state.authMode==="recovery"?"recovery":"email"')) throw new Error("A validação não diferencia cadastro, recuperação e login.");
+if (!authFunction.includes('verificationType = "email"') || !authFunction.includes('type: "magiclink"')) throw new Error("O cadastro incompleto não recebe um novo OTP.");
+if (!app.includes("state.otpType=data?.verificationType||null") || !app.includes('state.otpType||(state.authMode==="recovery"?"recovery":"email")')) throw new Error("A validação não usa o tipo de OTP retornado pelo servidor.");
 if (!app.includes("token.length<6||token.length>8") || !admin.includes("/^\\d{6,8}$/")) throw new Error("As telas não aceitam o OTP numérico oficial.");
 if (!storeHtml.includes('pattern="[0-9]{6,8}" maxlength="8"') || !adminHtml.includes('maxlength="8" pattern="[0-9]{6,8}"')) throw new Error("Os campos de OTP não aceitam códigos de 6 a 8 dígitos.");
 console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções e modal móvel rolável.`);
