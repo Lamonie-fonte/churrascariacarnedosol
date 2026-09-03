@@ -3,6 +3,7 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const state = { settings:null, categories:[], products:[], cart:loadCart(), selected:null, quantity:1, query:"", promoOnly:false, activeCategory:null, authMode:"login", backend:true };
   const els = {};
+  let cepRequest = null;
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -28,6 +29,8 @@
     $("#addToCart").addEventListener("click", addSelectedToCart);
     $("#checkoutButton").addEventListener("click", openCheckout);
     $("#checkoutForm").addEventListener("submit", placeOrder);
+    $("#checkoutCep").addEventListener("input", handleCepInput);
+    $("#checkoutCep").addEventListener("blur", e => lookupCep(e.target.value));
     $$("[data-close]").forEach(b => b.addEventListener("click", () => b.dataset.close==="auth" ? els.authDialog.close() : els.checkoutDialog.close()));
     $("#checkoutForm").addEventListener("change", e => {
       if(e.target.name==="order_type") $(".address-fields").classList.toggle("hidden",e.target.value==="pickup");
@@ -38,6 +41,7 @@
     $("#verifyCodeButton").addEventListener("click", verifyAuthCode);
     $("#resendCodeButton").addEventListener("click", sendAuthCode);
     $("#savePasswordButton").addEventListener("click", savePassword);
+    $$('[data-password-toggle]').forEach(button => button.addEventListener("click", () => togglePassword(button)));
     $$("#authForm [data-auth-mode]").forEach(b => b.addEventListener("click", () => setAuthMode(b.dataset.authMode)));
     $("#authCode").addEventListener("input", e => e.target.value=e.target.value.replace(/\D/g,"").slice(0,6));
     document.addEventListener("click", e => {
@@ -172,15 +176,44 @@
     if(!state.cart.length)return;els.cartDialog.close();const {data:{session}}=await db.auth.getSession();if(session){$("#checkoutForm [name=email]").value=session.user.email||"";}
     $(".address-fields").classList.remove("hidden");renderCart();els.checkoutDialog.showModal();
   }
+  function cepDigits(value){return String(value||"").replace(/\D/g,"").slice(0,8);}
+  function formatCep(value){const digits=cepDigits(value);return digits.length>5?`${digits.slice(0,5)}-${digits.slice(5)}`:digits;}
+  function setCepStatus(text,type=""){const status=$("#cepStatus");status.textContent=text;status.className=`field-status ${type}`;}
+  function clearAddressLookup(){
+    const form=$("#checkoutForm");["street","number","neighborhood","city","state"].forEach(name => form.elements[name].value="");
+  }
+  function handleCepInput(event){
+    const input=event.target,previous=input.dataset.lastCep||"",digits=cepDigits(input.value);input.value=formatCep(digits);
+    if(previous&&digits!==previous){delete input.dataset.lastCep;clearAddressLookup();}
+    if(digits.length===8)lookupCep(digits);
+    else{cepRequest?.abort();setCepStatus("Digite os 8 números do CEP.");}
+  }
+  async function lookupCep(value){
+    const cep=cepDigits(value),input=$("#checkoutCep");if(cep.length!==8||input.dataset.lastCep===cep)return;
+    cepRequest?.abort();cepRequest=new AbortController();setCepStatus("Buscando endereço…","loading");
+    try{
+      const response=await fetch(`https://viacep.com.br/ws/${cep}/json/`,{signal:cepRequest.signal});
+      if(!response.ok)throw new Error("CEP indisponível");const address=await response.json();if(address.erro)throw new Error("CEP não encontrado");
+      const form=$("#checkoutForm");input.value=formatCep(address.cep||cep);input.dataset.lastCep=cep;
+      form.elements.street.value=address.logradouro||"";form.elements.neighborhood.value=address.bairro||"";form.elements.city.value=address.localidade||"";form.elements.state.value=address.uf||"";
+      const missing=!address.logradouro?"street":!address.bairro?"neighborhood":!address.localidade?"city":"number";
+      setCepStatus(missing==="number"?"Endereço encontrado. Agora digite o número.":"CEP encontrado. Complete os campos que faltam.","success");form.elements[missing].focus();
+    }catch(error){
+      if(error.name==="AbortError")return;delete input.dataset.lastCep;setCepStatus("CEP não encontrado. Preencha o endereço manualmente.","error");$("#checkoutForm").elements.street.focus();
+    }
+  }
   async function placeOrder(event){
     event.preventDefault();const form=event.currentTarget,button=$("#placeOrder"),message=$("#checkoutMessage");const data=Object.fromEntries(new FormData(form));
-    if(data.order_type==="delivery"&&(!data.street||!data.number||!data.neighborhood)){showMessage(message,"Preencha endereço, número e bairro.","error");return;}
-    const payload={customer_name:data.customer_name,email:data.email,phone:data.phone,order_type:data.order_type,payment_method:data.payment_method,change_for:data.payment_method==="cash"?data.change_for:null,notes:data.notes,address:data.order_type==="delivery"?{street:data.street,number:data.number,complement:data.complement,neighborhood:data.neighborhood,reference:data.reference}:null,items:state.cart.map(i=>({product_id:i.product_id,quantity:i.quantity,option_ids:i.option_ids,notes:i.notes}))};
+    if(data.order_type==="delivery"&&cepDigits(data.postal_code).length!==8){showMessage(message,"Digite um CEP válido com 8 números.","error");return;}
+    if(data.order_type==="delivery"&&(!data.street||!data.number||!data.neighborhood||!data.city||!data.state)){showMessage(message,"Complete endereço, número, bairro, cidade e estado.","error");return;}
+    const payload={customer_name:data.customer_name,email:data.email,phone:data.phone,order_type:data.order_type,payment_method:data.payment_method,change_for:data.payment_method==="cash"?data.change_for:null,notes:data.notes,address:data.order_type==="delivery"?{postal_code:formatCep(data.postal_code),street:data.street,number:data.number,complement:data.complement,neighborhood:data.neighborhood,city:data.city,state:data.state.toUpperCase(),reference:data.reference}:null,items:state.cart.map(i=>({product_id:i.product_id,quantity:i.quantity,option_ids:i.option_ids,notes:i.notes}))};
     button.disabled=true;button.textContent="Enviando…";const {data:order,error}=await db.rpc("create_order",{payload});
     button.disabled=false;button.textContent="Enviar pedido";
     if(error){showMessage(message,friendlyOrderError(error.message),"error");return;}
-    const summary=state.cart.map(i=>`${i.quantity}x ${i.name}`).join("\n");state.cart=[];saveCart();renderCart();form.reset();els.checkoutDialog.close();
-    const text=encodeURIComponent(`Olá! Pedido #${order.order_number}\n${summary}\nTotal: ${money(order.total)}`);
+    const summary=state.cart.map(i=>`${i.quantity}x ${i.name}`).join("\n");
+    const destination=payload.address?`\nEntrega: ${payload.address.street}, ${payload.address.number}${payload.address.complement?` - ${payload.address.complement}`:""} - ${payload.address.neighborhood}, ${payload.address.city}/${payload.address.state} - CEP ${payload.address.postal_code}`:"\nRetirada na loja";
+    state.cart=[];saveCart();renderCart();form.reset();delete $("#checkoutCep").dataset.lastCep;setCepStatus("Digite o CEP para preencher o endereço.");els.checkoutDialog.close();
+    const text=encodeURIComponent(`Olá! Pedido #${order.order_number}\n${summary}${destination}\nTotal: ${money(order.total)}`);
     toast(`Pedido #${order.order_number} criado com sucesso!`,6000);window.open(`https://wa.me/${state.settings.whatsapp}?text=${text}`,"_blank","noopener");
   }
   function friendlyOrderError(msg){if(/mínimo/i.test(msg))return msg;if(/indisponível|manutenção/i.test(msg))return msg;return "Não foi possível concluir. Revise os dados e tente novamente.";}
@@ -198,7 +231,7 @@
   }
 
   async function refreshSession(){const {data:{session}}=await db.auth.getSession();$("#authButton").textContent=session?"Minha conta":"Entrar";}
-  function openAuth(){setAuthMode("login");$("#authRequestStep").classList.remove("hidden");$("#authVerifyStep").classList.add("hidden");$("#passwordStep").classList.add("hidden");showMessage(els.authMessage,"");els.authDialog.showModal();}
+  function openAuth(){setAuthMode("login");$("#authRequestStep").classList.remove("hidden");$("#authVerifyStep").classList.add("hidden");$("#passwordStep").classList.add("hidden");$("#newPassword").value="";$("#confirmPassword").value="";resetPasswordVisibility();showMessage(els.authMessage,"");els.authDialog.showModal();}
   function setAuthMode(mode){state.authMode=mode;const signup=mode==="signup";$(".signup-only").classList.toggle("hidden",!signup);$("#authTitle").textContent=signup?"Criar cadastro":mode==="recovery"?"Recuperar acesso":"Entrar com código";$("#authHelp").textContent=mode==="recovery"?"Enviaremos um código numérico. Depois você poderá criar uma nova senha.":"Digite seu e-mail. Enviaremos um código numérico de acesso.";}
   async function sendAuthCode(event){
     event?.preventDefault();const email=$("#authEmail").value.trim().toLowerCase();if(!email||!email.includes("@")){showMessage(els.authMessage,"Digite um e-mail válido.","error");return;}
@@ -217,7 +250,9 @@
     if(state.authMode==="signup"||state.authMode==="recovery"){$("#authVerifyStep").classList.add("hidden");$("#passwordStep").classList.remove("hidden");showMessage(els.authMessage,"Código confirmado. Crie uma senha com pelo menos 8 caracteres.","success");}
     else{showMessage(els.authMessage,"Acesso confirmado.","success");setTimeout(()=>els.authDialog.close(),700);refreshSession();}
   }
-  async function savePassword(){const password=$("#newPassword").value;if(password.length<8){showMessage(els.authMessage,"Use pelo menos 8 caracteres.","error");return;}const {error}=await db.auth.updateUser({password});if(error){showMessage(els.authMessage,"Não foi possível salvar a senha. Tente novamente.","error");return;}showMessage(els.authMessage,"Senha salva com sucesso.","success");setTimeout(()=>els.authDialog.close(),800);refreshSession();}
+  function togglePassword(button){const input=$(`#${button.dataset.passwordToggle}`),show=input.type==="password";input.type=show?"text":"password";button.setAttribute("aria-pressed",String(show));button.setAttribute("aria-label",show?"Ocultar senha":"Mostrar senha");button.title=show?"Ocultar senha":"Mostrar senha";input.focus();}
+  function resetPasswordVisibility(){$$("[data-password-toggle]").forEach(button=>{const input=$(`#${button.dataset.passwordToggle}`);input.type="password";button.setAttribute("aria-pressed","false");button.setAttribute("aria-label","Mostrar senha");button.title="Mostrar senha";});}
+  async function savePassword(){const password=$("#newPassword").value,confirmation=$("#confirmPassword").value;if(password.length<8){showMessage(els.authMessage,"Use pelo menos 8 caracteres.","error");return;}if(password!==confirmation){showMessage(els.authMessage,"As senhas não são iguais. Confira e tente novamente.","error");return;}const button=$("#savePasswordButton");button.disabled=true;const {error}=await db.auth.updateUser({password});button.disabled=false;if(error){showMessage(els.authMessage,"Não foi possível salvar a senha. Tente novamente.","error");return;}showMessage(els.authMessage,"Senha salva com sucesso.","success");setTimeout(()=>els.authDialog.close(),800);refreshSession();}
   function showMessage(el,text,type=""){el.textContent=text;el.className=`form-message ${type}`;}
   function toast(text,duration=3300){const el=document.createElement("div");el.className="toast";el.textContent=text;$("#toastRegion").append(el);setTimeout(()=>el.remove(),duration);}
   function groupBy(items,keyFn){return items.reduce((groups,item)=>{const key=keyFn(item);(groups[key]??=[]).push(item);return groups;},{});}

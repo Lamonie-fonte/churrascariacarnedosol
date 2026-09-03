@@ -125,11 +125,14 @@
         <label><input type="radio" name="order_type" value="pickup"><span>🏪 Retirada</span></label>
       </fieldset>
       <div class="form-grid address-fields">
+        <label class="field wide"><span>CEP *</span><input id="checkoutCep" name="postal_code" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000"><small class="field-status" id="cepStatus" aria-live="polite">Digite o CEP para preencher o endereço.</small></label>
         <label class="field wide"><span>Endereço *</span><input name="street" autocomplete="street-address"></label>
         <label class="field"><span>Número *</span><input name="number"></label>
         <label class="field"><span>Complemento</span><input name="complement"></label>
         <label class="field"><span>Bairro *</span><input name="neighborhood"></label>
-        <label class="field"><span>Referência</span><input name="reference"></label>
+        <label class="field"><span>Cidade *</span><input name="city" autocomplete="address-level2"></label>
+        <label class="field"><span>Estado *</span><input name="state" maxlength="2" autocomplete="address-level1"></label>
+        <label class="field wide"><span>Referência</span><input name="reference"></label>
       </div>
       <fieldset class="choice-cards"><legend>Pagamento</legend>
         <label><input type="radio" name="payment_method" value="pix" checked><span>Pix</span></label>
@@ -165,7 +168,8 @@
         <button class="button button-ghost button-block" id="resendCodeButton" type="button">Reenviar código</button>
       </div>
       <div id="passwordStep" class="hidden">
-        <label class="field"><span>Crie sua senha</span><input id="newPassword" type="password" minlength="8" autocomplete="new-password"></label>
+        <label class="field"><span>Crie sua senha</span><span class="password-control"><input id="newPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="newPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></span></label>
+        <label class="field"><span>Repita sua senha</span><span class="password-control"><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="confirmPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></span></label>
         <button class="button button-primary button-large button-block" id="savePasswordButton" type="button">Salvar nova senha</button>
       </div>
       <p class="form-message" id="authMessage" aria-live="polite"></p>

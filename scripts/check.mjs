@@ -37,7 +37,11 @@ if (!app.includes('db.functions.invoke("verify-auth-code"') || !admin.includes('
 if (!app.includes("db.auth.setSession") || !admin.includes("db.auth.setSession")) throw new Error("A sessão oficial não é persistida após validar o código.");
 if (!app.includes("/^\\d{6}$/") || !admin.includes("/^\\d{6}$/")) throw new Error("As telas não exigem exatamente seis dígitos.");
 if (!storeHtml.includes('pattern="[0-9]{6}" minlength="6" maxlength="6"') || !adminHtml.includes('minlength="6" maxlength="6" pattern="[0-9]{6}"')) throw new Error("Os campos de OTP não estão limitados a seis dígitos.");
+if (!storeHtml.includes('id="checkoutCep"') || !app.includes("https://viacep.com.br/ws/")) throw new Error("A busca automática de endereço pelo CEP não está ativa.");
+if (!app.includes("postal_code:formatCep") || !app.includes("city:data.city") || !app.includes("state:data.state.toUpperCase()") || !admin.includes("a.postal_code")) throw new Error("O endereço completo não está sendo enviado e exibido no pedido.");
+if ((storeHtml.match(/data-password-toggle=/g)||[]).length !== 2 || !storeHtml.includes('id="confirmPassword"')) throw new Error("Os campos de senha não têm confirmação e botão de visualização.");
+if (!app.includes("password!==confirmation") || !app.includes('input.type=show?"text":"password"')) throw new Error("A confirmação ou visualização de senha não está funcionando.");
 if (!keepAliveWorkflow.includes('cron: "17 9 * * *"') || !keepAliveWorkflow.includes("workflow_dispatch:")) throw new Error("O robô diário do Supabase não está agendado corretamente.");
 if (!keepAliveWorkflow.includes("/rest/v1/store_settings") || !keepAliveWorkflow.includes("--retry 3")) throw new Error("O robô diário não valida o banco com repetição segura.");
 if (/service[_-]?role/i.test(keepAliveWorkflow)) throw new Error("O robô diário não pode usar a chave administrativa.");
-console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções, modal móvel rolável e robô diário do Supabase.`);
+console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções, CEP automático, senha conferida e robô diário do Supabase.`);
