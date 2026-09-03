@@ -26,7 +26,7 @@
   function showGate(){$("#adminGate").classList.remove("hidden");$("#adminApp").classList.add("hidden");}
   async function sendCode(){
     const email=$("#adminEmail").value.trim().toLowerCase(),button=$("#adminSendCode");if(!email.includes("@"))return msg($("#adminLoginMessage"),"Digite um e-mail válido.","error");
-    button.disabled=true;await db.auth.signInWithOtp({email,options:{shouldCreateUser:true,data:{full_name:"Administrador"}}});button.disabled=false;
+    button.disabled=true;await db.auth.signInWithOtp({email,options:{shouldCreateUser:true,emailRedirectTo:location.origin+"/admin",data:{full_name:"Administrador"}}});button.disabled=false;
     $("#adminCodeArea").classList.remove("hidden");msg($("#adminLoginMessage"),"Se este e-mail estiver autorizado, enviaremos um código de 6 dígitos.","success");
   }
   async function verifyCode(){
