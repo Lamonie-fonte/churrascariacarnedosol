@@ -20,7 +20,7 @@ Cardápio digital responsivo, painel administrativo e pedidos com preços recalc
 
 ## E-mail e autenticação
 
-No Supabase, configure SMTP do Gmail com o e-mail comercial e uma senha de app armazenada apenas no painel de segredos. Em **Authentication > Email Templates**, use os HTMLs deste repositório. O cliente aceita exatamente seis dígitos e não usa link mágico.
+No Supabase, configure SMTP do Gmail com o e-mail comercial e uma senha de app armazenada apenas no painel de segredos. Em **Authentication > Email Templates**, use os HTMLs deste repositório. O cliente aceita o OTP numérico oficial e não usa link mágico.
 
 O Google Apps Script usa `GmailApp` e não precisa da senha de app. Propriedades obrigatórias do script:
 

@@ -1,11 +1,11 @@
-# E-mail, OTP de 6 dígitos e Google Apps Script
+# E-mail, OTP numérico e Google Apps Script
 
 ## Supabase Auth
 
 Configuração esperada em Authentication:
 
 - Site URL: `https://churrascariacarnedosol.vercel.app`
-- OTP: exatamente 6 dígitos
+- OTP: código numérico oficial do Supabase (a interface aceita de 6 a 8 dígitos)
 - SMTP host: `smtp.gmail.com`
 - SMTP port: `465`
 - SMTP user: e-mail comercial da churrascaria
@@ -13,7 +13,7 @@ Configuração esperada em Authentication:
 - Sender name: `CHURRASCARIA CARNE DE SOL`
 - Sender email: e-mail comercial da churrascaria
 
-Os arquivos de `supabase/email-templates` versionam os modelos usados em **Authentication > Email Templates**. O modelo de Magic Link contém `{{ .Token }}`, portanto o Supabase Auth envia um OTP numérico de seis dígitos em vez de um link.
+Os arquivos de `supabase/email-templates` versionam os modelos usados em **Authentication > Email Templates**. O modelo de Magic Link contém `{{ .Token }}`, portanto o Supabase Auth envia um OTP numérico em vez de um link.
 
 A Edge Function `request-auth-code` chama `signInWithOtp` e o próprio Supabase Auth entrega o e-mail usando diretamente a configuração de **Authentication > SMTP Settings**. Não existe uma segunda senha SMTP na função e nenhuma tabela interna de autenticação é alterada. A função mantém lista de origem permitida, resposta neutra contra enumeração e limites persistentes por e-mail e por hora.
 

@@ -10,10 +10,10 @@
 <body class="admin-body">
   <div class="admin-login" id="adminGate">
     <div class="admin-login-card"><span class="brand-mark"><img src="/assets/logo-carne-de-sol.jpg" alt=""></span><span class="eyebrow">ÁREA RESTRITA</span><h1>Painel administrativo</h1>
-      <p>Entre com o e-mail administrador e o código de 6 dígitos.</p>
+      <p>Entre com o e-mail administrador e o código numérico enviado.</p>
       <label class="field"><span>E-mail</span><input id="adminEmail" type="email" value="churrascariacarnedosolgold@gmail.com"></label>
       <button class="button button-primary button-large button-block" id="adminSendCode">Enviar código</button>
-      <div id="adminCodeArea" class="hidden"><label class="field"><span>Código de 6 dígitos</span><input id="adminCode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code"></label>
+      <div id="adminCodeArea" class="hidden"><label class="field"><span>Código numérico</span><input id="adminCode" inputmode="numeric" maxlength="8" pattern="[0-9]{6,8}" autocomplete="one-time-code"></label>
         <button class="button button-primary button-large button-block" id="adminVerifyCode">Confirmar código</button></div>
       <p class="form-message" id="adminLoginMessage"></p><a href="/">← Voltar para a loja</a>
     </div>
@@ -47,7 +47,7 @@
       <section class="admin-view" id="view-orders"><div class="panel-heading"><div><h2>Pedidos</h2><p>Status atualizado pelo painel.</p></div><button class="button button-ghost" id="refreshOrders">Atualizar</button></div><div class="admin-toolbar"><select id="orderStatusFilter"><option value="">Todos</option><option value="pending">Pendente</option><option value="confirmed">Confirmado</option><option value="preparing">Preparando</option><option value="ready">Pronto</option><option value="out_for_delivery">Saiu para entrega</option><option value="completed">Concluído</option><option value="cancelled">Cancelado</option></select></div><div id="adminOrders"></div></section>
       <section class="admin-view" id="view-store"><div class="panel-heading"><div><h2>Loja, horário e entrega</h2><p>Tudo salvo em tempo real.</p></div></div><form class="settings-form" id="storeForm"></form></section>
       <section class="admin-view" id="view-appearance"><div class="panel-heading"><div><h2>Aparência brasa</h2><p>Textos do destaque, logotipo e cores.</p></div></div><form class="settings-form" id="appearanceForm"></form></section>
-      <section class="admin-view" id="view-auth"><div class="panel-heading"><div><h2>E-mail e acesso</h2><p>Diagnóstico preventivo do fluxo de 6 dígitos.</p></div></div><div class="auth-checklist" id="authChecklist"></div></section>
+      <section class="admin-view" id="view-auth"><div class="panel-heading"><div><h2>E-mail e acesso</h2><p>Diagnóstico preventivo do fluxo de código numérico.</p></div></div><div class="auth-checklist" id="authChecklist"></div></section>
     </main>
   </div>
   <dialog class="form-dialog" id="adminEditor"><form class="dialog-frame admin-editor-form" id="editorForm"><button class="icon-button dialog-close" type="button" id="closeEditor">×</button><span class="eyebrow" id="editorEyebrow">EDITAR</span><h2 id="editorTitle"></h2><div id="editorFields"></div><p class="form-message" id="editorMessage"></p><button class="button button-primary button-large button-block" type="submit">Salvar alterações</button></form></dialog>

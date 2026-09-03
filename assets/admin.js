@@ -12,7 +12,7 @@
   }
   function bind(){
     $("#adminSendCode").addEventListener("click",sendCode);$("#adminVerifyCode").addEventListener("click",verifyCode);
-    $("#adminCode").addEventListener("input",e=>e.target.value=e.target.value.replace(/\D/g,"").slice(0,6));
+    $("#adminCode").addEventListener("input",e=>e.target.value=e.target.value.replace(/\D/g,"").slice(0,8));
     $("#adminSignOut").addEventListener("click",async()=>{await db.auth.signOut();showGate();});
     $("#adminNav").addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)showView(b.dataset.view);});
     document.addEventListener("click",e=>{const go=e.target.closest("[data-go]");if(go)showView(go.dataset.go);});
@@ -28,10 +28,10 @@
     const email=$("#adminEmail").value.trim().toLowerCase(),button=$("#adminSendCode");if(!email.includes("@"))return msg($("#adminLoginMessage"),"Digite um e-mail válido.","error");
     button.disabled=true;const {error}=await db.functions.invoke("request-auth-code",{body:{email,mode:"login"}});button.disabled=false;
     if(error)return msg($("#adminLoginMessage"),"O serviço de e-mail está temporariamente indisponível. Tente novamente.","error");
-    $("#adminCodeArea").classList.remove("hidden");msg($("#adminLoginMessage"),"Se este e-mail estiver autorizado, enviaremos um código de 6 dígitos.","success");
+    $("#adminCodeArea").classList.remove("hidden");msg($("#adminLoginMessage"),"Se este e-mail estiver autorizado, enviaremos um código numérico.","success");
   }
   async function verifyCode(){
-    const token=$("#adminCode").value;if(!/^\d{6}$/.test(token))return msg($("#adminLoginMessage"),"Digite exatamente 6 números.","error");
+    const token=$("#adminCode").value;if(!/^\d{6,8}$/.test(token))return msg($("#adminLoginMessage"),"Digite o código numérico enviado ao e-mail.","error");
     const {data,error}=await db.auth.verifyOtp({email:$("#adminEmail").value.trim().toLowerCase(),token,type:"email"});
     if(error)return msg($("#adminLoginMessage"),"Código inválido ou expirado.","error");await enterAdmin(data.user);
   }
@@ -125,7 +125,7 @@
   async function saveSettings(e,type){e.preventDefault();const fd=new FormData(e.currentTarget),payload=type==="store"?{name:fd.get("name"),support_email:fd.get("support_email"),whatsapp:fd.get("whatsapp").replace(/\D/g,""),address:fd.get("address"),city:fd.get("city"),state:fd.get("state"),zip_code:fd.get("zip_code"),manual_status:fd.get("manual_status"),minimum_order:numOrNull(fd.get("minimum_order"))||0,delivery_fee:numOrNull(fd.get("delivery_fee"))||0,delivery_enabled:fd.has("delivery_enabled"),pickup_enabled:fd.has("pickup_enabled"),maintenance_mode:fd.has("maintenance_mode")}:{banner_title:fd.get("banner_title"),banner_text:fd.get("banner_text"),logo_url:fd.get("logo_url")||null,theme:{...state.settings.theme,ember:fd.get("ember"),coal:fd.get("coal")}};const {data,error}=await db.from("store_settings").update(payload).eq("id",true).select().single();if(error)return toast("Não foi possível salvar.");state.settings=data;toast("Configuração salva.");}
   function renderAuthChecklist(){
     $("#authChecklist").innerHTML=[
-      ["ok","Interface de 6 dígitos","Entradas limitadas a exatamente seis números em cadastro, login, recuperação e painel."],
+      ["ok","Código numérico compatível","Cadastro, login, recuperação e painel aceitam o OTP oficial configurado no Supabase."],
       ["ok","Sem redirecionamento localhost","O aplicativo usa fluxo OTP digitado; não depende de clique em link para autenticar."],
       ["ok","Antienumeração","A resposta não revela se um e-mail existe ou não existe."],
       ["ok","Conta administrativa","Apenas churrascariacarnedosolgold@gmail.com recebe papel de administrador."],

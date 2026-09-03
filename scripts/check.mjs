@@ -4,6 +4,9 @@ const root = new URL("../", import.meta.url);
 const catalog = JSON.parse(await readFile(new URL("data/catalog.json", root), "utf8"));
 const styles = await readFile(new URL("assets/styles.css", root), "utf8");
 const app = await readFile(new URL("assets/app.js", root), "utf8");
+const admin = await readFile(new URL("assets/admin.js", root), "utf8");
+const storeHtml = await readFile(new URL("index.html", root), "utf8");
+const adminHtml = await readFile(new URL("admin.html", root), "utf8");
 const authFunction = await readFile(new URL("supabase/functions/request-auth-code/index.ts", root), "utf8");
 const productFiles = await readdir(new URL("products/", root));
 const expected = new Set(catalog.map(item => item.image_url.split("/").pop()));
@@ -25,4 +28,6 @@ if (!styles.includes(".quantity-row{position:sticky;bottom:0")) throw new Error(
 if (!app.includes("requestAnimationFrame") || !app.includes("scrollTop=0")) throw new Error("O modal não volta ao início ao abrir outro produto.");
 if (!authFunction.includes("auth.signInWithOtp")) throw new Error("O envio de código não usa o OTP oficial do Supabase.");
 if (authFunction.includes('from "npm:nodemailer') || authFunction.includes('rpc("override_auth_otp"')) throw new Error("O envio de código ainda depende da ponte SMTP antiga.");
+if (!app.includes("token.length<6||token.length>8") || !admin.includes("/^\\d{6,8}$/")) throw new Error("As telas não aceitam o OTP numérico oficial.");
+if (!storeHtml.includes('pattern="[0-9]{6,8}" maxlength="8"') || !adminHtml.includes('maxlength="8" pattern="[0-9]{6,8}"')) throw new Error("Os campos de OTP não aceitam códigos de 6 a 8 dígitos.");
 console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções e modal móvel rolável.`);
