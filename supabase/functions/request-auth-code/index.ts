@@ -57,7 +57,9 @@ Deno.serve(async (req: Request) => {
 
     // generateLink creates the official Auth token without sending Supabase's
     // default link email. Delivery is handled below by the branded OTP email.
-    const generatedPassword = `Cs1!${crypto.randomUUID()}${crypto.randomUUID()}`;
+    // bcrypt only accepts passwords up to 72 bytes. One UUID keeps the
+    // technical password random while remaining safely below that limit.
+    const generatedPassword = `Cs1!${crypto.randomUUID()}`;
     const linkRequest = mode === "signup"
       ? {
           type: "signup" as const,
@@ -69,8 +71,8 @@ Deno.serve(async (req: Request) => {
         ? { type: "recovery" as const, email, options: { redirectTo: SITE_URL } }
         : { type: "magiclink" as const, email, options: { redirectTo: SITE_URL } };
     let { data: link, error: linkError } = await serviceClient.auth.admin.generateLink(linkRequest);
-    let verificationType = mode === "signup" ? "signup" : mode === "recovery" ? "recovery" : "email";
-    if (mode === "signup" && (linkError || !link?.properties?.email_otp)) {
+    let verificationType = mode === "recovery" ? "recovery" : "email";
+    if (mode === "signup" && (linkError || !link?.properties?.hashed_token)) {
       // A previous failed signup can leave the address registered but not
       // confirmed. In that case, issue a magic-link token and send its OTP
       // instead of making the customer delete the half-created account.
@@ -83,7 +85,7 @@ Deno.serve(async (req: Request) => {
       linkError = fallback.error;
       verificationType = "email";
     }
-    if (linkError || !link?.properties?.email_otp) {
+    if (linkError || !link?.properties?.hashed_token) {
       console.error("auth-link-generation", { mode, status: linkError?.status, code: linkError?.code });
       return response(origin, { ok: true });
     }
@@ -100,8 +102,13 @@ Deno.serve(async (req: Request) => {
     const random = new Uint32Array(1);
     crypto.getRandomValues(random);
     const code = String(random[0] % 1_000_000).padStart(6, "0");
-    const { data: replaced, error: replaceError } = await serviceClient.rpc("override_auth_otp", { p_email: email, p_code: code });
-    if (replaceError || !replaced) throw replaceError || new Error("otp_replace_failed");
+    const { data: stored, error: storeError } = await serviceClient.rpc("store_auth_email_code", {
+      p_email: email,
+      p_code: code,
+      p_token_hash: link.properties.hashed_token,
+      p_verification_type: verificationType,
+    });
+    if (storeError || !stored) throw storeError || new Error("otp_store_failed");
 
     const subject = mode === "signup" ? "Confirme seu cadastro — Churrascaria Carne de Sol" : mode === "recovery" ? "Recupere seu acesso — Churrascaria Carne de Sol" : "Seu código de acesso — Churrascaria Carne de Sol";
     await transporter.sendMail({

@@ -12,7 +12,7 @@
   }
   function bind(){
     $("#adminSendCode").addEventListener("click",sendCode);$("#adminVerifyCode").addEventListener("click",verifyCode);
-    $("#adminCode").addEventListener("input",e=>e.target.value=e.target.value.replace(/\D/g,"").slice(0,8));
+    $("#adminCode").addEventListener("input",e=>e.target.value=e.target.value.replace(/\D/g,"").slice(0,6));
     $("#adminSignOut").addEventListener("click",async()=>{await db.auth.signOut();showGate();});
     $("#adminNav").addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)showView(b.dataset.view);});
     document.addEventListener("click",e=>{const go=e.target.closest("[data-go]");if(go)showView(go.dataset.go);});
@@ -26,14 +26,18 @@
   function showGate(){$("#adminGate").classList.remove("hidden");$("#adminApp").classList.add("hidden");}
   async function sendCode(){
     const email=$("#adminEmail").value.trim().toLowerCase(),button=$("#adminSendCode");if(!email.includes("@"))return msg($("#adminLoginMessage"),"Digite um e-mail válido.","error");
-    button.disabled=true;const {error}=await db.functions.invoke("request-auth-code",{body:{email,mode:"login"}});button.disabled=false;
-    if(error)return msg($("#adminLoginMessage"),"O serviço de e-mail está temporariamente indisponível. Tente novamente.","error");
+    button.disabled=true;const {data,error}=await db.functions.invoke("request-auth-code",{body:{email,mode:"login"}});button.disabled=false;
+    if(error||data?.ok===false)return msg($("#adminLoginMessage"),"O serviço de e-mail está temporariamente indisponível. Tente novamente.","error");
     $("#adminCodeArea").classList.remove("hidden");msg($("#adminLoginMessage"),"Se este e-mail estiver autorizado, enviaremos um código numérico.","success");
   }
   async function verifyCode(){
-    const token=$("#adminCode").value;if(!/^\d{6,8}$/.test(token))return msg($("#adminLoginMessage"),"Digite o código numérico enviado ao e-mail.","error");
-    const {data,error}=await db.auth.verifyOtp({email:$("#adminEmail").value.trim().toLowerCase(),token,type:"email"});
-    if(error)return msg($("#adminLoginMessage"),"Código inválido ou expirado.","error");await enterAdmin(data.user);
+    const code=$("#adminCode").value;if(!/^\d{6}$/.test(code))return msg($("#adminLoginMessage"),"Digite os 6 números enviados ao e-mail.","error");
+    const button=$("#adminVerifyCode");button.disabled=true;
+    const email=$("#adminEmail").value.trim().toLowerCase();
+    const {data,error}=await db.functions.invoke("verify-auth-code",{body:{email,code}});
+    if(error||!data?.ok||!data?.access_token||!data?.refresh_token){button.disabled=false;return msg($("#adminLoginMessage"),"Código inválido ou expirado.","error");}
+    const {data:sessionData,error:sessionError}=await db.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});button.disabled=false;
+    if(sessionError||!sessionData?.user)return msg($("#adminLoginMessage"),"Não foi possível concluir o acesso. Solicite um novo código.","error");await enterAdmin(sessionData.user);
   }
   async function enterAdmin(user){
     const {data,error}=await db.from("profiles").select("*").eq("id",user.id).maybeSingle();

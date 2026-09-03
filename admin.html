@@ -13,7 +13,7 @@
       <p>Entre com o e-mail administrador e o código numérico enviado.</p>
       <label class="field"><span>E-mail</span><input id="adminEmail" type="email" value="churrascariacarnedosolgold@gmail.com"></label>
       <button class="button button-primary button-large button-block" id="adminSendCode">Enviar código</button>
-      <div id="adminCodeArea" class="hidden"><label class="field"><span>Código numérico</span><input id="adminCode" inputmode="numeric" maxlength="8" pattern="[0-9]{6,8}" autocomplete="one-time-code"></label>
+      <div id="adminCodeArea" class="hidden"><label class="field"><span>Código numérico</span><input id="adminCode" inputmode="numeric" minlength="6" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code"></label>
         <button class="button button-primary button-large button-block" id="adminVerifyCode">Confirmar código</button></div>
       <p class="form-message" id="adminLoginMessage"></p><a href="/">← Voltar para a loja</a>
     </div>

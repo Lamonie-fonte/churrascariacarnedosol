@@ -39,7 +39,7 @@
     $("#resendCodeButton").addEventListener("click", sendAuthCode);
     $("#savePasswordButton").addEventListener("click", savePassword);
     $$("#authForm [data-auth-mode]").forEach(b => b.addEventListener("click", () => setAuthMode(b.dataset.authMode)));
-    $("#authCode").addEventListener("input", e => e.target.value=e.target.value.replace(/\D/g,"").slice(0,8));
+    $("#authCode").addEventListener("input", e => e.target.value=e.target.value.replace(/\D/g,"").slice(0,6));
     document.addEventListener("click", e => {
       const add=e.target.closest("[data-product-id]"); if(add) openProduct(add.dataset.productId);
       const cat=e.target.closest("[data-category-id]"); if(cat) selectCategory(cat.dataset.categoryId);
@@ -203,15 +203,17 @@
   async function sendAuthCode(event){
     event?.preventDefault();const email=$("#authEmail").value.trim().toLowerCase();if(!email||!email.includes("@")){showMessage(els.authMessage,"Digite um e-mail válido.","error");return;}
     const button=$("#sendCodeButton");button.disabled=true;const {data,error}=await db.functions.invoke("request-auth-code",{body:{email,mode:state.authMode,fullName:state.authMode==="signup"?$("#authName").value.trim():""}});button.disabled=false;
-    if(error){showMessage(els.authMessage,"O serviço de e-mail está temporariamente indisponível. Tente novamente.","error");return;}
-    state.otpType=data?.verificationType||null;
+    if(error||data?.ok===false){showMessage(els.authMessage,"O serviço de e-mail está temporariamente indisponível. Tente novamente.","error");return;}
     $("#authRequestStep").classList.add("hidden");$("#authVerifyStep").classList.remove("hidden");showMessage(els.authMessage,"Se este e-mail estiver cadastrado, enviaremos um código numérico.","success");$("#authCode").focus();
   }
   async function verifyAuthCode(){
-    const token=$("#authCode").value.replace(/\D/g,"");if(token.length<6||token.length>8){showMessage(els.authMessage,"Digite o código numérico enviado ao seu e-mail.","error");return;}
-    const type=state.otpType||(state.authMode==="recovery"?"recovery":"email");
-    const button=$("#verifyCodeButton");button.disabled=true;const {error}=await db.auth.verifyOtp({email:$("#authEmail").value.trim().toLowerCase(),token,type});button.disabled=false;
-    if(error){showMessage(els.authMessage,"Código inválido ou expirado. Solicite um novo código.","error");return;}
+    const code=$("#authCode").value.replace(/\D/g,"");if(!/^\d{6}$/.test(code)){showMessage(els.authMessage,"Digite os 6 números enviados ao seu e-mail.","error");return;}
+    const button=$("#verifyCodeButton");button.disabled=true;
+    const email=$("#authEmail").value.trim().toLowerCase();
+    const {data,error}=await db.functions.invoke("verify-auth-code",{body:{email,code}});
+    if(error||!data?.ok||!data?.access_token||!data?.refresh_token){button.disabled=false;showMessage(els.authMessage,"Código inválido ou expirado. Solicite um novo código.","error");return;}
+    const {error:sessionError}=await db.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});button.disabled=false;
+    if(sessionError){showMessage(els.authMessage,"Não foi possível concluir o acesso. Solicite um novo código.","error");return;}
     if(state.authMode==="signup"||state.authMode==="recovery"){$("#authVerifyStep").classList.add("hidden");$("#passwordStep").classList.remove("hidden");showMessage(els.authMessage,"Código confirmado. Crie uma senha com pelo menos 8 caracteres.","success");}
     else{showMessage(els.authMessage,"Acesso confirmado.","success");setTimeout(()=>els.authDialog.close(),700);refreshSession();}
   }

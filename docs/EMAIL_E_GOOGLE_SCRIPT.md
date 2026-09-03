@@ -5,7 +5,7 @@
 Configuração esperada em Authentication:
 
 - Site URL: `https://churrascariacarnedosol.vercel.app`
-- OTP: código numérico oficial do Supabase (a interface aceita de 6 a 8 dígitos)
+- OTP exibido ao cliente: código numérico de 6 dígitos
 - SMTP host: `smtp.gmail.com`
 - SMTP port: `465`
 - SMTP user: e-mail comercial da churrascaria
@@ -15,7 +15,9 @@ Configuração esperada em Authentication:
 
 Os arquivos de `supabase/email-templates` versionam os modelos usados em **Authentication > Email Templates**. O modelo de Magic Link contém `{{ .Token }}`, portanto o Supabase Auth envia um OTP numérico em vez de um link.
 
-A Edge Function `request-auth-code` usa `admin.generateLink` apenas para criar o token oficial sem disparar o modelo padrão do Supabase. No cadastro, ela fornece uma senha técnica aleatória exigida pela API; se uma tentativa anterior deixou a conta incompleta, gera um novo token de acesso para o mesmo e-mail. No acesso e na recuperação, usa os tipos correspondentes. Em seguida, substitui o token pendente por um código de seis dígitos e envia o HTML da churrascaria pelo SMTP protegido no Vault. Assim nenhum e-mail contém link para `localhost`. A função mantém lista de origem permitida, resposta neutra contra enumeração e limites persistentes por e-mail e por hora.
+A Edge Function `request-auth-code` usa `admin.generateLink` apenas para criar o token oficial sem disparar o modelo padrão do Supabase. No cadastro, ela fornece uma senha técnica aleatória dentro do limite aceito pelo Auth; se uma tentativa anterior deixou a conta incompleta, gera um novo token para o mesmo e-mail. O token oficial nunca vai para o navegador nem por link. A função associa esse token, no servidor, a um código aleatório de seis dígitos e envia somente o código no HTML da churrascaria pelo SMTP protegido no Vault.
+
+A Edge Function `verify-auth-code` confere o código na tabela privada, limita cada emissão a cinco tentativas, invalida o código após o primeiro uso e troca o token protegido por uma sessão oficial do Supabase. A loja e o painel administrativo chamam esse verificador e persistem a sessão com `setSession`. Assim, cadastro, acesso e recuperação não dependem de clique em link e não podem abrir `localhost`. As funções aceitam somente a origem oficial, usam respostas sem cache e mantêm respostas neutras contra enumeração de e-mails.
 
 ## Google Apps Script
 

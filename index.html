@@ -160,7 +160,7 @@
         </div>
       </div>
       <div id="authVerifyStep" class="hidden">
-        <label class="field"><span>Código numérico</span><input id="authCode" inputmode="numeric" pattern="[0-9]{6,8}" maxlength="8" autocomplete="one-time-code" placeholder="000000"></label>
+        <label class="field"><span>Código numérico</span><input id="authCode" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" placeholder="000000"></label>
         <button class="button button-primary button-large button-block" id="verifyCodeButton" type="button">Confirmar código</button>
         <button class="button button-ghost button-block" id="resendCodeButton" type="button">Reenviar código</button>
       </div>
