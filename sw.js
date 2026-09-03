@@ -1,4 +1,4 @@
-const CACHE = "carne-de-sol-v4";
+const CACHE = "carne-de-sol-v5";
 const CORE = ["/", "/index.html", "/admin.html", "/assets/styles.css", "/assets/app.js", "/assets/admin.js", "/assets/supabase.js", "/assets/favicon.svg", "/assets/logo-carne-de-sol.jpg", "/data/catalog.json"];
 
 self.addEventListener("install", event => {

@@ -208,7 +208,8 @@
   }
   async function verifyAuthCode(){
     const token=$("#authCode").value.replace(/\D/g,"");if(token.length<6||token.length>8){showMessage(els.authMessage,"Digite o código numérico enviado ao seu e-mail.","error");return;}
-    const button=$("#verifyCodeButton");button.disabled=true;const {error}=await db.auth.verifyOtp({email:$("#authEmail").value.trim().toLowerCase(),token,type:"email"});button.disabled=false;
+    const type=state.authMode==="signup"?"signup":state.authMode==="recovery"?"recovery":"email";
+    const button=$("#verifyCodeButton");button.disabled=true;const {error}=await db.auth.verifyOtp({email:$("#authEmail").value.trim().toLowerCase(),token,type});button.disabled=false;
     if(error){showMessage(els.authMessage,"Código inválido ou expirado. Solicite um novo código.","error");return;}
     if(state.authMode==="signup"||state.authMode==="recovery"){$("#authVerifyStep").classList.add("hidden");$("#passwordStep").classList.remove("hidden");showMessage(els.authMessage,"Código confirmado. Crie uma senha com pelo menos 8 caracteres.","success");}
     else{showMessage(els.authMessage,"Acesso confirmado.","success");setTimeout(()=>els.authDialog.close(),700);refreshSession();}
