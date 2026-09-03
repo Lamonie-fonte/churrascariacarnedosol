@@ -9,6 +9,7 @@
   };
   const els = {};
   let cepRequest = null;
+  const avatarLibraryLoads = new Map();
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -56,6 +57,12 @@
     $("#resendCodeButton").addEventListener("click", sendAuthCode);
     $("#savePasswordButton").addEventListener("click", savePassword);
     $("#accountSignOut").addEventListener("click", signOut);
+    $("#takeProfilePhoto").addEventListener("click", () => $("#profileCameraInput").click());
+    $("#chooseProfilePhoto").addEventListener("click", () => $("#profileFileInput").click());
+    $("#profileCameraInput").addEventListener("change", uploadProfilePhoto);
+    $("#profileFileInput").addEventListener("change", uploadProfilePhoto);
+    $("#removeProfilePhoto").addEventListener("click", removeProfilePhoto);
+    $("#accountAvatar").addEventListener("error", () => showAvatarFallback());
     $("#newAddress").addEventListener("click", () => openAddressEditor());
     $("#refreshHistory").addEventListener("click", async () => { await loadAccountData(); toast("Histórico atualizado."); });
     $("#addressForm").addEventListener("submit", saveAddress);
@@ -210,7 +217,24 @@
     const count = state.cart.reduce((total, item) => total + item.quantity, 0), subtotal = state.cart.reduce((total, item) => total + item.unit_price * item.quantity, 0);
     const delivery = $("#checkoutForm [name=order_type]:checked")?.value === "pickup" ? 0 : Number(state.settings?.delivery_fee || 0);
     els.cartCount.textContent = count; els.cartSubtotal.textContent = money(subtotal); $("#checkoutTotal").textContent = money(subtotal + delivery);
-    els.cartItems.innerHTML = state.cart.length ? state.cart.map((item, index) => `<article class="cart-item"><h3>${escapeHtml(item.name)}</h3><strong>${money(item.unit_price * item.quantity)}</strong><p>${escapeHtml(item.options.map(option => tools().displayName(option.name)).join(", ") || "Sem complementos")}${item.notes ? `<br><b>Obs.:</b> ${escapeHtml(item.notes)}` : ""}</p><div class="cart-item-actions"><button type="button" data-index="${index}" data-cart-action="minus">−</button><b>${item.quantity}</b><button type="button" data-index="${index}" data-cart-action="plus">+</button><button type="button" class="remove-link" data-index="${index}" data-cart-action="remove">Remover</button></div></article>`).join("") : `<div class="empty-state"><span>🛒</span><h2>Seu carrinho está vazio</h2><p>Adicione um prato para continuar.</p></div>`;
+    $("#cartSummaryItems").textContent = `${count} ${count === 1 ? "item" : "itens"}`;
+    els.cartItems.innerHTML = state.cart.length ? state.cart.map((item, index) => {
+      const choices = item.options.map(option => tools().displayName(option.name));
+      const customization = choices.length
+        ? `<details class="cart-customization"><summary>Ver escolhas (${choices.length})</summary><p>${escapeHtml(choices.join(", "))}</p></details>`
+        : '<p class="cart-no-options">Sem complementos</p>';
+      return `<article class="cart-item">
+        <img class="cart-item-image" src="${escapeHtml(item.image_url || "/assets/favicon.svg")}" alt="" onerror="this.src='/assets/favicon.svg'">
+        <div class="cart-item-body">
+          <div class="cart-item-heading"><h3>${escapeHtml(item.name)}</h3><strong>${money(item.unit_price * item.quantity)}</strong></div>
+          ${customization}${item.notes ? `<p class="cart-item-note"><b>Observação:</b> ${escapeHtml(item.notes)}</p>` : ""}
+          <div class="cart-item-footer">
+            <div class="cart-item-actions" role="group" aria-label="Quantidade de ${escapeHtml(item.name)}"><button type="button" data-index="${index}" data-cart-action="minus" aria-label="Diminuir quantidade">−</button><b>${item.quantity}</b><button type="button" data-index="${index}" data-cart-action="plus" aria-label="Aumentar quantidade">+</button></div>
+            <button type="button" class="remove-link" data-index="${index}" data-cart-action="remove">Remover</button>
+          </div>
+        </div>
+      </article>`;
+    }).join("") : `<div class="empty-state"><span>🛒</span><h2>Seu carrinho está vazio</h2><p>Adicione um prato para continuar.</p></div>`;
     $("#checkoutButton").disabled = !state.cart.length || !state.backend || Boolean(state.settings?.maintenance_mode);
     $("#checkoutButton").textContent = state.settings?.maintenance_mode ? "Pedidos temporariamente desligados" : "Continuar pedido";
   }
@@ -274,13 +298,13 @@
       items: state.cart.map(item => ({ product_id: item.product_id, quantity: item.quantity, option_ids: item.option_ids, notes: item.notes }))
     };
     const cartSnapshot = state.cart.map(item => ({ ...item, options: item.options.map(option => ({ ...option })) })), whatsappWindow = window.open("about:blank", "carne-sol-whatsapp");
-    button.disabled = true; button.textContent = "Registrando pedido…"; showMessage(message, "Não feche esta tela. Estamos confirmando seu pedido.");
+    button.disabled = true; button.textContent = "Finalizando pedido…"; showMessage(message, "Não feche esta tela. Estamos confirmando seu pedido.");
     let order, error;
     try {
       ({ data: order, error } = await db.rpc("create_order", { payload }));
       if (error) { const recovery = await db.from("orders").select("*,order_items(*)").eq("client_request_id", requestId).maybeSingle(); if (!recovery.error && recovery.data) { order = recovery.data; error = null; } }
     } catch (caught) { error = caught; }
-    button.disabled = false; button.textContent = "Enviar pedido";
+    button.disabled = false; button.textContent = "Finalizar pedido";
     if (error || !order) { whatsappWindow?.close(); showMessage(message, friendlyOrderError(error?.message), "error"); return; }
     const receipt = order.order_items ? order : {
       ...order, customer_name: payload.customer_name, email: payload.email, phone: payload.phone, order_type: payload.order_type, payment_method: payload.payment_method, payment_detail: payload.payment_detail,
@@ -314,8 +338,87 @@
   function renderAccount() {
     if (!state.session) return;
     $("#accountName").textContent = state.profile?.full_name || "cliente"; $("#accountEmail").textContent = state.session.user.email || state.profile?.email || "";
+    renderProfilePhoto();
     $("#accountAddresses").innerHTML = state.addresses.length ? state.addresses.map(address => `<article class="address-card"><div><strong>${address.is_default ? "★ " : ""}${escapeHtml(address.label)}</strong><p>${escapeHtml(tools().fullAddress(address)).replace(/\n/g, "<br>")}</p></div><div class="card-actions"><button class="button button-ghost" type="button" data-address-action="use" data-id="${address.id}">Usar</button><button class="button button-ghost" type="button" data-address-action="edit" data-id="${address.id}">Editar</button><button class="button button-danger" type="button" data-address-action="delete" data-id="${address.id}">Excluir</button></div></article>`).join("") : '<div class="empty-compact"><p>Nenhum endereço salvo ainda.</p></div>';
     $("#accountOrders").innerHTML = state.orders.length ? state.orders.map(customerOrderCard).join("") : '<div class="empty-compact"><p>Seus pedidos aparecerão aqui.</p></div>';
+  }
+  function renderProfilePhoto() {
+    const image = $("#accountAvatar"), fallback = $("#accountAvatarFallback"), url = state.profile?.avatar_url || "";
+    fallback.textContent = (state.profile?.full_name || state.session?.user?.email || "C").trim().charAt(0).toUpperCase() || "C";
+    $("#removeProfilePhoto").classList.toggle("hidden", !url);
+    if (!url) return showAvatarFallback();
+    fallback.classList.add("hidden"); image.classList.remove("hidden"); image.src = `${url}?v=${encodeURIComponent(state.profile?.updated_at || Date.now())}`;
+  }
+  function showAvatarFallback() { $("#accountAvatar").classList.add("hidden"); $("#accountAvatarFallback").classList.remove("hidden"); }
+  function setProfilePhotoBusy(busy, text) {
+    [$("#takeProfilePhoto"), $("#chooseProfilePhoto"), $("#removeProfilePhoto")].forEach(button => button.disabled = busy);
+    $("#profileAvatar").setAttribute("aria-busy", String(busy));
+    $("#profilePhotoStatus").textContent = text || "A foto será ajustada automaticamente para o perfil.";
+  }
+  function loadAvatarLibrary(src, globalName) {
+    if (window[globalName]) return Promise.resolve(window[globalName]);
+    if (!avatarLibraryLoads.has(src)) avatarLibraryLoads.set(src, new Promise((resolve, reject) => {
+      const script = document.createElement("script"); script.src = src; script.async = true;
+      script.onload = () => window[globalName] ? resolve(window[globalName]) : reject(new Error("Biblioteca de imagem indisponível"));
+      script.onerror = () => reject(new Error("Não foi possível preparar este formato de imagem")); document.head.append(script);
+    }).catch(error => { avatarLibraryLoads.delete(src); throw error; }));
+    return avatarLibraryLoads.get(src);
+  }
+  function browserImage(blob) {
+    return new Promise((resolve, reject) => {
+      const image = new Image(), url = URL.createObjectURL(blob);
+      image.onload = () => { URL.revokeObjectURL(url); resolve(image); };
+      image.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Formato de imagem não reconhecido")); };
+      image.src = url;
+    });
+  }
+  async function decodeProfileImage(file) {
+    const extension = file.name.split(".").pop()?.toLowerCase() || "", type = file.type.toLowerCase();
+    if (type.includes("heic") || type.includes("heif") || extension === "heic" || extension === "heif") {
+      const heic2any = await loadAvatarLibrary("https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js", "heic2any");
+      const converted = await heic2any({ blob: file, toType: "image/jpeg", quality: .92 });
+      return browserImage(Array.isArray(converted) ? converted[0] : converted);
+    }
+    if (type.includes("tiff") || extension === "tif" || extension === "tiff") {
+      await loadAvatarLibrary("https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js", "pako");
+      const UTIF = await loadAvatarLibrary("https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js", "UTIF"), buffer = await file.arrayBuffer(), pages = UTIF.decode(buffer);
+      if (!pages.length) throw new Error("Arquivo TIFF vazio");
+      UTIF.decodeImage(buffer, pages[0]); const rgba = UTIF.toRGBA8(pages[0]), canvas = document.createElement("canvas");
+      canvas.width = pages[0].width; canvas.height = pages[0].height; canvas.getContext("2d").putImageData(new ImageData(new Uint8ClampedArray(rgba), canvas.width, canvas.height), 0, 0); return canvas;
+    }
+    if (window.createImageBitmap) { try { return await createImageBitmap(file, { imageOrientation: "from-image" }); } catch {} }
+    return browserImage(file);
+  }
+  async function profileJpeg(file) {
+    if (!file || (!file.type.startsWith("image/") && !/\.(?:heic|heif|tif|tiff|bmp|avif)$/i.test(file.name))) throw new Error("Escolha um arquivo de imagem.");
+    if (file.size > 25 * 1024 * 1024) throw new Error("A imagem pode ter no máximo 25 MB.");
+    const source = await decodeProfileImage(file), width = source.naturalWidth || source.width, height = source.naturalHeight || source.height;
+    if (!width || !height) throw new Error("Não foi possível ler esta imagem.");
+    const crop = Math.min(width, height), target = Math.min(1024, Math.max(320, crop)), canvas = document.createElement("canvas"), context = canvas.getContext("2d", { alpha: false });
+    canvas.width = target; canvas.height = target; context.fillStyle = "#fff"; context.fillRect(0, 0, target, target); context.imageSmoothingEnabled = true; context.imageSmoothingQuality = "high";
+    context.drawImage(source, (width - crop) / 2, (height - crop) / 2, crop, crop, 0, 0, target, target); source.close?.();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", .9)); if (!blob) throw new Error("Não foi possível ajustar esta imagem."); return blob;
+  }
+  function avatarStoragePath(url) { const marker = "/storage/v1/object/public/avatars/", position = String(url || "").indexOf(marker); return position < 0 ? "" : decodeURIComponent(String(url).slice(position + marker.length).split("?")[0]); }
+  async function uploadProfilePhoto(event) {
+    const input = event.currentTarget, file = input.files?.[0]; input.value = ""; if (!file || !state.session) return;
+    setProfilePhotoBusy(true, "Preparando e enviando sua foto…");
+    try {
+      const photo = await profileJpeg(file), path = `${state.session.user.id}/avatar-${Date.now()}-${crypto.randomUUID()}.jpg`, previousPath = avatarStoragePath(state.profile?.avatar_url);
+      const uploaded = await db.storage.from("avatars").upload(path, photo, { contentType: "image/jpeg", cacheControl: "3600", upsert: false }); if (uploaded.error) throw uploaded.error;
+      const { data: publicData } = db.storage.from("avatars").getPublicUrl(path), updated = await db.from("profiles").update({ avatar_url: publicData.publicUrl }).eq("id", state.session.user.id).select("*").single();
+      if (updated.error) { await db.storage.from("avatars").remove([path]); throw updated.error; }
+      if (previousPath && previousPath !== path) await db.storage.from("avatars").remove([previousPath]); state.profile = updated.data; renderProfilePhoto(); toast("Foto de perfil atualizada.");
+    } catch (error) { console.error(error); toast(error.message || "Não foi possível atualizar a foto.", 5500); }
+    finally { setProfilePhotoBusy(false); }
+  }
+  async function removeProfilePhoto() {
+    if (!state.session || !state.profile?.avatar_url) return; setProfilePhotoBusy(true, "Removendo sua foto…");
+    try {
+      const path = avatarStoragePath(state.profile.avatar_url), updated = await db.from("profiles").update({ avatar_url: null }).eq("id", state.session.user.id).select("*").single(); if (updated.error) throw updated.error;
+      if (path) await db.storage.from("avatars").remove([path]); state.profile = updated.data; renderProfilePhoto(); toast("Foto de perfil removida.");
+    } catch (error) { console.error(error); toast("Não foi possível remover a foto.", 5500); }
+    finally { setProfilePhotoBusy(false); }
   }
   function customerOrderCard(order) {
     const map = tools().mapUrl(order.address);

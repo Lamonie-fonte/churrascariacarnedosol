@@ -108,8 +108,11 @@
     <form method="dialog" class="side-panel">
       <div class="side-header"><div><span class="eyebrow">SEU PEDIDO</span><h2>Carrinho</h2></div><button class="icon-button" value="cancel" aria-label="Fechar">×</button></div>
       <div class="cart-items" id="cartItems"></div>
-      <div class="cart-summary"><span>Subtotal</span><strong id="cartSubtotal">R$ 0,00</strong></div>
-      <button class="button button-primary button-large button-block" id="checkoutButton" type="button">Continuar pedido</button>
+      <footer class="cart-footer">
+        <div class="cart-summary"><span>Subtotal<small id="cartSummaryItems">0 itens</small></span><strong id="cartSubtotal">R$ 0,00</strong></div>
+        <button class="button button-primary button-large button-block" id="checkoutButton" type="button">Continuar pedido</button>
+        <small class="cart-security">Preços e disponibilidade conferidos novamente ao finalizar.</small>
+      </footer>
     </form>
   </dialog>
 
@@ -155,9 +158,11 @@
       </fieldset>
       <label class="field cash-field hidden"><span>Troco para quanto?</span><input name="change_for" inputmode="decimal"></label>
       <label class="field"><span>Observações gerais</span><textarea name="notes" maxlength="500"></textarea></label>
-      <div class="checkout-total"><span>Total calculado no servidor</span><strong id="checkoutTotal"></strong></div>
-      <button class="button button-primary button-large button-block" type="submit" id="placeOrder">Enviar pedido</button>
-      <p class="form-message" id="checkoutMessage" aria-live="polite"></p>
+      <div class="checkout-action-bar">
+        <div class="checkout-total"><span>Total calculado no servidor</span><strong id="checkoutTotal"></strong></div>
+        <button class="button button-primary button-large button-block" type="submit" id="placeOrder">Finalizar pedido</button>
+        <p class="form-message" id="checkoutMessage" aria-live="polite"></p>
+      </div>
     </form>
   </dialog>
 
@@ -192,7 +197,26 @@
         </div>
       </form>
       <section class="account-panel hidden" id="accountPanel">
-        <div class="account-heading"><div><span class="eyebrow">MINHA CONTA</span><h2>Olá, <span id="accountName">cliente</span></h2><p id="accountEmail"></p></div><button class="button button-ghost" id="accountSignOut" type="button">Sair</button></div>
+        <div class="account-heading">
+          <div class="account-profile">
+            <div class="profile-avatar" id="profileAvatar" aria-live="polite">
+              <img class="hidden" id="accountAvatar" alt="Foto do perfil">
+              <span id="accountAvatarFallback">C</span>
+            </div>
+            <div class="account-identity">
+              <span class="eyebrow">MINHA CONTA</span><h2>Olá, <span id="accountName">cliente</span></h2><p id="accountEmail"></p>
+              <div class="profile-photo-actions">
+                <button class="button button-primary" id="takeProfilePhoto" type="button">📷 Tirar foto</button>
+                <button class="button button-ghost" id="chooseProfilePhoto" type="button">🖼️ Galeria ou arquivo</button>
+                <button class="profile-remove hidden" id="removeProfilePhoto" type="button">Remover foto</button>
+              </div>
+              <small class="profile-photo-status" id="profilePhotoStatus">A foto será ajustada automaticamente para o perfil.</small>
+            </div>
+          </div>
+          <button class="button button-ghost" id="accountSignOut" type="button">Sair</button>
+          <input id="profileCameraInput" type="file" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.avif" capture="user" hidden>
+          <input id="profileFileInput" type="file" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.avif" hidden>
+        </div>
         <div class="account-section"><div class="panel-heading compact"><div><h3>Meus endereços</h3><p>Use, edite ou adicione locais de entrega.</p></div><button class="button button-primary" id="newAddress" type="button">+ Novo</button></div><div class="address-list" id="accountAddresses"></div></div>
         <div class="account-section"><div class="panel-heading compact"><div><h3>Histórico de pedidos</h3><p>Comprovantes, mapa e detalhes sempre disponíveis.</p></div><button class="button button-ghost" id="refreshHistory" type="button">Atualizar</button></div><div class="history-list" id="accountOrders"></div></div>
       </section>

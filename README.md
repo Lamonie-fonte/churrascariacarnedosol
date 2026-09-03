@@ -12,7 +12,7 @@ Cardápio digital responsivo, painel administrativo e pedidos com preços recalc
 
 ## Estrutura
 
-- `index.html`: loja, carrinho, checkout e autenticação por código
+- `index.html`: loja, carrinho responsivo, checkout com finalização fixa e autenticação por código
 - `admin.html`: produtos, preços, promoções, imagens, categorias, complementos, pedidos e aparência
 - `supabase/migrations`: schema, cardápio e políticas de segurança
 - `supabase/email-templates`: modelos OTP com `{{ .Token }}` e sem link de localhost
@@ -28,6 +28,15 @@ O Google Apps Script usa `GmailApp` e não precisa da senha de app. Propriedades
 - `DESTINATION_EMAIL`: e-mail comercial
 - `SENDER_NAME`: `CHURRASCARIA CARNE DE SOL`
 - `SITE_URL`: `https://churrascariacarnedosol.vercel.app`
+
+O envio do código responde imediatamente após gerar e armazenar o OTP. A entrega pelo Gmail continua em segundo plano com conexão SMTP reaproveitável, atendendo loja e painel administrativo sem manter a tela travada.
+
+## Conta do cliente
+
+- foto de perfil pela câmera, galeria ou seletor de arquivos;
+- conversão automática para JPEG quadrado, inclusive para HEIC/HEIF e TIFF;
+- armazenamento no bucket `avatars`, dentro da pasta do próprio usuário;
+- endereços salvos e histórico individual com WhatsApp, PDF e mapa.
 
 ## Verificação
 

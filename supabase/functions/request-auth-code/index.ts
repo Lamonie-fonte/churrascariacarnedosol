@@ -1,9 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.57.4";
-import nodemailer from "npm:nodemailer@7.0.6";
 
 const SITE_URL = "https://churrascariacarnedosol.vercel.app";
 const ALLOWED_ORIGINS = new Set([SITE_URL]);
+let mailerPromise: Promise<{ transporter: { sendMail: (message: Record<string, unknown>) => Promise<unknown> }; smtpUser: string }> | null = null;
 
 function cors(origin: string | null) {
   return {
@@ -30,6 +30,56 @@ function escapeHtml(value: string) {
 function emailHtml(code: string, mode: string) {
   const title = mode === "signup" ? "Confirme seu cadastro" : mode === "recovery" ? "Recuperação de acesso" : "Seu código de acesso";
   return `<!doctype html><html lang="pt-BR"><body style="margin:0;background:#f5eee7;font-family:Arial,sans-serif;color:#18120f"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:28px 12px"><table role="presentation" width="100%" style="max-width:560px;background:#fffdfa;border-radius:20px;border:1px solid #eaded2"><tr><td style="height:8px;background:#ff6b1a"></td></tr><tr><td align="center" style="padding:34px 26px"><img src="${SITE_URL}/assets/logo-carne-de-sol.jpg" width="112" height="112" alt="Churrascaria Carne de Sol" style="display:block;width:112px;height:112px;border:0;border-radius:22px"><h1 style="font-size:24px">${title}</h1><p>Digite no site este código numérico:</p><div style="display:inline-block;padding:18px 24px;border-radius:14px;background:#18120f;color:#fff;font-size:34px;font-weight:bold;letter-spacing:10px">${escapeHtml(code)}</div><p style="color:#766b65;font-size:13px">O código tem exatamente 6 dígitos, expira por segurança e só pode ser usado uma vez.</p><p style="color:#766b65;font-size:13px">Se você não solicitou este código, ignore esta mensagem.</p></td></tr></table></td></tr></table></body></html>`;
+}
+
+async function getMailer(serviceClient: ReturnType<typeof createClient>) {
+  if (!mailerPromise) {
+    mailerPromise = (async () => {
+      const [{ default: nodemailer }, config] = await Promise.all([
+        import("npm:nodemailer@7.0.6"),
+        serviceClient.rpc("get_auth_mail_config"),
+      ]);
+      const mailConfig = config.data?.[0];
+      if (config.error || !mailConfig?.smtp_user || !mailConfig?.smtp_password) throw config.error || new Error("mail_config_missing");
+      return {
+        smtpUser: mailConfig.smtp_user,
+        transporter: nodemailer.createTransport({
+          pool: true,
+          maxConnections: 1,
+          maxMessages: 100,
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true,
+          connectionTimeout: 5_000,
+          greetingTimeout: 5_000,
+          socketTimeout: 12_000,
+          auth: { user: mailConfig.smtp_user, pass: mailConfig.smtp_password },
+        }),
+      };
+    })().catch((error) => {
+      mailerPromise = null;
+      throw error;
+    });
+  }
+  return mailerPromise;
+}
+
+async function deliverCodeEmail(serviceClient: ReturnType<typeof createClient>, email: string, code: string, mode: string) {
+  const startedAt = Date.now();
+  try {
+    const { transporter, smtpUser } = await getMailer(serviceClient);
+    const subject = mode === "signup" ? "Confirme seu cadastro — Churrascaria Carne de Sol" : mode === "recovery" ? "Recupere seu acesso — Churrascaria Carne de Sol" : "Seu código de acesso — Churrascaria Carne de Sol";
+    await transporter.sendMail({
+      from: `"CHURRASCARIA CARNE DE SOL" <${smtpUser}>`,
+      to: email,
+      subject,
+      text: `${subject}\n\nCódigo: ${code}\n\nO código tem exatamente 6 dígitos e só pode ser usado uma vez.`,
+      html: emailHtml(code, mode),
+    });
+    console.log("auth-email-sent", { duration_ms: Date.now() - startedAt });
+  } catch (error) {
+    console.error("auth-email-background-failed", { duration_ms: Date.now() - startedAt, error });
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -90,15 +140,6 @@ Deno.serve(async (req: Request) => {
       return response(origin, { ok: true });
     }
 
-    const { data: mailConfig, error: configError } = await serviceClient.rpc("get_auth_mail_config");
-    if (configError || !mailConfig?.[0]?.smtp_user || !mailConfig?.[0]?.smtp_password) throw configError || new Error("mail_config_missing");
-
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: { user: mailConfig[0].smtp_user, pass: mailConfig[0].smtp_password },
-    });
     const random = new Uint32Array(1);
     crypto.getRandomValues(random);
     const code = String(random[0] % 1_000_000).padStart(6, "0");
@@ -110,16 +151,8 @@ Deno.serve(async (req: Request) => {
     });
     if (storeError || !stored) throw storeError || new Error("otp_store_failed");
 
-    const subject = mode === "signup" ? "Confirme seu cadastro — Churrascaria Carne de Sol" : mode === "recovery" ? "Recupere seu acesso — Churrascaria Carne de Sol" : "Seu código de acesso — Churrascaria Carne de Sol";
-    await transporter.sendMail({
-      from: `"CHURRASCARIA CARNE DE SOL" <${mailConfig[0].smtp_user}>`,
-      to: email,
-      subject,
-      text: `${subject}\n\nCódigo: ${code}\n\nO código tem exatamente 6 dígitos e só pode ser usado uma vez.`,
-      html: emailHtml(code, mode),
-    });
-
-    return response(origin, { ok: true, verificationType });
+    EdgeRuntime.waitUntil(deliverCodeEmail(serviceClient, email, code, mode));
+    return response(origin, { ok: true, verificationType, queued: true });
   } catch (error) {
     console.error("request-auth-code-unexpected", error);
     return response(origin, { ok: false }, 503);

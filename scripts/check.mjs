@@ -30,7 +30,7 @@ if (!styles.includes("object-fit:contain")) throw new Error("As imagens dos prod
 if (!styles.includes(".quantity-row{position:sticky;bottom:0")) throw new Error("A barra de adicionar não está presa à base do modal.");
 if (!app.includes("requestAnimationFrame") || !/scrollTop\s*=\s*0/.test(app)) throw new Error("O modal não volta ao início ao abrir outro produto.");
 if (!authFunction.includes("auth.admin.generateLink") || !authFunction.includes("password: generatedPassword")) throw new Error("O cadastro não gera o OTP oficial com uma senha técnica válida.");
-if (!authFunction.includes('from "npm:nodemailer') || !authFunction.includes('rpc("store_auth_email_code"')) throw new Error("O envio personalizado de seis dígitos não está ativo.");
+if (!authFunction.includes('import("npm:nodemailer@7.0.6")') || !authFunction.includes('rpc("store_auth_email_code"')) throw new Error("O envio personalizado de seis dígitos não está ativo.");
 if (authFunction.includes("auth.signInWithOtp")) throw new Error("O envio ainda pode usar o template padrão com link.");
 if (!authFunction.includes('verificationType = mode === "recovery" ? "recovery" : "email"') || !authFunction.includes('type: "magiclink"')) throw new Error("O cadastro incompleto não recebe um novo OTP.");
 if (!verifyAuthFunction.includes('rpc("consume_auth_email_code"') || !verifyAuthFunction.includes("auth.verifyOtp") || !verifyAuthFunction.includes("access_token")) throw new Error("A troca segura do código pela sessão oficial não está ativa.");
@@ -47,7 +47,11 @@ if (!keepAliveWorkflow.includes("/rest/v1/store_settings") || !keepAliveWorkflow
 if (/service[_-]?role/i.test(keepAliveWorkflow)) throw new Error("O robô diário não pode usar a chave administrativa.");
 if (!app.includes('client_request_id: requestId') || !app.includes('.eq("client_request_id", requestId)')) throw new Error("O pedido não possui recuperação idempotente.");
 if (!storeHtml.includes('id="savedAddressSelect"') || !storeHtml.includes('id="accountOrders"') || !app.includes('from("saved_addresses")')) throw new Error("Endereços salvos ou histórico individual não estão ativos.");
+if (!storeHtml.includes('id="placeOrder">Finalizar pedido</button>') || !storeHtml.includes('class="checkout-action-bar"') || !styles.includes('.checkout-action-bar{position:sticky')) throw new Error("O botão Finalizar pedido não está preso à última etapa.");
+if (!storeHtml.includes('id="profileCameraInput"') || !storeHtml.includes('id="profileFileInput"') || !app.includes('storage.from("avatars").upload') || !app.includes('profileJpeg(file)')) throw new Error("A foto de perfil por câmera, galeria ou arquivo não está completa.");
+if (!app.includes('Ver escolhas (') || !styles.includes('grid-template-columns:88px minmax(0,1fr)')) throw new Error("O carrinho profissional não está ativo.");
+if (!authFunction.includes("EdgeRuntime.waitUntil") || !authFunction.includes("pool: true") || !authFunction.includes("mailerPromise")) throw new Error("O envio rápido de códigos em segundo plano não está ativo.");
 if (!receipts.includes("whatsappText") || !receipts.includes("downloadPdf") || !receipts.includes("maps.google.com")) throw new Error("WhatsApp detalhado, PDF ou mapa estão incompletos.");
 if (!adminHtml.includes('data-view="customers"') || !admin.includes('rpc("set_customer_block"') || !admin.includes('data-order-action="delete"')) throw new Error("Controles administrativos de clientes e pedidos estão incompletos.");
 if (!admin.includes("maintenance_mode:!data.has") || !adminHtml.includes('id="toggleOrders"')) throw new Error("O botão de ligar/desligar pedidos não está ativo.");
-console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções, conta/endereço/histórico, pedido idempotente, WhatsApp, PDF, mapa e painel administrativo.`);
+console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções, carrinho profissional, finalização fixa, foto de perfil, e-mail rápido, histórico, WhatsApp, PDF, mapa e painel administrativo.`);
