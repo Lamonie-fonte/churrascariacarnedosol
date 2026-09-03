@@ -8,6 +8,7 @@ const admin = await readFile(new URL("assets/admin.js", root), "utf8");
 const storeHtml = await readFile(new URL("index.html", root), "utf8");
 const adminHtml = await readFile(new URL("admin.html", root), "utf8");
 const authFunction = await readFile(new URL("supabase/functions/request-auth-code/index.ts", root), "utf8");
+const keepAliveWorkflow = await readFile(new URL(".github/workflows/manter-supabase-ativo.yml", root), "utf8");
 const productFiles = await readdir(new URL("products/", root));
 const expected = new Set(catalog.map(item => item.image_url.split("/").pop()));
 const missing = [...expected].filter(name => !productFiles.includes(name));
@@ -33,4 +34,7 @@ if (!authFunction.includes('verificationType = "email"') || !authFunction.includ
 if (!app.includes("state.otpType=data?.verificationType||null") || !app.includes('state.otpType||(state.authMode==="recovery"?"recovery":"email")')) throw new Error("A validação não usa o tipo de OTP retornado pelo servidor.");
 if (!app.includes("token.length<6||token.length>8") || !admin.includes("/^\\d{6,8}$/")) throw new Error("As telas não aceitam o OTP numérico oficial.");
 if (!storeHtml.includes('pattern="[0-9]{6,8}" maxlength="8"') || !adminHtml.includes('maxlength="8" pattern="[0-9]{6,8}"')) throw new Error("Os campos de OTP não aceitam códigos de 6 a 8 dígitos.");
-console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções e modal móvel rolável.`);
+if (!keepAliveWorkflow.includes('cron: "17 9 * * *"') || !keepAliveWorkflow.includes("workflow_dispatch:")) throw new Error("O robô diário do Supabase não está agendado corretamente.");
+if (!keepAliveWorkflow.includes("/rest/v1/store_settings") || !keepAliveWorkflow.includes("--retry 3")) throw new Error("O robô diário não valida o banco com repetição segura.");
+if (/service[_-]?role/i.test(keepAliveWorkflow)) throw new Error("O robô diário não pode usar a chave administrativa.");
+console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções, modal móvel rolável e robô diário do Supabase.`);

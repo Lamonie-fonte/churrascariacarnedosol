@@ -1,0 +1,47 @@
+name: Manter Supabase ativo
+
+on:
+  schedule:
+    # Todos os dias às 06:17 no horário de Brasília (09:17 UTC).
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manter-supabase-ativo
+  cancel-in-progress: true
+
+jobs:
+  cutucar-supabase:
+    name: Consultar banco da loja
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Consultar configuração pública
+        env:
+          SUPABASE_URL: https://pghbhyvhfiwdpyykikff.supabase.co
+          # Chave publicável: pode ser usada em navegador e não concede acesso administrativo.
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_jDyNrXrAkQklE0LIcFkJgA_Y15cAEle
+        run: |
+          set -euo pipefail
+
+          response="$(curl \
+            --silent \
+            --show-error \
+            --fail-with-body \
+            --retry 3 \
+            --retry-all-errors \
+            --retry-delay 5 \
+            --max-time 45 \
+            --get "${SUPABASE_URL}/rest/v1/store_settings" \
+            --data-urlencode "select=id" \
+            --data-urlencode "limit=1" \
+            --header "apikey: ${SUPABASE_PUBLISHABLE_KEY}")"
+
+          node -e '
+            const result = JSON.parse(process.argv[1]);
+            if (!Array.isArray(result)) throw new Error("Resposta inesperada do Supabase");
+            console.log(`Supabase respondeu corretamente: ${result.length} registro(s).`);
+          ' "$response"
