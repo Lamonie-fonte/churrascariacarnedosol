@@ -13,9 +13,9 @@ Configuração esperada em Authentication:
 - Sender name: `CHURRASCARIA CARNE DE SOL`
 - Sender email: e-mail comercial da churrascaria
 
-Os arquivos de `supabase/email-templates` mantêm a configuração de contingência versionada. O fluxo usado pelo site não depende mais do template padrão: a Edge Function `request-auth-code` gera o token oficial com `admin.generateLink`, valida que ele contém exatamente seis números e envia um HTML próprio pelo SMTP do Gmail. Cadastro, acesso, recuperação e painel deixam de enviar links de confirmação.
+Os arquivos de `supabase/email-templates` versionam os modelos usados em **Authentication > Email Templates**. O modelo de Magic Link contém `{{ .Token }}`, portanto o Supabase Auth envia um OTP numérico de seis dígitos em vez de um link.
 
-As credenciais SMTP desse fluxo ficam criptografadas no Supabase Vault. A função pública de pré-autenticação tem lista de origem permitida, resposta neutra contra enumeração e limites persistentes por e-mail e por hora.
+A Edge Function `request-auth-code` chama `signInWithOtp` e o próprio Supabase Auth entrega o e-mail usando diretamente a configuração de **Authentication > SMTP Settings**. Não existe uma segunda senha SMTP na função e nenhuma tabela interna de autenticação é alterada. A função mantém lista de origem permitida, resposta neutra contra enumeração e limites persistentes por e-mail e por hora.
 
 ## Google Apps Script
 
