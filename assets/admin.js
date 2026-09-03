@@ -3,8 +3,8 @@
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const tools = () => window.OrderTools;
   const icon = name => `<svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-${name}"></use></svg>`;
-  const state = { profile: null, categories: [], products: [], groups: [], options: [], orders: [], customers: [], settings: null, editor: null };
-  const titles = { dashboard:"Visão geral", products:"Produtos", categories:"Categorias", options:"Complementos", orders:"Pedidos", customers:"Clientes", store:"Loja e entrega", appearance:"Aparência", auth:"E-mail e acesso" };
+  const state = { profile: null, categories: [], products: [], groups: [], options: [], orders: [], customers: [], promotions: [], settings: null, editor: null };
+  const titles = { dashboard:"Visão geral", products:"Produtos", categories:"Categorias", options:"Complementos", orders:"Pedidos", customers:"Clientes", promotions:"Promoções", store:"Loja e entrega", appearance:"Aparência", auth:"E-mail e acesso" };
   const statuses = [["pending","Pendente"],["confirmed","Confirmado"],["preparing","Preparando"],["ready","Pronto"],["out_for_delivery","Saiu para entrega"],["completed","Concluído"],["cancelled","Cancelado"]];
   document.addEventListener("DOMContentLoaded", init);
 
@@ -25,6 +25,7 @@
     $("#productSearch").addEventListener("input", renderProducts); $("#productCategoryFilter").addEventListener("change", renderProducts);
     $("#optionProductSelect").addEventListener("change", renderOptionGroups); $("#orderStatusFilter").addEventListener("change", renderOrders);
     $("#customerSearch").addEventListener("input", renderCustomers); $("#refreshCustomers").addEventListener("click", loadCustomers);
+    $("#newPromotion").addEventListener("click", () => editPromotion()); $("#adminPromotions").addEventListener("click", promotionAction);
     $("#refreshOrders").addEventListener("click", loadOrders); $("#toggleOrders").addEventListener("click", toggleOrders);
     $("#adminProducts").addEventListener("click", productAction); $("#adminCategories").addEventListener("click", categoryAction); $("#adminOptionGroups").addEventListener("click", optionAction);
     $("#adminOrders").addEventListener("change", orderStatusAction); $("#recentOrders").addEventListener("change", orderStatusAction);
@@ -72,17 +73,17 @@
     try { await loadAll(); showView("dashboard"); } catch (loadError) { console.error(loadError); toast("Não foi possível carregar todos os dados do painel."); }
   }
   async function loadAll() {
-    const [categories, products, groups, options, settings] = await Promise.all([
+    const [categories, products, groups, options, settings, promotions] = await Promise.all([
       db.from("categories").select("*").order("position"), db.from("products").select("*").order("position"), db.from("option_groups").select("*").order("position"),
-      db.from("product_options").select("*").order("position"), db.from("store_settings").select("*").eq("id", true).single()
+      db.from("product_options").select("*").order("position"), db.from("store_settings").select("*").eq("id", true).single(), db.from("promotions").select("*").order("position")
     ]);
-    for (const result of [categories, products, groups, options, settings]) if (result.error) throw result.error;
+    for (const result of [categories, products, groups, options, settings, promotions]) if (result.error) throw result.error;
     Object.assign(state, {
       categories: categories.data.map(category => ({ ...category, name: tools().displayName(category.name) })),
       products: products.data.map(product => ({ ...product, name: tools().displayName(product.name), image_url:localImage(product.image_url) })),
-      groups: groups.data, options: options.data, settings: settings.data
+      groups: groups.data, options: options.data, settings: settings.data, promotions: promotions.data || []
     });
-    await Promise.all([loadOrders(), loadCustomers()]); populateFilters(); renderProducts(); renderCategories(); renderOptionProductSelect(); renderSettings(); renderAuthChecklist(); renderDashboard();
+    await Promise.all([loadOrders(), loadCustomers()]); populateFilters(); renderProducts(); renderCategories(); renderOptionProductSelect(); renderPromotions(); renderSettings(); renderAuthChecklist(); renderDashboard();
   }
   async function loadOrders() {
     const { data, error } = await db.from("orders").select("*,order_items(*)").order("created_at", { ascending:false }).limit(500);
@@ -186,21 +187,70 @@
     const { data, error } = await db.rpc("set_customer_block", { customer_uuid:customer.id, blocked, reason }); if (error) return toast("Não foi possível alterar o cliente."); Object.assign(customer, data); renderCustomers(); toast(blocked ? "Cliente bloqueado para novos pedidos." : "Cliente desbloqueado.");
   }
 
+  function renderPromotions() {
+    $("#adminPromotions").innerHTML = state.promotions.map(promotion => {
+      const product = state.products.find(item => item.id === promotion.product_id);
+      const period = promotion.starts_at ? new Date(promotion.starts_at).toLocaleDateString("pt-BR") : "Início imediato";
+      const end = promotion.ends_at ? " até " + new Date(promotion.ends_at).toLocaleDateString("pt-BR") : "";
+      return '<article class="admin-row"><img src="' + escapeHtml(localImage(promotion.image_url || product?.image_url) || "/assets/favicon.svg") + '" alt=""><div><h3>' + escapeHtml(promotion.title) + '</h3><p>' + escapeHtml(product?.name || "Produto removido") + ' • ' + escapeHtml(promotion.badge_text || "OFERTA") + '</p></div><div class="admin-secondary"><span class="status-pill ' + (promotion.active ? "active" : "") + '">' + (promotion.active ? "Ativa" : "Oculta") + '</span><br><small>' + period + end + '</small></div><div class="admin-row-actions"><button data-promotion-action="toggle" data-id="' + promotion.id + '" aria-label="Alternar promoção">' + icon(promotion.active ? "eye" : "eye-off") + '</button><button data-promotion-action="edit" data-id="' + promotion.id + '" aria-label="Editar promoção">' + icon("edit") + '</button><button data-promotion-action="delete" data-id="' + promotion.id + '" aria-label="Excluir promoção">' + icon("trash") + '</button></div></article>';
+    }).join("") || "<p>Nenhuma campanha criada.</p>";
+  }
+  function promotionAction(event) {
+    const button = event.target.closest("[data-promotion-action]"); if (!button) return;
+    const promotion = state.promotions.find(item => item.id === button.dataset.id); if (!promotion) return;
+    if (button.dataset.promotionAction === "edit") editPromotion(promotion);
+    if (button.dataset.promotionAction === "toggle") togglePromotion(promotion);
+    if (button.dataset.promotionAction === "delete") deletePromotion(promotion);
+  }
+  function editPromotion(promotion = null) {
+    state.editor = { type:"promotion", record:promotion };
+    const localDate = value => value ? new Date(value).toISOString().slice(0, 16) : "";
+    const products = state.products.filter(product => product.active).map(product => '<option value="' + product.id + '" ' + (promotion?.product_id === product.id ? "selected" : "") + '>' + escapeHtml(product.name) + (product.price == null ? " — preço por opção" : " — " + money(product.price)) + '</option>').join("");
+    const fields = '<div class="form-grid"><label class="field wide"><span>Produto *</span><select name="product_id" required>' + products + '</select></label><label class="field wide"><span>Título *</span><input name="title" required maxlength="100" value="' + escapeHtml(promotion?.title || "") + '"></label><label class="field wide"><span>Descrição</span><textarea name="description" maxlength="240">' + escapeHtml(promotion?.description || "") + '</textarea></label><label class="field"><span>Selo</span><input name="badge_text" maxlength="30" value="' + escapeHtml(promotion?.badge_text || "PROMOÇÃO") + '"></label><label class="field"><span>Ordem</span><input name="position" type="number" value="' + (promotion?.position ?? state.promotions.length * 10 + 10) + '"></label><label class="field wide"><span>URL da imagem (opcional)</span><input name="image_url" value="' + escapeHtml(promotion?.image_url || "") + '" placeholder="Se ficar vazio, usa a foto do produto"></label><label class="field"><span>Início</span><input name="starts_at" type="datetime-local" value="' + localDate(promotion?.starts_at) + '"></label><label class="field"><span>Encerramento</span><input name="ends_at" type="datetime-local" value="' + localDate(promotion?.ends_at) + '"></label><label class="option-choice wide"><input name="active" type="checkbox" ' + (promotion?.active !== false ? "checked" : "") + '><span>Promoção ativa</span></label></div>';
+    openEditor(promotion ? "Editar promoção" : "Nova promoção", fields);
+  }
+  async function savePromotion(form, promotion) {
+    const data = new FormData(form), starts = data.get("starts_at"), ends = data.get("ends_at");
+    if (starts && ends && new Date(ends) <= new Date(starts)) throw new Error("O encerramento deve ser posterior ao início.");
+    const payload = { product_id:data.get("product_id"), title:data.get("title").trim(), description:data.get("description").trim() || null, badge_text:data.get("badge_text").trim() || "OFERTA", image_url:data.get("image_url").trim() || null, position:Number(data.get("position") || 0), active:data.has("active"), starts_at:starts ? new Date(starts).toISOString() : null, ends_at:ends ? new Date(ends).toISOString() : null };
+    const result = promotion ? await db.from("promotions").update(payload).eq("id", promotion.id).select().single() : await db.from("promotions").insert(payload).select().single(); if (result.error) throw result.error;
+    if (promotion) Object.assign(promotion, result.data); else state.promotions.push(result.data);
+    state.promotions.sort((a,b) => a.position - b.position); renderPromotions(); toast("Promoção salva.");
+  }
+  async function togglePromotion(promotion) {
+    const { error } = await db.from("promotions").update({ active:!promotion.active }).eq("id", promotion.id); if (error) return toast("Não foi possível alterar a promoção.");
+    promotion.active = !promotion.active; renderPromotions(); toast("Promoção atualizada.");
+  }
+  async function deletePromotion(promotion) {
+    if (!confirm('Excluir a promoção “' + promotion.title + '”?')) return;
+    const { error } = await db.from("promotions").delete().eq("id", promotion.id); if (error) return toast("Não foi possível excluir a promoção.");
+    state.promotions = state.promotions.filter(item => item.id !== promotion.id); renderPromotions(); toast("Promoção excluída.");
+  }
+
   function renderSettings() {
     const settings = state.settings;
     $("#storeForm").innerHTML = `<label class="wide">Nome da loja<input name="name" value="${escapeHtml(settings.name)}"></label><label>E-mail de atendimento<input name="support_email" type="email" value="${escapeHtml(settings.support_email)}"></label><label>WhatsApp<input name="whatsapp" value="${escapeHtml(settings.whatsapp)}"></label><label class="wide">Endereço<input name="address" value="${escapeHtml(settings.address)}"></label><label>Cidade<input name="city" value="${escapeHtml(settings.city)}"></label><label>Estado<input name="state" value="${escapeHtml(settings.state)}"></label><label>CEP<input name="zip_code" value="${escapeHtml(settings.zip_code)}"></label><label>Status do horário<select name="manual_status"><option value="auto" ${settings.manual_status === "auto" ? "selected" : ""}>Automático pelo horário</option><option value="open" ${settings.manual_status === "open" ? "selected" : ""}>Forçar aberta</option><option value="closed" ${settings.manual_status === "closed" ? "selected" : ""}>Forçar fechada</option></select></label><label>Pedido mínimo<input name="minimum_order" inputmode="decimal" value="${settings.minimum_order}"></label><label>Taxa de entrega<input name="delivery_fee" inputmode="decimal" value="${settings.delivery_fee}"></label><label>Prazo padrão (minutos)<input name="delivery_eta_minutes" type="number" min="10" max="240" value="${settings.delivery_eta_minutes || 60}"></label><label class="option-choice"><input name="delivery_enabled" type="checkbox" ${settings.delivery_enabled ? "checked" : ""}><span>Entrega ativa</span></label><label class="option-choice"><input name="pickup_enabled" type="checkbox" ${settings.pickup_enabled ? "checked" : ""}><span>Retirada ativa</span></label><label class="option-choice wide accepting-choice"><input name="accepting_orders" type="checkbox" ${!settings.maintenance_mode ? "checked" : ""}><span>Receber novos pedidos</span></label><button class="button button-primary button-large" type="submit">Salvar loja</button>`;
     $("#storeForm").onsubmit = event => saveSettings(event, "store");
-    $("#appearanceForm").innerHTML = `<label class="wide">Título principal<input name="banner_title" value="${escapeHtml(settings.banner_title)}"></label><label class="wide">Texto principal<textarea name="banner_text">${escapeHtml(settings.banner_text)}</textarea></label><label class="wide">URL do logotipo<input name="logo_url" value="${escapeHtml(settings.logo_url || "")}"></label><label>Cor brasa<input name="ember" type="color" value="${escapeHtml(settings.theme?.ember || "#ff6b1a")}"></label><label>Cor carvão<input name="coal" type="color" value="${escapeHtml(settings.theme?.coal || "#18120f")}"></label><button class="button button-primary button-large" type="submit">Salvar aparência</button>`; $("#appearanceForm").onsubmit = event => saveSettings(event, "appearance");
+    const defaults = [
+      { title:"Carne na brasa", alt:"Carne assando sobre a brasa", image_url:"/assets/hero/carne-na-brasa.webp", active:true },
+      { title:"Galeto assado", alt:"Galeto dourado assando na churrasqueira", image_url:"/assets/hero/galeto-na-brasa.webp", active:true },
+      { title:"Churrasco na grelha", alt:"Carnes grelhadas sobre carvão em brasa", image_url:"/assets/hero/churrasco-na-grelha.webp", active:true }
+    ];
+    const slides = defaults.map((fallback, index) => ({ ...fallback, ...(settings.hero_slides?.[index] || {}) }));
+    const slideFields = slides.map((slide, index) => `<fieldset class="admin-slide-editor wide"><legend>Imagem ${index + 1}</legend><label>Título da imagem<input name="slide_${index}_title" value="${escapeHtml(slide.title || "")}"></label><label>Descrição acessível<input name="slide_${index}_alt" value="${escapeHtml(slide.alt || "")}"></label><label class="wide">URL ou caminho da imagem<input name="slide_${index}_url" value="${escapeHtml(slide.image_url || "")}"></label><label class="option-choice wide"><input name="slide_${index}_active" type="checkbox" ${slide.active !== false ? "checked" : ""}><span>Imagem ativa no carrossel</span></label></fieldset>`).join("");
+    $("#appearanceForm").innerHTML = `<label class="wide">Texto acima do título<input name="banner_eyebrow" value="${escapeHtml(settings.banner_eyebrow || "CHURRASCARIA CARNE DE SOL")}"></label><label class="wide">Título principal<input name="banner_title" value="${escapeHtml(settings.banner_title)}"></label><label class="wide">Texto principal<textarea name="banner_text">${escapeHtml(settings.banner_text)}</textarea></label><label>Botão do cardápio<input name="banner_primary_label" value="${escapeHtml(settings.banner_primary_label || "Ver cardápio")}"></label><label>Botão do WhatsApp<input name="banner_secondary_label" value="${escapeHtml(settings.banner_secondary_label || "Falar no WhatsApp")}"></label><label>Troca das imagens (segundos)<input name="hero_interval_seconds" type="number" min="3" max="20" value="${settings.hero_interval_seconds || 6}"></label><label class="wide">URL do logotipo<input name="logo_url" value="${escapeHtml(settings.logo_url || "")}"></label>${slideFields}<fieldset class="admin-slide-editor wide"><legend>Janela de promoções</legend><label>Título<input name="promotion_popup_title" value="${escapeHtml(settings.promotion_popup_title || "Promoções de hoje")}"></label><label>Texto<input name="promotion_popup_text" value="${escapeHtml(settings.promotion_popup_text || "Escolha uma oferta e adicione à sua sacola.")}"></label><label class="option-choice wide"><input name="promotion_popup_enabled" type="checkbox" ${settings.promotion_popup_enabled !== false ? "checked" : ""}><span>Mostrar promoções ao abrir o site</span></label></fieldset><label>Cor brasa<input name="ember" type="color" value="${escapeHtml(settings.theme?.ember || "#ff6b1a")}"></label><label>Cor carvão<input name="coal" type="color" value="${escapeHtml(settings.theme?.coal || "#18120f")}"></label><button class="button button-primary button-large" type="submit">Salvar aparência</button>`;
+    $("#appearanceForm").onsubmit = event => saveSettings(event, "appearance");
   }
   async function saveSettings(event, type) {
     event.preventDefault(); const data = new FormData(event.currentTarget);
-    const payload = type === "store" ? { name:data.get("name"), support_email:data.get("support_email"), whatsapp:data.get("whatsapp").replace(/\D/g, ""), address:data.get("address"), city:data.get("city"), state:data.get("state"), zip_code:data.get("zip_code"), manual_status:data.get("manual_status"), minimum_order:numOrNull(data.get("minimum_order")) || 0, delivery_fee:numOrNull(data.get("delivery_fee")) || 0, delivery_eta_minutes:Number(data.get("delivery_eta_minutes") || 60), delivery_enabled:data.has("delivery_enabled"), pickup_enabled:data.has("pickup_enabled"), maintenance_mode:!data.has("accepting_orders") } : { banner_title:data.get("banner_title"), banner_text:data.get("banner_text"), logo_url:data.get("logo_url") || null, theme:{ ...state.settings.theme, ember:data.get("ember"), coal:data.get("coal") } };
+    const heroSlides = type === "appearance" ? [0,1,2].map(index => ({ title:data.get(`slide_${index}_title`).trim(), alt:data.get(`slide_${index}_alt`).trim(), image_url:data.get(`slide_${index}_url`).trim(), active:data.has(`slide_${index}_active`) })) : null;
+    const payload = type === "store" ? { name:data.get("name"), support_email:data.get("support_email"), whatsapp:data.get("whatsapp").replace(/\D/g, ""), address:data.get("address"), city:data.get("city"), state:data.get("state"), zip_code:data.get("zip_code"), manual_status:data.get("manual_status"), minimum_order:numOrNull(data.get("minimum_order")) || 0, delivery_fee:numOrNull(data.get("delivery_fee")) || 0, delivery_eta_minutes:Number(data.get("delivery_eta_minutes") || 60), delivery_enabled:data.has("delivery_enabled"), pickup_enabled:data.has("pickup_enabled"), maintenance_mode:!data.has("accepting_orders") } : { banner_eyebrow:data.get("banner_eyebrow"), banner_title:data.get("banner_title"), banner_text:data.get("banner_text"), banner_primary_label:data.get("banner_primary_label"), banner_secondary_label:data.get("banner_secondary_label"), hero_interval_seconds:Number(data.get("hero_interval_seconds") || 6), hero_slides:heroSlides, promotion_popup_enabled:data.has("promotion_popup_enabled"), promotion_popup_title:data.get("promotion_popup_title"), promotion_popup_text:data.get("promotion_popup_text"), logo_url:data.get("logo_url") || null, theme:{ ...state.settings.theme, ember:data.get("ember"), coal:data.get("coal") } };
     const { data:updated, error } = await db.from("store_settings").update(payload).eq("id", true).select().single(); if (error) return toast("Não foi possível salvar."); state.settings = updated; renderOperationBar(); toast("Configuração salva.");
   }
   function renderAuthChecklist() { $("#authChecklist").innerHTML = [["ok","Conta e histórico individuais","Cada cliente acessa apenas os próprios endereços e pedidos."],["ok","Pedido sem duplicação","Uma tentativa repetida recupera o pedido já criado em vez de cadastrar outro."],["ok","Bloqueio administrativo","O painel bloqueia novos pedidos sem apagar o histórico do cliente."],["ok","Comprovante completo","WhatsApp, PDF e mapa usam os dados gravados no pedido."],["ok","Seleções validadas","Grupos de peso único são conferidos no site e novamente no banco."],["warn","Entrega do provedor","A entrega dos códigos depende do provedor de e-mail e deve ser acompanhada nos logs."]].map(([kind, title, text]) => `<article class="check-card ${kind}"><strong>${title}</strong><p>${text}</p></article>`).join(""); }
 
   function openEditor(title, fields) { $("#editorTitle").textContent = title; $("#editorFields").innerHTML = fields; msg($("#editorMessage"), ""); $("#adminEditor").showModal(); }
-  async function saveEditor(event) { event.preventDefault(); const button = event.submitter; button.disabled = true; try { const { type, record, productId, groupId } = state.editor; if (type === "product") await saveProduct(event.currentTarget, record); if (type === "category") await saveCategory(event.currentTarget, record); if (type === "group") await saveGroup(event.currentTarget, record, productId); if (type === "option") await saveOption(event.currentTarget, record, groupId); if (type === "order") await saveOrder(event.currentTarget, record); $("#adminEditor").close(); } catch (error) { console.error(error); msg($("#editorMessage"), error.message || "Não foi possível salvar.", "error"); } finally { button.disabled = false; } }
+  async function saveEditor(event) { event.preventDefault(); const button = event.submitter; button.disabled = true; try { const { type, record, productId, groupId } = state.editor; if (type === "product") await saveProduct(event.currentTarget, record); if (type === "category") await saveCategory(event.currentTarget, record); if (type === "group") await saveGroup(event.currentTarget, record, productId); if (type === "option") await saveOption(event.currentTarget, record, groupId); if (type === "order") await saveOrder(event.currentTarget, record); if (type === "promotion") await savePromotion(event.currentTarget, record); $("#adminEditor").close(); } catch (error) { console.error(error); msg($("#editorMessage"), error.message || "Não foi possível salvar.", "error"); } finally { button.disabled = false; } }
   function slug(value) { return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "item"; }
   function numOrNull(value) { if (value === null || String(value).trim() === "") return null; const number = Number(String(value).replace(",", ".")); return Number.isFinite(number) ? number : null; }
   function msg(element, text, type = "") { element.textContent = text; element.className = `form-message ${type}`; }

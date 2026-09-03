@@ -6,10 +6,14 @@
   const state = {
     settings: null, categories: [], products: [], cart: loadCart(), selected: null, quantity: 1,
     query: "", promoOnly: false, activeCategory: null, authMode: "login", backend: true,
-    session: null, profile: null, addresses: [], orders: [], pendingCheckout: false, lastOrder: null
+    session: null, profile: null, addresses: [], orders: [], promotions: [], pendingCheckout: false, lastOrder: null,
+    heroSlide: 0, heroTimer: null
   };
   const els = {};
   let cepRequest = null;
+  let pendingProfilePhoto = null;
+  let pendingProfilePreviewUrl = "";
+  let pendingProfileRemoval = false;
   const avatarLibraryLoads = new Map();
 
   document.addEventListener("DOMContentLoaded", init);
@@ -18,21 +22,21 @@
     Object.assign(els, {
       categories: $("#categoryList"), sections: $("#productSections"), loading: $("#loadingGrid"), empty: $("#emptyState"),
       search: $("#searchInput"), promo: $("#promoFilter"), productDialog: $("#productDialog"), cartDialog: $("#cartDialog"),
-      checkoutDialog: $("#checkoutDialog"), authDialog: $("#authDialog"), addressDialog: $("#addressDialog"), successDialog: $("#successDialog"),
+      checkoutDialog: $("#checkoutDialog"), authDialog: $("#authDialog"), addressDialog: $("#addressDialog"), successDialog: $("#successDialog"), promotionDialog: $("#promotionDialog"),
       cartCount: $("#cartCount"), cartItems: $("#cartItems"), cartSubtotal: $("#cartSubtotal"), optionGroups: $("#optionGroups"), authMessage: $("#authMessage")
     });
     bindEvents();
     db.auth.onAuthStateChange((_event, session) => {
       state.session = session;
-      $("#authButton").textContent = session ? "Minha conta" : "Entrar";
+      document.body.classList.toggle("customer-signed-in", Boolean(session));
     });
-    await Promise.all([loadCatalog(), loadSettings(), refreshSession()]);
-    reconcileCart(); renderCatalog(); renderCart(); updateStoreInfo();
+    await Promise.all([loadCatalog(), loadSettings(), loadPromotions(), refreshSession()]);
+    reconcileCart(); renderCatalog(); renderCart(); updateStoreInfo(); renderPromotions(); maybeShowPromotionPopup();
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
   }
 
   function bindEvents() {
-    $("#cartButton").addEventListener("click", () => { renderCart(); els.cartDialog.showModal(); });
+    $("#customerNav").addEventListener("click", handleCustomerNavigation);
     els.search.addEventListener("input", event => { state.query = event.target.value.trim().toLocaleLowerCase("pt-BR"); renderCatalog(); });
     els.promo.addEventListener("click", () => { state.promoOnly = !state.promoOnly; els.promo.classList.toggle("button-primary", state.promoOnly); renderCatalog(); });
     $("#qtyMinus").addEventListener("click", () => setQuantity(state.quantity - 1));
@@ -52,18 +56,21 @@
     });
     $("#savedAddressSelect").addEventListener("change", selectCheckoutAddress);
     $("#editCheckoutAddress").addEventListener("click", () => $("#checkoutForm [name=street]").focus());
-    $("#authButton").addEventListener("click", openAuth);
     $("#authForm").addEventListener("submit", sendAuthCode);
     $("#verifyCodeButton").addEventListener("click", verifyAuthCode);
     $("#resendCodeButton").addEventListener("click", sendAuthCode);
     $("#savePasswordButton").addEventListener("click", savePassword);
     $("#accountSignOut").addEventListener("click", signOut);
+    $("#editProfilePhoto").addEventListener("click", openProfilePhotoEditor);
     $("#takeProfilePhoto").addEventListener("click", () => $("#profileCameraInput").click());
     $("#chooseProfilePhoto").addEventListener("click", () => $("#profileFileInput").click());
-    $("#profileCameraInput").addEventListener("change", uploadProfilePhoto);
-    $("#profileFileInput").addEventListener("change", uploadProfilePhoto);
-    $("#removeProfilePhoto").addEventListener("click", removeProfilePhoto);
+    $("#profileCameraInput").addEventListener("change", prepareProfilePhoto);
+    $("#profileFileInput").addEventListener("change", prepareProfilePhoto);
+    $("#removeProfilePhoto").addEventListener("click", previewProfilePhotoRemoval);
+    $("#cancelProfilePhoto").addEventListener("click", cancelProfilePhotoEdit);
+    $("#saveProfilePhoto").addEventListener("click", saveProfilePhoto);
     $("#accountAvatar").addEventListener("error", () => showAvatarFallback());
+    els.authDialog.addEventListener("close", cancelProfilePhotoEdit);
     $("#newAddress").addEventListener("click", () => openAddressEditor());
     $("#refreshHistory").addEventListener("click", async () => { await loadAccountData(); toast("Histórico atualizado."); });
     $("#addressForm").addEventListener("submit", saveAddress);
@@ -75,6 +82,7 @@
     $("#authCode").addEventListener("input", event => event.target.value = event.target.value.replace(/\D/g, "").slice(0, 6));
     $("#accountAddresses").addEventListener("click", accountAddressAction);
     $("#accountOrders").addEventListener("click", accountOrderAction);
+    $("#promotionList").addEventListener("click", event => { const button = event.target.closest("[data-promotion-id]"); if (button) selectPromotion(button.dataset.promotionId); });
     document.addEventListener("click", event => {
       const add = event.target.closest("[data-product-id]"); if (add) openProduct(add.dataset.productId);
       const category = event.target.closest("[data-category-id]"); if (category) selectCategory(category.dataset.categoryId);
@@ -127,6 +135,11 @@
       city: "Fortaleza", state: "CE", delivery_fee: 0, delivery_eta_minutes: 60, maintenance_mode: false,
       opening_hours: { "0":["07:00","15:00"], "1":["07:00","15:00"], "2":["07:00","15:00"], "3":["07:00","15:00"], "4":["07:00","15:00"], "5":["07:00","15:00"], "6":["07:00","15:00"] }, manual_status: "auto"
     };
+  }
+
+  async function loadPromotions() {
+    const { data, error } = await db.from("promotions").select("*").order("position");
+    state.promotions = error ? [] : (data || []);
   }
 
   function reconcileCart() {
@@ -217,7 +230,7 @@
   function renderCart() {
     const count = state.cart.reduce((total, item) => total + item.quantity, 0), subtotal = state.cart.reduce((total, item) => total + item.unit_price * item.quantity, 0);
     const delivery = $("#checkoutForm [name=order_type]:checked")?.value === "pickup" ? 0 : Number(state.settings?.delivery_fee || 0);
-    els.cartCount.textContent = count; $("#cartButton").classList.toggle("has-items", count > 0); els.cartSubtotal.textContent = money(subtotal); $("#checkoutTotal").textContent = money(subtotal + delivery);
+    els.cartCount.textContent = count; $(".customer-nav-cart").classList.toggle("has-items", count > 0); els.cartSubtotal.textContent = money(subtotal); $("#checkoutTotal").textContent = money(subtotal + delivery);
     $("#cartSummaryItems").textContent = `${count} ${count === 1 ? "item" : "itens"}`;
     els.cartItems.innerHTML = state.cart.length ? state.cart.map((item, index) => {
       const choices = item.options.map(option => tools().displayName(option.name));
@@ -247,10 +260,11 @@
 
   async function openCheckout() {
     if (!state.cart.length) return;
-    if (!state.session) { state.pendingCheckout = true; els.cartDialog.close(); await openAuth(); showMessage(els.authMessage, "Entre na sua conta para salvar o endereço e acompanhar o pedido.", "success"); return; }
+    const session = await ensureSession();
+    if (!session) { state.pendingCheckout = true; els.cartDialog.close(); await openAuth(); showMessage(els.authMessage, "Entre na sua conta para salvar o endereço e acompanhar o pedido.", "success"); return; }
     if (state.settings?.maintenance_mode) { toast("Os pedidos estão temporariamente desligados."); return; }
     els.cartDialog.close(); await loadAccountData();
-    const form = $("#checkoutForm"); form.elements.email.value = state.session.user.email || state.profile?.email || ""; form.elements.customer_name.value = state.profile?.full_name || ""; form.elements.phone.value = state.profile?.phone || "";
+    const form = $("#checkoutForm"); form.elements.email.value = session.user.email || state.profile?.email || ""; form.elements.customer_name.value = state.profile?.full_name || ""; form.elements.phone.value = state.profile?.phone || "";
     form.elements.order_type.value = "delivery"; $(".address-fields").classList.remove("hidden"); renderCheckoutAddresses(); renderCart(); showMessage($("#checkoutMessage"), ""); els.checkoutDialog.showModal();
   }
 
@@ -286,7 +300,7 @@
   }
 
   async function placeOrder(event) {
-    event.preventDefault(); if (!state.session) { els.checkoutDialog.close(); state.pendingCheckout = true; await openAuth(); return; }
+    event.preventDefault(); if (!await ensureSession()) { els.checkoutDialog.close(); state.pendingCheckout = true; await openAuth(); return; }
     const form = event.currentTarget, button = $("#placeOrder"), message = $("#checkoutMessage"), data = Object.fromEntries(new FormData(form));
     if (data.order_type === "delivery" && cepDigits(data.postal_code).length !== 8) return showMessage(message, "Digite um CEP válido com 8 números.", "error");
     if (data.order_type === "delivery" && (!data.street || !data.number || !data.neighborhood || !data.city || !data.state)) return showMessage(message, "Complete endereço, número, bairro, cidade e estado.", "error");
@@ -321,7 +335,14 @@
   function openWhatsapp(order) { if (order) window.open(tools().whatsappUrl(order, state.settings.whatsapp), "_blank", "noopener"); }
   async function downloadOrderPdf(order) { if (!order) return; try { await tools().downloadPdf(order, state.settings); } catch (error) { toast(error.message, 5500); } }
 
-  async function refreshSession() { const { data: { session } } = await db.auth.getSession(); state.session = session; $("#authButton").textContent = session ? "Minha conta" : "Entrar"; if (session) await loadAccountData(); }
+  async function ensureSession() {
+    const { data, error } = await db.auth.getSession();
+    if (error) console.warn("Não foi possível restaurar a sessão", error);
+    state.session = data?.session || null;
+    document.body.classList.toggle("customer-signed-in", Boolean(state.session));
+    return state.session;
+  }
+  async function refreshSession() { const session = await ensureSession(); if (session) await loadAccountData(); }
   async function loadAccountData() {
     if (!state.session) { state.profile = null; state.addresses = []; state.orders = []; return; }
     const [profile, addresses, orders] = await Promise.all([
@@ -332,7 +353,8 @@
   }
   async function openAuth() {
     showMessage(els.authMessage, "");
-    if (state.session) { await loadAccountData(); $("#authAccessPanel").classList.add("hidden"); $("#accountPanel").classList.remove("hidden"); renderAccount(); }
+    const session = await ensureSession();
+    if (session) { await loadAccountData(); $("#authAccessPanel").classList.add("hidden"); $("#accountPanel").classList.remove("hidden"); renderAccount(); }
     else { $("#accountPanel").classList.add("hidden"); $("#authAccessPanel").classList.remove("hidden"); setAuthMode("login"); $("#authRequestStep").classList.remove("hidden"); $("#authVerifyStep").classList.add("hidden"); $("#passwordStep").classList.add("hidden"); $("#authPassword").value = ""; $("#newPassword").value = ""; $("#confirmPassword").value = ""; resetPasswordVisibility(); }
     if (!els.authDialog.open) els.authDialog.showModal();
   }
@@ -352,9 +374,25 @@
   }
   function showAvatarFallback() { $("#accountAvatar").classList.add("hidden"); $("#accountAvatarFallback").classList.remove("hidden"); }
   function setProfilePhotoBusy(busy, text) {
-    [$("#takeProfilePhoto"), $("#chooseProfilePhoto"), $("#removeProfilePhoto")].forEach(button => button.disabled = busy);
+    [$("#takeProfilePhoto"), $("#chooseProfilePhoto"), $("#removeProfilePhoto"), $("#cancelProfilePhoto"), $("#saveProfilePhoto")].forEach(button => button.disabled = busy);
     $("#profileAvatar").setAttribute("aria-busy", String(busy));
-    $("#profilePhotoStatus").textContent = text || "A foto será ajustada automaticamente para o perfil.";
+    if (text) $("#profilePhotoStatus").textContent = text;
+  }
+  function clearPendingProfilePhoto() {
+    if (pendingProfilePreviewUrl) URL.revokeObjectURL(pendingProfilePreviewUrl);
+    pendingProfilePhoto = null; pendingProfilePreviewUrl = ""; pendingProfileRemoval = false;
+    $("#profileCameraInput").value = ""; $("#profileFileInput").value = "";
+  }
+  function openProfilePhotoEditor() {
+    clearPendingProfilePhoto(); renderProfilePhoto();
+    $("#editProfilePhoto").classList.add("hidden"); $("#profilePhotoEditor").classList.remove("hidden");
+    $("#saveProfilePhoto").disabled = true;
+    $("#profilePhotoStatus").textContent = "A foto só será alterada depois que você tocar em Salvar.";
+  }
+  function cancelProfilePhotoEdit() {
+    clearPendingProfilePhoto();
+    $("#profilePhotoEditor").classList.add("hidden"); $("#editProfilePhoto").classList.remove("hidden");
+    $("#saveProfilePhoto").disabled = true; renderProfilePhoto();
   }
   function loadAvatarLibrary(src, globalName) {
     if (window[globalName]) return Promise.resolve(window[globalName]);
@@ -401,25 +439,41 @@
     const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg", .9)); if (!blob) throw new Error("Não foi possível ajustar esta imagem."); return blob;
   }
   function avatarStoragePath(url) { const marker = "/storage/v1/object/public/avatars/", position = String(url || "").indexOf(marker); return position < 0 ? "" : decodeURIComponent(String(url).slice(position + marker.length).split("?")[0]); }
-  async function uploadProfilePhoto(event) {
+  async function prepareProfilePhoto(event) {
     const input = event.currentTarget, file = input.files?.[0]; input.value = ""; if (!file || !state.session) return;
-    setProfilePhotoBusy(true, "Preparando e enviando sua foto…");
+    setProfilePhotoBusy(true, "Preparando a prévia da sua foto…");
     try {
-      const photo = await profileJpeg(file), path = `${state.session.user.id}/avatar-${Date.now()}-${crypto.randomUUID()}.jpg`, previousPath = avatarStoragePath(state.profile?.avatar_url);
-      const uploaded = await db.storage.from("avatars").upload(path, photo, { contentType: "image/jpeg", cacheControl: "3600", upsert: false }); if (uploaded.error) throw uploaded.error;
-      const { data: publicData } = db.storage.from("avatars").getPublicUrl(path), updated = await db.from("profiles").update({ avatar_url: publicData.publicUrl }).eq("id", state.session.user.id).select("*").single();
-      if (updated.error) { await db.storage.from("avatars").remove([path]); throw updated.error; }
-      if (previousPath && previousPath !== path) await db.storage.from("avatars").remove([previousPath]); state.profile = updated.data; renderProfilePhoto(); toast("Foto de perfil atualizada.");
-    } catch (error) { console.error(error); toast(error.message || "Não foi possível atualizar a foto.", 5500); }
-    finally { setProfilePhotoBusy(false); }
+      const photo = await profileJpeg(file); clearPendingProfilePhoto();
+      pendingProfilePhoto = photo; pendingProfilePreviewUrl = URL.createObjectURL(photo); pendingProfileRemoval = false;
+      const image = $("#accountAvatar"); $("#accountAvatarFallback").classList.add("hidden"); image.classList.remove("hidden"); image.src = pendingProfilePreviewUrl;
+      $("#removeProfilePhoto").classList.remove("hidden"); $("#saveProfilePhoto").disabled = false;
+      setProfilePhotoBusy(false, "Prévia pronta. Toque em Salvar para confirmar esta foto.");
+    } catch (error) { console.error(error); setProfilePhotoBusy(false, error.message || "Não foi possível preparar esta foto."); toast(error.message || "Não foi possível preparar esta foto.", 5500); }
   }
-  async function removeProfilePhoto() {
-    if (!state.session || !state.profile?.avatar_url) return; setProfilePhotoBusy(true, "Removendo sua foto…");
+  function previewProfilePhotoRemoval() {
+    if (!state.session || (!state.profile?.avatar_url && !pendingProfilePhoto)) return;
+    clearPendingProfilePhoto(); pendingProfileRemoval = true; showAvatarFallback();
+    $("#removeProfilePhoto").classList.add("hidden"); $("#saveProfilePhoto").disabled = false;
+    $("#profilePhotoStatus").textContent = "A foto será removida somente depois que você tocar em Salvar.";
+  }
+  async function saveProfilePhoto() {
+    if (!state.session || (!pendingProfilePhoto && !pendingProfileRemoval)) return;
+    setProfilePhotoBusy(true, "Salvando sua foto…");
     try {
-      const path = avatarStoragePath(state.profile.avatar_url), updated = await db.from("profiles").update({ avatar_url: null }).eq("id", state.session.user.id).select("*").single(); if (updated.error) throw updated.error;
-      if (path) await db.storage.from("avatars").remove([path]); state.profile = updated.data; renderProfilePhoto(); toast("Foto de perfil removida.");
-    } catch (error) { console.error(error); toast("Não foi possível remover a foto.", 5500); }
-    finally { setProfilePhotoBusy(false); }
+      const previousPath = avatarStoragePath(state.profile?.avatar_url);
+      if (pendingProfileRemoval) {
+        const updated = await db.from("profiles").update({ avatar_url: null }).eq("id", state.session.user.id).select("*").single(); if (updated.error) throw updated.error;
+        if (previousPath) await db.storage.from("avatars").remove([previousPath]); state.profile = updated.data;
+      } else {
+        const path = `${state.session.user.id}/avatar-${Date.now()}-${crypto.randomUUID()}.jpg`;
+        const uploaded = await db.storage.from("avatars").upload(path, pendingProfilePhoto, { contentType: "image/jpeg", cacheControl: "3600", upsert: false }); if (uploaded.error) throw uploaded.error;
+        const { data: publicData } = db.storage.from("avatars").getPublicUrl(path), updated = await db.from("profiles").update({ avatar_url: publicData.publicUrl }).eq("id", state.session.user.id).select("*").single();
+        if (updated.error) { await db.storage.from("avatars").remove([path]); throw updated.error; }
+        if (previousPath && previousPath !== path) await db.storage.from("avatars").remove([previousPath]); state.profile = updated.data;
+      }
+      const removed = pendingProfileRemoval; clearPendingProfilePhoto(); setProfilePhotoBusy(false); cancelProfilePhotoEdit();
+      toast(removed ? "Foto de perfil removida." : "Foto de perfil atualizada.");
+    } catch (error) { console.error(error); setProfilePhotoBusy(false, "Não foi possível salvar a foto. Tente novamente."); toast("Não foi possível salvar a foto.", 5500); }
   }
   function customerOrderCard(order) {
     const map = tools().mapUrl(order.address);
@@ -440,7 +494,7 @@
     const result = data.id ? await db.from("saved_addresses").update(payload).eq("id", data.id).select().single() : await db.from("saved_addresses").insert(payload).select().single();
     if (result.error) return showMessage($("#addressMessage"), "Não foi possível salvar o endereço.", "error"); els.addressDialog.close(); await loadAccountData(); toast("Endereço salvo.");
   }
-  async function signOut() { await db.auth.signOut(); state.session = null; state.profile = null; state.addresses = []; state.orders = []; els.authDialog.close(); $("#authButton").textContent = "Entrar"; toast("Você saiu da conta."); }
+  async function signOut() { await db.auth.signOut(); state.session = null; state.profile = null; state.addresses = []; state.orders = []; document.body.classList.remove("customer-signed-in"); els.authDialog.close(); toast("Você saiu da conta."); }
 
   function setAuthMode(mode) {
     state.authMode = mode;
@@ -482,15 +536,54 @@
     const password = $("#newPassword").value, confirmation = $("#confirmPassword").value; if (password.length < 8) return showMessage(els.authMessage, "Use pelo menos 8 caracteres.", "error"); if (password !== confirmation) return showMessage(els.authMessage, "As senhas não são iguais. Confira e tente novamente.", "error");
     const button = $("#savePasswordButton"); button.disabled = true; const { error } = await db.auth.updateUser({ password }); button.disabled = false; if (error) return showMessage(els.authMessage, "Não foi possível salvar a senha. Tente novamente.", "error"); await finishLogin();
   }
-  async function finishLogin() { $("#authButton").textContent = "Minha conta"; if (state.pendingCheckout) { state.pendingCheckout = false; els.authDialog.close(); await openCheckout(); return; } $("#authAccessPanel").classList.add("hidden"); $("#accountPanel").classList.remove("hidden"); renderAccount(); }
+  async function finishLogin() { document.body.classList.add("customer-signed-in"); if (state.pendingCheckout) { state.pendingCheckout = false; els.authDialog.close(); await openCheckout(); return; } $("#authAccessPanel").classList.add("hidden"); $("#accountPanel").classList.remove("hidden"); renderAccount(); }
   function togglePassword(button) { const input = $("#" + button.dataset.passwordToggle), show = input.type === "password"; input.type = show ? "text" : "password"; button.setAttribute("aria-pressed", String(show)); button.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha"); button.title = show ? "Ocultar senha" : "Mostrar senha"; button.querySelector("use")?.setAttribute("href", `/assets/icons.svg#icon-${show ? "eye-off" : "eye"}`); input.focus(); }
   function resetPasswordVisibility() { $$('[data-password-toggle]').forEach(button => { const input = $("#" + button.dataset.passwordToggle); input.type = "password"; button.setAttribute("aria-pressed", "false"); button.setAttribute("aria-label", "Mostrar senha"); button.title = "Mostrar senha"; button.querySelector("use")?.setAttribute("href", "/assets/icons.svg#icon-eye"); }); }
 
   function updateStoreInfo() {
-    const settings = state.settings; if (!settings) return; $("#bannerTitle").textContent = settings.banner_title || $("#bannerTitle").textContent; $("#bannerText").textContent = settings.banner_text || $("#bannerText").textContent;
-    $("#storeAddress").textContent = `${settings.address}, ${settings.city} — ${settings.state}`; $("#whatsappHero").href = `https://wa.me/${settings.whatsapp}`;
+    const settings = state.settings; if (!settings) return; $("#bannerEyebrow").textContent = settings.banner_eyebrow || $("#bannerEyebrow").textContent; $("#bannerTitle").textContent = settings.banner_title || $("#bannerTitle").textContent; $("#bannerText").textContent = settings.banner_text || $("#bannerText").textContent;
+    $("#heroPrimary").textContent = settings.banner_primary_label || "Ver cardápio"; $("#whatsappHero").textContent = settings.banner_secondary_label || "Falar no WhatsApp";
+    $("#storeAddress").textContent = `${settings.address}, ${settings.city} — ${settings.state}`; $("#whatsappHero").href = `https://wa.me/${settings.whatsapp}`; renderHeroCarousel();
     const open = isStoreOpen(settings), dot = $("#statusDot"); dot.className = `status-dot ${open ? "open" : "closed"}`; $("#storeStatus").textContent = settings.maintenance_mode ? "Pedidos temporariamente desligados" : open ? "Aberto agora" : "Fechado agora";
     $("#maintenanceNotice").classList.toggle("hidden", !settings.maintenance_mode); if (settings.maintenance_mode) $("#maintenanceNotice").textContent = "Estamos em manutenção temporária. O cardápio continua disponível para consulta, mas novos pedidos estão desligados."; renderCart();
+  }
+  function renderHeroCarousel() {
+    const slides = (state.settings?.hero_slides || []).filter(slide => slide?.active !== false && slide?.image_url);
+    if (!slides.length) return;
+    clearInterval(state.heroTimer); state.heroSlide = Math.min(state.heroSlide, slides.length - 1);
+    $("#heroCarousel").innerHTML = slides.map((slide, index) => `<figure class="hero-slide ${index === state.heroSlide ? "active" : ""}" aria-hidden="${index !== state.heroSlide}"><img src="${escapeHtml(slide.image_url)}" alt="${escapeHtml(slide.alt || slide.title || "Churrasco na brasa")}" ${index ? 'loading="lazy"' : 'fetchpriority="high"'}><figcaption>${escapeHtml(slide.title || "")}</figcaption></figure>`).join("") + `<div class="hero-dots" aria-hidden="true">${slides.map((_, index) => `<i class="${index === state.heroSlide ? "active" : ""}"></i>`).join("")}</div>`;
+    if (slides.length > 1 && !matchMedia("(prefers-reduced-motion: reduce)").matches) state.heroTimer = setInterval(() => {
+      state.heroSlide = (state.heroSlide + 1) % slides.length;
+      $$(".hero-slide", $("#heroCarousel")).forEach((slide, index) => { slide.classList.toggle("active", index === state.heroSlide); slide.setAttribute("aria-hidden", String(index !== state.heroSlide)); });
+      $$(".hero-dots i", $("#heroCarousel")).forEach((dot, index) => dot.classList.toggle("active", index === state.heroSlide));
+    }, Math.max(3, Number(state.settings.hero_interval_seconds || 6)) * 1000);
+  }
+  function renderPromotions() {
+    $("#promotionTitle").textContent = state.settings?.promotion_popup_title || "Promoções de hoje"; $("#promotionText").textContent = state.settings?.promotion_popup_text || "Escolha uma oferta e adicione à sua sacola.";
+    $("#promotionList").innerHTML = state.promotions.length ? state.promotions.map(promotion => { const product = state.products.find(item => item.id === promotion.product_id); if (!product) return ""; const image = localImage(promotion.image_url || product.image_url); return `<article class="promotion-card"><img src="${escapeHtml(image || "/assets/favicon.svg")}" alt="${escapeHtml(promotion.title)}"><div><span>${escapeHtml(promotion.badge_text || "OFERTA")}</span><h3>${escapeHtml(promotion.title)}</h3><p>${escapeHtml(promotion.description || product.description || "Oferta por tempo limitado.")}</p><strong>${displayPrice(product)}</strong></div><button class="button button-primary" type="button" data-promotion-id="${promotion.id}">${icon("bag")}Adicionar</button></article>`; }).join("") : `<div class="empty-state compact"><span class="empty-icon">${icon("ticket")}</span><h2>Nenhuma promoção ativa</h2><p>As próximas ofertas aparecerão aqui.</p></div>`;
+  }
+  function maybeShowPromotionPopup() {
+    if (!state.settings?.promotion_popup_enabled || !state.promotions.length) return;
+    const signature = state.promotions.map(item => `${item.id}:${item.updated_at}`).join("|");
+    try { if (sessionStorage.getItem("carne-sol-promotion-popup") === signature) return; sessionStorage.setItem("carne-sol-promotion-popup", signature); } catch {}
+    setTimeout(() => { if (!$("dialog[open]")) els.promotionDialog.showModal(); }, 500);
+  }
+  function selectPromotion(id) {
+    const promotion = state.promotions.find(item => item.id === id), product = promotion && state.products.find(item => item.id === promotion.product_id);
+    if (!product) return toast("Esta promoção não está disponível agora.");
+    const needsChoice = (product.option_groups || []).some(group => Number(group.min_select) > 0) || product.price == null;
+    els.promotionDialog.close();
+    if (needsChoice) { openProduct(product.id); toast("Escolha as opções da promoção para adicionar à sacola."); return; }
+    state.cart.push({ product_id:product.id, name:product.name, image_url:product.image_url, quantity:1, unit_price:Number(product.price), option_ids:[], options:[], notes:"" }); invalidateOrderRequest(); saveCart(); renderCart(); toast("Promoção adicionada à sacola.");
+  }
+  async function handleCustomerNavigation(event) {
+    const button = event.target.closest("[data-nav-action]"); if (!button) return; const action = button.dataset.navAction;
+    $$(".customer-nav-item").forEach(item => item.classList.toggle("active", item === button));
+    if (action === "home") { scrollTo({ top:0, behavior:"smooth" }); return; }
+    if (action === "cart") { renderCart(); els.cartDialog.showModal(); return; }
+    if (action === "promotions") { renderPromotions(); els.promotionDialog.showModal(); return; }
+    await openAuth();
+    if (action === "orders" && state.session) setTimeout(() => $("#accountOrders")?.scrollIntoView({ behavior:"smooth", block:"start" }), 80);
   }
   function isStoreOpen(settings) { if (settings.manual_status === "open") return true; if (settings.manual_status === "closed") return false; const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "America/Fortaleza", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date()).map(part => [part.type, part.value])); const day = ({ Sun:"0", Mon:"1", Tue:"2", Wed:"3", Thu:"4", Fri:"5", Sat:"6" })[parts.weekday], hours = settings.opening_hours?.[day]; if (!hours) return false; const now = parts.hour.padStart(2, "0") + ":" + parts.minute; return now >= hours[0] && now < hours[1]; }
   function showMessage(element, text, type = "") { element.textContent = text; element.className = `form-message ${type}`; }
