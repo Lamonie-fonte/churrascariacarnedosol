@@ -4,6 +4,6 @@
   "private": true,
   "scripts": {
     "check": "node scripts/check.mjs",
-    "dev": "npx serve . -l 4173"
+    "dev": "node scripts/dev.mjs"
   }
 }

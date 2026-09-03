@@ -133,6 +133,10 @@
     </fieldset>`).join("");
     $$("input",els.optionGroups).forEach(input=>input.addEventListener("change",e=>{ enforceGroup(e.target); updateAddTotal(); }));
     $("#itemNotes").value=""; setQuantity(1); els.productDialog.showModal();
+    requestAnimationFrame(() => {
+      $(".dialog-frame",els.productDialog).scrollTop=0;
+      $(".dialog-content",els.productDialog).scrollTop=0;
+    });
   }
 
   function enforceGroup(input) {

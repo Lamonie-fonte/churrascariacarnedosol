@@ -2,6 +2,8 @@ import { readFile, readdir, stat } from "node:fs/promises";
 
 const root = new URL("../", import.meta.url);
 const catalog = JSON.parse(await readFile(new URL("data/catalog.json", root), "utf8"));
+const styles = await readFile(new URL("assets/styles.css", root), "utf8");
+const app = await readFile(new URL("assets/app.js", root), "utf8");
 const productFiles = await readdir(new URL("products/", root));
 const expected = new Set(catalog.map(item => item.image_url.split("/").pop()));
 const missing = [...expected].filter(name => !productFiles.includes(name));
@@ -15,4 +17,9 @@ if (empty.length) throw new Error(`Imagens vazias: ${empty.join(", ")}`);
 
 const options = catalog.flatMap(item => item.option_groups.flatMap(group => group.options));
 if (options.length !== 304) throw new Error(`Esperadas 304 opções; encontradas ${options.length}.`);
-console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens e ${options.length} opções.`);
+if (!styles.includes("height:calc(100dvh - 16px)")) throw new Error("O modal móvel não acompanha a altura visível da tela.");
+if (!styles.includes("overflow-y:auto;overscroll-behavior:contain")) throw new Error("A rolagem do modal móvel não está ativa.");
+if (!styles.includes("object-fit:contain")) throw new Error("As imagens dos produtos podem ser recortadas.");
+if (!styles.includes(".quantity-row{position:sticky;bottom:0")) throw new Error("A barra de adicionar não está presa à base do modal.");
+if (!app.includes("requestAnimationFrame") || !app.includes("scrollTop=0")) throw new Error("O modal não volta ao início ao abrir outro produto.");
+console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções e modal móvel rolável.`);
