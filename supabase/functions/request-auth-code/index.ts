@@ -3,7 +3,8 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 const SITE_URL = "https://churrascariacarnedosol.vercel.app";
 const ALLOWED_ORIGINS = new Set([SITE_URL]);
-let mailerPromise: Promise<{ transporter: { sendMail: (message: Record<string, unknown>) => Promise<unknown> }; smtpUser: string }> | null = null;
+type Mailer = { transporter: { sendMail: (message: Record<string, unknown>) => Promise<unknown>; close?: () => void }; smtpUser: string };
+let mailerPromise: Promise<Mailer> | null = null;
 
 function cors(origin: string | null) {
   return {
@@ -64,21 +65,36 @@ async function getMailer(serviceClient: ReturnType<typeof createClient>) {
   return mailerPromise;
 }
 
+async function resetMailer() {
+  const previous = mailerPromise;
+  mailerPromise = null;
+  if (!previous) return;
+  try { (await previous).transporter.close?.(); } catch { /* A failed connection has nothing to close. */ }
+}
+
 async function deliverCodeEmail(serviceClient: ReturnType<typeof createClient>, email: string, code: string, mode: string) {
   const startedAt = Date.now();
-  try {
-    const { transporter, smtpUser } = await getMailer(serviceClient);
-    const subject = mode === "signup" ? "Confirme seu cadastro — Churrascaria Carne de Sol" : mode === "recovery" ? "Recupere seu acesso — Churrascaria Carne de Sol" : "Seu código de acesso — Churrascaria Carne de Sol";
-    await transporter.sendMail({
-      from: `"CHURRASCARIA CARNE DE SOL" <${smtpUser}>`,
-      to: email,
-      subject,
-      text: `${subject}\n\nCódigo: ${code}\n\nO código tem exatamente 6 dígitos e só pode ser usado uma vez.`,
-      html: emailHtml(code, mode),
-    });
-    console.log("auth-email-sent", { duration_ms: Date.now() - startedAt });
-  } catch (error) {
-    console.error("auth-email-background-failed", { duration_ms: Date.now() - startedAt, error });
+  const subject = mode === "signup" ? "Confirme seu cadastro — Churrascaria Carne de Sol" : mode === "recovery" ? "Recupere seu acesso — Churrascaria Carne de Sol" : "Seu código de acesso — Churrascaria Carne de Sol";
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      const { transporter, smtpUser } = await getMailer(serviceClient);
+      await transporter.sendMail({
+        from: `"CHURRASCARIA CARNE DE SOL" <${smtpUser}>`,
+        to: email,
+        subject,
+        text: `${subject}\n\nCódigo: ${code}\n\nO código tem exatamente 6 dígitos e só pode ser usado uma vez.`,
+        html: emailHtml(code, mode),
+      });
+      console.log("auth-email-sent", { attempt, duration_ms: Date.now() - startedAt });
+      return;
+    } catch (error) {
+      if (attempt === 1) {
+        console.warn("auth-email-reconnecting", { duration_ms: Date.now() - startedAt });
+        await resetMailer();
+        continue;
+      }
+      console.error("auth-email-background-failed", { attempts: attempt, duration_ms: Date.now() - startedAt, error });
+    }
   }
 }
 

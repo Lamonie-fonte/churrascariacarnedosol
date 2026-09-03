@@ -35,8 +35,9 @@
   function showGate() { $("#adminGate").classList.remove("hidden"); $("#adminApp").classList.add("hidden"); }
   async function sendCode() {
     const email = $("#adminEmail").value.trim().toLowerCase(), button = $("#adminSendCode"); if (!email.includes("@")) return msg($("#adminLoginMessage"), "Digite um e-mail válido.", "error");
-    button.disabled = true; const { data, error } = await db.functions.invoke("request-auth-code", { body: { email, mode:"login" } }); button.disabled = false;
-    if (error || data?.ok === false) return msg($("#adminLoginMessage"), "O serviço de e-mail está temporariamente indisponível. Tente novamente.", "error");
+    const label = button.textContent; button.disabled = true; button.textContent = "Enviando código…"; msg($("#adminLoginMessage"), "Conectando com segurança…");
+    const { data, error } = await window.requestAuthCodeReliable({ email, mode:"login" }); button.disabled = false; button.textContent = label;
+    if (error || data?.ok !== true) return msg($("#adminLoginMessage"), "Não foi possível conectar ao e-mail. Confira sua internet e tente novamente.", "error");
     $("#adminCodeArea").classList.remove("hidden"); msg($("#adminLoginMessage"), "Se este e-mail estiver autorizado, enviaremos um código numérico.", "success");
   }
   async function verifyCode() {

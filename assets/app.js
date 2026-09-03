@@ -444,8 +444,9 @@
   function setAuthMode(mode) { state.authMode = mode; const signup = mode === "signup"; $(".signup-only").classList.toggle("hidden", !signup); $("#authTitle").textContent = signup ? "Criar cadastro" : mode === "recovery" ? "Recuperar acesso" : "Entrar com código"; $("#authHelp").textContent = mode === "recovery" ? "Enviaremos um código numérico. Depois você poderá criar uma nova senha." : "Digite seu e-mail. Enviaremos um código numérico de acesso."; }
   async function sendAuthCode(event) {
     event?.preventDefault(); const email = $("#authEmail").value.trim().toLowerCase(); if (!email || !email.includes("@")) return showMessage(els.authMessage, "Digite um e-mail válido.", "error");
-    const button = $("#sendCodeButton"); button.disabled = true; const { data, error } = await db.functions.invoke("request-auth-code", { body: { email, mode: state.authMode, fullName: state.authMode === "signup" ? $("#authName").value.trim() : "" } }); button.disabled = false;
-    if (error || data?.ok === false) return showMessage(els.authMessage, "O serviço de e-mail está temporariamente indisponível. Tente novamente.", "error");
+    const button = $("#sendCodeButton"), label = button.textContent; button.disabled = true; button.textContent = "Enviando código…"; showMessage(els.authMessage, "Conectando com segurança…");
+    const { data, error } = await window.requestAuthCodeReliable({ email, mode: state.authMode, fullName: state.authMode === "signup" ? $("#authName").value.trim() : "" }); button.disabled = false; button.textContent = label;
+    if (error || data?.ok !== true) return showMessage(els.authMessage, "Não foi possível conectar ao e-mail. Confira sua internet e tente novamente.", "error");
     $("#authRequestStep").classList.add("hidden"); $("#authVerifyStep").classList.remove("hidden"); showMessage(els.authMessage, "Se este e-mail estiver cadastrado, enviaremos um código numérico.", "success"); $("#authCode").focus();
   }
   async function verifyAuthCode() {
