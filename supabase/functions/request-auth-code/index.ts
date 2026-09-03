@@ -71,9 +71,13 @@ Deno.serve(async (req: Request) => {
       secure: true,
       auth: { user: mailConfig[0].smtp_user, pass: mailConfig[0].smtp_password },
     });
+    const random = new Uint32Array(1);
+    crypto.getRandomValues(random);
+    const code = String(random[0] % 1_000_000).padStart(6, "0");
+    const { data: replaced, error: replaceError } = await supabase.rpc("override_auth_otp", { p_email: email, p_code: code });
+    if (replaceError || !replaced) throw replaceError || new Error("otp_replace_failed");
+
     const subject = mode === "signup" ? "Confirme seu cadastro — Churrascaria Carne de Sol" : mode === "recovery" ? "Recupere seu acesso — Churrascaria Carne de Sol" : "Seu código de acesso — Churrascaria Carne de Sol";
-    const code = String(link.properties.email_otp);
-    if (!/^\d{6}$/.test(code)) throw new Error("unexpected_otp_format");
     await transporter.sendMail({
       from: `"CHURRASCARIA CARNE DE SOL" <${mailConfig[0].smtp_user}>`,
       to: email,
