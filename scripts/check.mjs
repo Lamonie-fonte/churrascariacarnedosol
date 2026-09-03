@@ -5,6 +5,7 @@ const catalog = JSON.parse(await readFile(new URL("data/catalog.json", root), "u
 const styles = await readFile(new URL("assets/styles.css", root), "utf8");
 const app = await readFile(new URL("assets/app.js", root), "utf8");
 const admin = await readFile(new URL("assets/admin.js", root), "utf8");
+const receipts = await readFile(new URL("assets/receipts.js", root), "utf8");
 const storeHtml = await readFile(new URL("index.html", root), "utf8");
 const adminHtml = await readFile(new URL("admin.html", root), "utf8");
 const authFunction = await readFile(new URL("supabase/functions/request-auth-code/index.ts", root), "utf8");
@@ -27,7 +28,7 @@ if (!styles.includes("height:calc(100dvh - 16px)")) throw new Error("O modal mó
 if (!styles.includes("overflow-y:auto;overscroll-behavior:contain")) throw new Error("A rolagem do modal móvel não está ativa.");
 if (!styles.includes("object-fit:contain")) throw new Error("As imagens dos produtos podem ser recortadas.");
 if (!styles.includes(".quantity-row{position:sticky;bottom:0")) throw new Error("A barra de adicionar não está presa à base do modal.");
-if (!app.includes("requestAnimationFrame") || !app.includes("scrollTop=0")) throw new Error("O modal não volta ao início ao abrir outro produto.");
+if (!app.includes("requestAnimationFrame") || !/scrollTop\s*=\s*0/.test(app)) throw new Error("O modal não volta ao início ao abrir outro produto.");
 if (!authFunction.includes("auth.admin.generateLink") || !authFunction.includes("password: generatedPassword")) throw new Error("O cadastro não gera o OTP oficial com uma senha técnica válida.");
 if (!authFunction.includes('from "npm:nodemailer') || !authFunction.includes('rpc("store_auth_email_code"')) throw new Error("O envio personalizado de seis dígitos não está ativo.");
 if (authFunction.includes("auth.signInWithOtp")) throw new Error("O envio ainda pode usar o template padrão com link.");
@@ -38,10 +39,15 @@ if (!app.includes("db.auth.setSession") || !admin.includes("db.auth.setSession")
 if (!app.includes("/^\\d{6}$/") || !admin.includes("/^\\d{6}$/")) throw new Error("As telas não exigem exatamente seis dígitos.");
 if (!storeHtml.includes('pattern="[0-9]{6}" minlength="6" maxlength="6"') || !adminHtml.includes('minlength="6" maxlength="6" pattern="[0-9]{6}"')) throw new Error("Os campos de OTP não estão limitados a seis dígitos.");
 if (!storeHtml.includes('id="checkoutCep"') || !app.includes("https://viacep.com.br/ws/")) throw new Error("A busca automática de endereço pelo CEP não está ativa.");
-if (!app.includes("postal_code:formatCep") || !app.includes("city:data.city") || !app.includes("state:data.state.toUpperCase()") || !admin.includes("a.postal_code")) throw new Error("O endereço completo não está sendo enviado e exibido no pedido.");
+if (!/postal_code:\s*formatCep/.test(app) || !/city:\s*data\.city/.test(app) || !/state:\s*data\.state\.toUpperCase\(\)/.test(app) || !admin.includes("fullAddress")) throw new Error("O endereço completo não está sendo enviado e exibido no pedido.");
 if ((storeHtml.match(/data-password-toggle=/g)||[]).length !== 2 || !storeHtml.includes('id="confirmPassword"')) throw new Error("Os campos de senha não têm confirmação e botão de visualização.");
-if (!app.includes("password!==confirmation") || !app.includes('input.type=show?"text":"password"')) throw new Error("A confirmação ou visualização de senha não está funcionando.");
+if (!/password\s*!==\s*confirmation/.test(app) || !/input\.type\s*=\s*show\s*\?\s*"text"\s*:\s*"password"/.test(app)) throw new Error("A confirmação ou visualização de senha não está funcionando.");
 if (!keepAliveWorkflow.includes('cron: "17 9 * * *"') || !keepAliveWorkflow.includes("workflow_dispatch:")) throw new Error("O robô diário do Supabase não está agendado corretamente.");
 if (!keepAliveWorkflow.includes("/rest/v1/store_settings") || !keepAliveWorkflow.includes("--retry 3")) throw new Error("O robô diário não valida o banco com repetição segura.");
 if (/service[_-]?role/i.test(keepAliveWorkflow)) throw new Error("O robô diário não pode usar a chave administrativa.");
-console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções, CEP automático, senha conferida e robô diário do Supabase.`);
+if (!app.includes('client_request_id: requestId') || !app.includes('.eq("client_request_id", requestId)')) throw new Error("O pedido não possui recuperação idempotente.");
+if (!storeHtml.includes('id="savedAddressSelect"') || !storeHtml.includes('id="accountOrders"') || !app.includes('from("saved_addresses")')) throw new Error("Endereços salvos ou histórico individual não estão ativos.");
+if (!receipts.includes("whatsappText") || !receipts.includes("downloadPdf") || !receipts.includes("maps.google.com")) throw new Error("WhatsApp detalhado, PDF ou mapa estão incompletos.");
+if (!adminHtml.includes('data-view="customers"') || !admin.includes('rpc("set_customer_block"') || !admin.includes('data-order-action="delete"')) throw new Error("Controles administrativos de clientes e pedidos estão incompletos.");
+if (!admin.includes("maintenance_mode:!data.has") || !adminHtml.includes('id="toggleOrders"')) throw new Error("O botão de ligar/desligar pedidos não está ativo.");
+console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções, conta/endereço/histórico, pedido idempotente, WhatsApp, PDF, mapa e painel administrativo.`);

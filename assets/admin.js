@@ -1,152 +1,191 @@
 (() => {
-  const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
-  const state={profile:null,categories:[],products:[],groups:[],options:[],orders:[],settings:null,editor:null};
-  const titles={dashboard:"Visão geral",products:"Produtos",categories:"Categorias",options:"Complementos",orders:"Pedidos",store:"Loja e entrega",appearance:"Aparência",auth:"E-mail e acesso"};
-  document.addEventListener("DOMContentLoaded",init);
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+  const tools = () => window.OrderTools;
+  const state = { profile: null, categories: [], products: [], groups: [], options: [], orders: [], customers: [], settings: null, editor: null };
+  const titles = { dashboard:"Visão geral", products:"Produtos", categories:"Categorias", options:"Complementos", orders:"Pedidos", customers:"Clientes", store:"Loja e entrega", appearance:"Aparência", auth:"E-mail e acesso" };
+  const statuses = [["pending","Pendente"],["confirmed","Confirmado"],["preparing","Preparando"],["ready","Pronto"],["out_for_delivery","Saiu para entrega"],["completed","Concluído"],["cancelled","Cancelado"]];
+  document.addEventListener("DOMContentLoaded", init);
 
-  async function init(){
-    bind();
-    db.auth.onAuthStateChange((_event,session)=>{if(!session)showGate();});
-    const {data:{session}}=await db.auth.getSession();
-    if(session) await enterAdmin(session.user); else showGate();
+  async function init() {
+    bind(); db.auth.onAuthStateChange((_event, session) => { if (!session) showGate(); });
+    const { data: { session } } = await db.auth.getSession(); if (session) await enterAdmin(session.user); else showGate();
   }
-  function bind(){
-    $("#adminSendCode").addEventListener("click",sendCode);$("#adminVerifyCode").addEventListener("click",verifyCode);
-    $("#adminCode").addEventListener("input",e=>e.target.value=e.target.value.replace(/\D/g,"").slice(0,6));
-    $("#adminSignOut").addEventListener("click",async()=>{await db.auth.signOut();showGate();});
-    $("#adminNav").addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)showView(b.dataset.view);});
-    document.addEventListener("click",e=>{const go=e.target.closest("[data-go]");if(go)showView(go.dataset.go);});
-    $("#adminMenu").addEventListener("click",()=>$(".admin-sidebar").classList.toggle("open"));
-    $("#newProduct").addEventListener("click",()=>editProduct());$("#newCategory").addEventListener("click",()=>editCategory());
-    $("#productSearch").addEventListener("input",renderProducts);$("#productCategoryFilter").addEventListener("change",renderProducts);
-    $("#optionProductSelect").addEventListener("change",renderOptionGroups);$("#orderStatusFilter").addEventListener("change",renderOrders);$("#refreshOrders").addEventListener("click",loadOrders);
-    $("#adminProducts").addEventListener("click",productAction);$("#adminCategories").addEventListener("click",categoryAction);$("#adminOptionGroups").addEventListener("click",optionAction);$("#adminOrders").addEventListener("change",orderAction);
-    $("#closeEditor").addEventListener("click",()=>$("#adminEditor").close());$("#editorForm").addEventListener("submit",saveEditor);
+  function bind() {
+    $("#adminSendCode").addEventListener("click", sendCode); $("#adminVerifyCode").addEventListener("click", verifyCode);
+    $("#adminCode").addEventListener("input", event => event.target.value = event.target.value.replace(/\D/g, "").slice(0, 6));
+    $("#adminSignOut").addEventListener("click", async () => { await db.auth.signOut(); showGate(); });
+    $("#adminNav").addEventListener("click", event => { const button = event.target.closest("[data-view]"); if (button) showView(button.dataset.view); });
+    document.addEventListener("click", globalAction);
+    $("#adminMenu").addEventListener("click", () => $(".admin-sidebar").classList.toggle("open"));
+    $("#newProduct").addEventListener("click", () => editProduct()); $("#newCategory").addEventListener("click", () => editCategory());
+    $("#productSearch").addEventListener("input", renderProducts); $("#productCategoryFilter").addEventListener("change", renderProducts);
+    $("#optionProductSelect").addEventListener("change", renderOptionGroups); $("#orderStatusFilter").addEventListener("change", renderOrders);
+    $("#customerSearch").addEventListener("input", renderCustomers); $("#refreshCustomers").addEventListener("click", loadCustomers);
+    $("#refreshOrders").addEventListener("click", loadOrders); $("#toggleOrders").addEventListener("click", toggleOrders);
+    $("#adminProducts").addEventListener("click", productAction); $("#adminCategories").addEventListener("click", categoryAction); $("#adminOptionGroups").addEventListener("click", optionAction);
+    $("#adminOrders").addEventListener("change", orderStatusAction); $("#recentOrders").addEventListener("change", orderStatusAction);
+    $("#closeEditor").addEventListener("click", () => $("#adminEditor").close()); $("#editorForm").addEventListener("submit", saveEditor);
   }
-  function showGate(){$("#adminGate").classList.remove("hidden");$("#adminApp").classList.add("hidden");}
-  async function sendCode(){
-    const email=$("#adminEmail").value.trim().toLowerCase(),button=$("#adminSendCode");if(!email.includes("@"))return msg($("#adminLoginMessage"),"Digite um e-mail válido.","error");
-    button.disabled=true;const {data,error}=await db.functions.invoke("request-auth-code",{body:{email,mode:"login"}});button.disabled=false;
-    if(error||data?.ok===false)return msg($("#adminLoginMessage"),"O serviço de e-mail está temporariamente indisponível. Tente novamente.","error");
-    $("#adminCodeArea").classList.remove("hidden");msg($("#adminLoginMessage"),"Se este e-mail estiver autorizado, enviaremos um código numérico.","success");
+  function globalAction(event) {
+    const go = event.target.closest("[data-go]"); if (go) showView(go.dataset.go);
+    const order = event.target.closest("[data-order-action]"); if (order) orderAction(order);
+    const customer = event.target.closest("[data-customer-action]"); if (customer) customerAction(customer);
   }
-  async function verifyCode(){
-    const code=$("#adminCode").value;if(!/^\d{6}$/.test(code))return msg($("#adminLoginMessage"),"Digite os 6 números enviados ao e-mail.","error");
-    const button=$("#adminVerifyCode");button.disabled=true;
-    const email=$("#adminEmail").value.trim().toLowerCase();
-    const {data,error}=await db.functions.invoke("verify-auth-code",{body:{email,code}});
-    if(error||!data?.ok||!data?.access_token||!data?.refresh_token){button.disabled=false;return msg($("#adminLoginMessage"),"Código inválido ou expirado.","error");}
-    const {data:sessionData,error:sessionError}=await db.auth.setSession({access_token:data.access_token,refresh_token:data.refresh_token});button.disabled=false;
-    if(sessionError||!sessionData?.user)return msg($("#adminLoginMessage"),"Não foi possível concluir o acesso. Solicite um novo código.","error");await enterAdmin(sessionData.user);
+  function showGate() { $("#adminGate").classList.remove("hidden"); $("#adminApp").classList.add("hidden"); }
+  async function sendCode() {
+    const email = $("#adminEmail").value.trim().toLowerCase(), button = $("#adminSendCode"); if (!email.includes("@")) return msg($("#adminLoginMessage"), "Digite um e-mail válido.", "error");
+    button.disabled = true; const { data, error } = await db.functions.invoke("request-auth-code", { body: { email, mode:"login" } }); button.disabled = false;
+    if (error || data?.ok === false) return msg($("#adminLoginMessage"), "O serviço de e-mail está temporariamente indisponível. Tente novamente.", "error");
+    $("#adminCodeArea").classList.remove("hidden"); msg($("#adminLoginMessage"), "Se este e-mail estiver autorizado, enviaremos um código numérico.", "success");
   }
-  async function enterAdmin(user){
-    const {data,error}=await db.from("profiles").select("*").eq("id",user.id).maybeSingle();
-    if(error||data?.role!=="admin"){await db.auth.signOut();showGate();msg($("#adminLoginMessage"),"Este e-mail não possui acesso administrativo.","error");return;}
-    state.profile=data;$("#adminGate").classList.add("hidden");$("#adminApp").classList.remove("hidden");await loadAll();showView("dashboard");
+  async function verifyCode() {
+    const code = $("#adminCode").value; if (!/^\d{6}$/.test(code)) return msg($("#adminLoginMessage"), "Digite os 6 números enviados ao e-mail.", "error");
+    const button = $("#adminVerifyCode"); button.disabled = true; const email = $("#adminEmail").value.trim().toLowerCase();
+    const { data, error } = await db.functions.invoke("verify-auth-code", { body: { email, code } });
+    if (error || !data?.ok || !data?.access_token || !data?.refresh_token) { button.disabled = false; return msg($("#adminLoginMessage"), "Código inválido ou expirado.", "error"); }
+    const { data: sessionData, error: sessionError } = await db.auth.setSession({ access_token:data.access_token, refresh_token:data.refresh_token }); button.disabled = false;
+    if (sessionError || !sessionData?.user) return msg($("#adminLoginMessage"), "Não foi possível concluir o acesso. Solicite um novo código.", "error"); await enterAdmin(sessionData.user);
   }
-  async function loadAll(){
-    const [cats,products,groups,options,settings]=await Promise.all([
-      db.from("categories").select("*").order("position"),db.from("products").select("*").order("position"),
-      db.from("option_groups").select("*").order("position"),db.from("product_options").select("*").order("position"),
-      db.from("store_settings").select("*").eq("id",true).single()
+  async function enterAdmin(user) {
+    const { data, error } = await db.from("profiles").select("*").eq("id", user.id).maybeSingle();
+    if (error || data?.role !== "admin") { await db.auth.signOut(); showGate(); msg($("#adminLoginMessage"), "Este e-mail não possui acesso administrativo.", "error"); return; }
+    state.profile = data; $("#adminGate").classList.add("hidden"); $("#adminApp").classList.remove("hidden");
+    try { await loadAll(); showView("dashboard"); } catch (loadError) { console.error(loadError); toast("Não foi possível carregar todos os dados do painel."); }
+  }
+  async function loadAll() {
+    const [categories, products, groups, options, settings] = await Promise.all([
+      db.from("categories").select("*").order("position"), db.from("products").select("*").order("position"), db.from("option_groups").select("*").order("position"),
+      db.from("product_options").select("*").order("position"), db.from("store_settings").select("*").eq("id", true).single()
     ]);
-    for(const r of [cats,products,groups,options,settings])if(r.error)throw r.error;
-    Object.assign(state,{categories:cats.data,products:products.data.map(p=>({...p,image_url:localImage(p.image_url)})),groups:groups.data,options:options.data,settings:settings.data});
-    await loadOrders();populateFilters();renderProducts();renderCategories();renderOptionProductSelect();renderSettings();renderAuthChecklist();renderDashboard();
+    for (const result of [categories, products, groups, options, settings]) if (result.error) throw result.error;
+    Object.assign(state, {
+      categories: categories.data.map(category => ({ ...category, name: tools().displayName(category.name) })),
+      products: products.data.map(product => ({ ...product, name: tools().displayName(product.name), image_url:localImage(product.image_url) })),
+      groups: groups.data, options: options.data, settings: settings.data
+    });
+    await Promise.all([loadOrders(), loadCustomers()]); populateFilters(); renderProducts(); renderCategories(); renderOptionProductSelect(); renderSettings(); renderAuthChecklist(); renderDashboard();
   }
-  async function loadOrders(){const {data,error}=await db.from("orders").select("*,order_items(*)").order("created_at",{ascending:false}).limit(200);if(!error){state.orders=data;renderOrders();renderDashboard();}}
-  function showView(view){
-    $$(".admin-view").forEach(v=>v.classList.toggle("active",v.id==="view-"+view));$$("#adminNav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-    $("#viewTitle").textContent=titles[view];$(".admin-sidebar").classList.remove("open");
+  async function loadOrders() {
+    const { data, error } = await db.from("orders").select("*,order_items(*)").order("created_at", { ascending:false }).limit(500);
+    if (error) return toast("Não foi possível atualizar os pedidos."); state.orders = data || []; renderOrders(); renderDashboard();
   }
-  function populateFilters(){
-    $("#productCategoryFilter").innerHTML='<option value="">Todas as categorias</option>'+state.categories.map(c=>`<option value="${c.id}">${escapeHtml(c.name)}</option>`).join("");
+  async function loadCustomers() {
+    const { data, error } = await db.from("profiles").select("*").eq("role", "customer").order("created_at", { ascending:false });
+    if (error) return toast("Não foi possível atualizar os clientes."); state.customers = data || []; renderCustomers(); renderDashboard();
   }
-  function renderDashboard(){
-    const today=new Date().toLocaleDateString("pt-BR",{timeZone:"America/Fortaleza"}),todayOrders=state.orders.filter(o=>new Date(o.created_at).toLocaleDateString("pt-BR",{timeZone:"America/Fortaleza"})===today);
-    const revenue=todayOrders.filter(o=>o.status!=="cancelled").reduce((n,o)=>n+Number(o.total),0);
-    const metrics=[["Produtos ativos",state.products.filter(p=>p.active).length],["Promoções",state.products.filter(p=>p.featured&&p.active).length],["Pedidos hoje",todayOrders.length],["Vendas hoje",money(revenue)]];
-    $("#metricGrid").innerHTML=metrics.map(([label,value])=>`<article class="metric-card"><span>${label}</span><strong>${value}</strong></article>`).join("");
-    $("#recentOrders").innerHTML=state.orders.slice(0,6).map(orderCard).join("")||"<p>Nenhum pedido ainda.</p>";
+  function showView(view) { $$(".admin-view").forEach(element => element.classList.toggle("active", element.id === "view-" + view)); $$("#adminNav button").forEach(button => button.classList.toggle("active", button.dataset.view === view)); $("#viewTitle").textContent = titles[view]; $(".admin-sidebar").classList.remove("open"); }
+  function populateFilters() { $("#productCategoryFilter").innerHTML = '<option value="">Todas as categorias</option>' + state.categories.map(category => `<option value="${category.id}">${escapeHtml(category.name)}</option>`).join(""); }
+  function renderDashboard() {
+    if (!state.settings) return;
+    const today = new Date().toLocaleDateString("pt-BR", { timeZone:"America/Fortaleza" }), todayOrders = state.orders.filter(order => new Date(order.created_at).toLocaleDateString("pt-BR", { timeZone:"America/Fortaleza" }) === today);
+    const revenue = todayOrders.filter(order => order.status !== "cancelled").reduce((total, order) => total + Number(order.total), 0);
+    const metrics = [["Produtos ativos",state.products.filter(product => product.active).length],["Clientes",state.customers.length],["Pedidos hoje",todayOrders.length],["Vendas hoje",money(revenue)]];
+    $("#metricGrid").innerHTML = metrics.map(([label, value]) => `<article class="metric-card"><span>${label}</span><strong>${value}</strong></article>`).join("");
+    $("#recentOrders").innerHTML = state.orders.slice(0, 6).map(orderCard).join("") || "<p>Nenhum pedido ainda.</p>"; renderOperationBar();
   }
-  function renderProducts(){
-    const q=$("#productSearch").value.trim().toLocaleLowerCase("pt-BR"),cat=$("#productCategoryFilter").value;
-    const items=state.products.filter(p=>(!q||(`${p.name} ${p.description||""}`).toLocaleLowerCase("pt-BR").includes(q))&&(!cat||p.category_id===cat));
-    $("#adminProducts").innerHTML=items.map(p=>`<article class="admin-row"><img src="${escapeHtml(p.image_url||"/assets/favicon.svg")}" alt=""><div><h3>${escapeHtml(p.name)}</h3><p>${escapeHtml(state.categories.find(c=>c.id===p.category_id)?.name||"")}</p></div><div class="admin-secondary"><strong>${p.price==null?"Preço por opção":money(p.price)}</strong><br><span class="status-pill ${p.active?"active":""}">${p.active?"Ativo":"Oculto"}</span></div><div class="admin-row-actions"><button data-action="toggle" data-id="${p.id}" title="Ativar/ocultar">${p.active?"◉":"○"}</button><button data-action="edit" data-id="${p.id}" title="Editar">✎</button></div></article>`).join("");
+  function renderOperationBar() {
+    const accepting = !state.settings.maintenance_mode; $("#operationBar").classList.toggle("off", !accepting); $("#operationTitle").textContent = accepting ? "Pedidos ligados" : "Pedidos desligados";
+    $("#operationText").textContent = accepting ? "Clientes podem concluir novos pedidos agora." : "O cardápio está visível, mas ninguém pode enviar pedido.";
+    $("#toggleOrders").textContent = accepting ? "Desligar novos pedidos" : "Ligar novos pedidos"; $("#toggleOrders").classList.toggle("button-danger", accepting); $("#toggleOrders").classList.toggle("button-primary", !accepting);
   }
-  async function productAction(e){
-    const b=e.target.closest("[data-action]");if(!b)return;const p=state.products.find(x=>x.id===b.dataset.id);if(b.dataset.action==="edit")editProduct(p);
-    if(b.dataset.action==="toggle"){const {error}=await db.from("products").update({active:!p.active}).eq("id",p.id);if(!error){p.active=!p.active;renderProducts();toast("Disponibilidade atualizada.");}}
-  }
-  function editProduct(p=null){
-    state.editor={type:"product",record:p};openEditor(p?"Editar produto":"Novo produto",`
-      <div class="form-grid"><label class="field wide"><span>Nome *</span><input name="name" required value="${escapeHtml(p?.name||"")}"></label>
-      <label class="field wide"><span>Descrição</span><textarea name="description">${escapeHtml(p?.description||"")}</textarea></label>
-      <label class="field"><span>Categoria *</span><select name="category_id" required>${state.categories.map(c=>`<option value="${c.id}" ${p?.category_id===c.id?"selected":""}>${escapeHtml(c.name)}</option>`).join("")}</select></label>
-      <label class="field"><span>Ordem</span><input name="position" type="number" value="${p?.position??state.products.length*10+10}"></label>
-      <label class="field"><span>Preço atual</span><input name="price" inputmode="decimal" value="${p?.price??""}" placeholder="Deixe vazio se o preço vier da opção"></label>
-      <label class="field"><span>Preço antigo riscado</span><input name="old_price" inputmode="decimal" value="${p?.old_price??""}" placeholder="Opcional"></label>
-      <label class="field wide"><span>URL da imagem</span><input name="image_url" value="${escapeHtml(p?.image_url||"")}"></label>
-      <label class="field wide"><span>Ou enviar nova imagem (máx. 5 MB)</span><input name="image_file" type="file" accept="image/jpeg,image/png,image/webp,image/avif"></label>
-      <label class="option-choice"><input name="active" type="checkbox" ${p?.active!==false?"checked":""}><span>Produto ativo</span></label>
-      <label class="option-choice"><input name="featured" type="checkbox" ${p?.featured?"checked":""}><span>Destacar como promoção</span></label></div>`);
-  }
-  async function saveProduct(form,p){
-    const data=new FormData(form);let image=data.get("image_url").trim(),file=data.get("image_file");
-    if(file?.size){if(file.size>5242880)throw new Error("A imagem deve ter no máximo 5 MB.");const ext=file.name.split(".").pop().toLowerCase();const path=`products/${crypto.randomUUID()}.${ext}`;const up=await db.storage.from("product-images").upload(path,file,{cacheControl:"31536000",upsert:false});if(up.error)throw up.error;image=db.storage.from("product-images").getPublicUrl(path).data.publicUrl;}
-    const categoryId=data.get("category_id"),category=state.categories.find(c=>c.id===categoryId),name=data.get("name").trim();
-    const payload={name,description:data.get("description").trim()||null,category_id:categoryId,position:Number(data.get("position")||0),price:numOrNull(data.get("price")),old_price:numOrNull(data.get("old_price")),image_url:image||null,active:data.has("active"),featured:data.has("featured"),slug:p?.slug||slug(name)+"-"+Date.now().toString(36)};
-    const result=p?await db.from("products").update(payload).eq("id",p.id).select().single():await db.from("products").insert(payload).select().single();if(result.error)throw result.error;
-    if(p)Object.assign(p,result.data);else state.products.push(result.data);renderProducts();renderOptionProductSelect();toast("Produto salvo.");
-  }
-  function renderCategories(){
-    $("#adminCategories").innerHTML=state.categories.map(c=>`<article class="admin-row"><div class="brand-mark">☷</div><div><h3>${escapeHtml(c.name)}</h3><p>${state.products.filter(p=>p.category_id===c.id).length} produtos • posição ${c.position}</p></div><div class="admin-secondary"><span class="status-pill ${c.active?"active":""}">${c.active?"Ativa":"Oculta"}</span></div><div class="admin-row-actions"><button data-category-action="edit" data-id="${c.id}">✎</button></div></article>`).join("");
-  }
-  function categoryAction(e){const b=e.target.closest("[data-category-action]");if(b)editCategory(state.categories.find(c=>c.id===b.dataset.id));}
-  function editCategory(c=null){state.editor={type:"category",record:c};openEditor(c?"Editar categoria":"Nova categoria",`<label class="field"><span>Nome *</span><input name="name" required value="${escapeHtml(c?.name||"")}"></label><label class="field"><span>Descrição</span><textarea name="description">${escapeHtml(c?.description||"")}</textarea></label><label class="field"><span>Ordem</span><input name="position" type="number" value="${c?.position??state.categories.length*10+10}"></label><label class="option-choice"><input name="active" type="checkbox" ${c?.active!==false?"checked":""}><span>Categoria ativa</span></label>`);}
-  async function saveCategory(form,c){const fd=new FormData(form),name=fd.get("name").trim(),payload={name,source_name:c?.source_name||name,slug:c?.slug||slug(name)+"-"+Date.now().toString(36),description:fd.get("description").trim()||null,position:Number(fd.get("position")||0),active:fd.has("active")};const r=c?await db.from("categories").update(payload).eq("id",c.id).select().single():await db.from("categories").insert(payload).select().single();if(r.error)throw r.error;if(c)Object.assign(c,r.data);else state.categories.push({...r.data});populateFilters();renderCategories();renderProducts();toast("Categoria salva.");}
-
-  function renderOptionProductSelect(){$("#optionProductSelect").innerHTML='<option value="">Selecione…</option>'+state.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");}
-  function renderOptionGroups(){
-    const pid=$("#optionProductSelect").value,groups=state.groups.filter(g=>g.product_id===pid);
-    $("#adminOptionGroups").innerHTML=pid?(groups.map(g=>`<article class="option-admin-group"><header><div><h3>${escapeHtml(g.name)}</h3><p>${g.min_select>0?"Obrigatório":"Opcional"} • mínimo ${g.min_select}, máximo ${g.max_select}</p></div><div class="admin-row-actions"><button data-option-action="edit-group" data-id="${g.id}">Editar</button><button data-option-action="new-option" data-id="${g.id}">+ Opção</button></div></header><div class="option-admin-list">${state.options.filter(o=>o.group_id===g.id).map(o=>`<div class="option-admin-item"><span>${escapeHtml(o.name)} ${Number(o.price_delta)>0?"• +"+money(o.price_delta):""}</span><button data-option-action="edit-option" data-id="${o.id}">Editar</button></div>`).join("")}</div></article>`).join("")+`<button class="button button-primary" data-option-action="new-group" data-id="${pid}">+ Novo grupo</button>`):"<p>Selecione um produto para editar suas opções.</p>";
-  }
-  function optionAction(e){const b=e.target.closest("[data-option-action]");if(!b)return;const a=b.dataset.optionAction;if(a==="new-group")editGroup(null,b.dataset.id);if(a==="edit-group")editGroup(state.groups.find(g=>g.id===b.dataset.id));if(a==="new-option")editOption(null,b.dataset.id);if(a==="edit-option")editOption(state.options.find(o=>o.id===b.dataset.id));}
-  function editGroup(g,pid){state.editor={type:"group",record:g,productId:pid||g.product_id};openEditor(g?"Editar grupo":"Novo grupo",`<label class="field"><span>Nome *</span><input name="name" required value="${escapeHtml(g?.name||"")}"></label><div class="form-grid"><label class="field"><span>Mínimo</span><input name="min_select" type="number" min="0" value="${g?.min_select??0}"></label><label class="field"><span>Máximo</span><input name="max_select" type="number" min="1" value="${g?.max_select??1}"></label></div><label class="field"><span>Ordem</span><input name="position" type="number" value="${g?.position??state.groups.length*10+10}"></label>`);}
-  async function saveGroup(form,g,pid){const fd=new FormData(form),min=Number(fd.get("min_select")||0),max=Number(fd.get("max_select")||1);if(max<Math.max(1,min))throw new Error("O máximo deve ser maior ou igual ao mínimo.");const payload={product_id:pid,name:fd.get("name").trim(),source_group_id:g?.source_group_id||"admin-"+Date.now(),min_select:min,max_select:max,required:min>0,selection_type:max===1?"single":"multiple",position:Number(fd.get("position")||0)};const r=g?await db.from("option_groups").update(payload).eq("id",g.id).select().single():await db.from("option_groups").insert(payload).select().single();if(r.error)throw r.error;if(g)Object.assign(g,r.data);else state.groups.push(r.data);renderOptionGroups();toast("Grupo salvo.");}
-  function editOption(o,gid){state.editor={type:"option",record:o,groupId:gid||o.group_id};openEditor(o?"Editar opção":"Nova opção",`<label class="field"><span>Nome *</span><input name="name" required value="${escapeHtml(o?.name||"")}"></label><label class="field"><span>Valor adicional</span><input name="price_delta" inputmode="decimal" value="${o?.price_delta??0}"></label><label class="field"><span>Ordem</span><input name="position" type="number" value="${o?.position??state.options.length*10+10}"></label><label class="option-choice"><input name="active" type="checkbox" ${o?.active!==false?"checked":""}><span>Opção ativa</span></label>`);}
-  async function saveOption(form,o,gid){const fd=new FormData(form),payload={group_id:gid,name:fd.get("name").trim(),source_option_id:o?.source_option_id||"admin-"+Date.now(),price_delta:Number(String(fd.get("price_delta")||0).replace(",",".")),position:Number(fd.get("position")||0),active:fd.has("active")};const r=o?await db.from("product_options").update(payload).eq("id",o.id).select().single():await db.from("product_options").insert(payload).select().single();if(r.error)throw r.error;if(o)Object.assign(o,r.data);else state.options.push(r.data);renderOptionGroups();toast("Opção salva.");}
-
-  function renderOrders(){const status=$("#orderStatusFilter").value,items=state.orders.filter(o=>!status||o.status===status);$("#adminOrders").innerHTML=items.map(orderCard).join("")||"<p>Nenhum pedido encontrado.</p>";}
-  function orderCard(o){const a=o.address,deliveryAddress=o.order_type==="delivery"&&a?`<p>${escapeHtml(`${a.street||""}, ${a.number||""}${a.complement?` - ${a.complement}`:""} - ${a.neighborhood||""}, ${a.city||""}/${a.state||""} - CEP ${a.postal_code||""}`)}</p>`:"";return `<article class="order-card"><div><h3>Pedido #${o.order_number} • ${escapeHtml(o.customer_name)}</h3><p>${new Date(o.created_at).toLocaleString("pt-BR")} • ${escapeHtml(o.phone)} • ${o.order_type==="delivery"?"Entrega":"Retirada"}</p>${deliveryAddress}<strong>${money(o.total)}</strong></div><select data-order-id="${o.id}">${[["pending","Pendente"],["confirmed","Confirmado"],["preparing","Preparando"],["ready","Pronto"],["out_for_delivery","Saiu para entrega"],["completed","Concluído"],["cancelled","Cancelado"]].map(([v,n])=>`<option value="${v}" ${o.status===v?"selected":""}>${n}</option>`).join("")}</select></article>`;}
-  async function orderAction(e){const select=e.target.closest("[data-order-id]");if(!select)return;const {error}=await db.from("orders").update({status:select.value}).eq("id",select.dataset.orderId);if(error)return toast("Falha ao atualizar.");const o=state.orders.find(x=>x.id===select.dataset.orderId);o.status=select.value;renderDashboard();toast("Status atualizado.");}
-
-  function renderSettings(){
-    const s=state.settings;$("#storeForm").innerHTML=`<label class="wide">Nome da loja<input name="name" value="${escapeHtml(s.name)}"></label><label>E-mail de atendimento<input name="support_email" type="email" value="${escapeHtml(s.support_email)}"></label><label>WhatsApp<input name="whatsapp" value="${escapeHtml(s.whatsapp)}"></label><label class="wide">Endereço<input name="address" value="${escapeHtml(s.address)}"></label><label>Cidade<input name="city" value="${escapeHtml(s.city)}"></label><label>Estado<input name="state" value="${escapeHtml(s.state)}"></label><label>CEP<input name="zip_code" value="${escapeHtml(s.zip_code)}"></label><label>Status manual<select name="manual_status"><option value="auto" ${s.manual_status==="auto"?"selected":""}>Automático pelo horário</option><option value="open" ${s.manual_status==="open"?"selected":""}>Forçar aberta</option><option value="closed" ${s.manual_status==="closed"?"selected":""}>Forçar fechada</option></select></label><label>Pedido mínimo<input name="minimum_order" inputmode="decimal" value="${s.minimum_order}"></label><label>Taxa de entrega<input name="delivery_fee" inputmode="decimal" value="${s.delivery_fee}"></label><label class="option-choice"><input name="delivery_enabled" type="checkbox" ${s.delivery_enabled?"checked":""}><span>Entrega ativa</span></label><label class="option-choice"><input name="pickup_enabled" type="checkbox" ${s.pickup_enabled?"checked":""}><span>Retirada ativa</span></label><label class="option-choice wide"><input name="maintenance_mode" type="checkbox" ${s.maintenance_mode?"checked":""}><span>Modo manutenção</span></label><button class="button button-primary button-large" type="submit">Salvar loja</button>`;
-    $("#storeForm").onsubmit=e=>saveSettings(e,"store");
-    $("#appearanceForm").innerHTML=`<label class="wide">Título principal<input name="banner_title" value="${escapeHtml(s.banner_title)}"></label><label class="wide">Texto principal<textarea name="banner_text">${escapeHtml(s.banner_text)}</textarea></label><label class="wide">URL do logotipo<input name="logo_url" value="${escapeHtml(s.logo_url||"")}"></label><label>Cor brasa<input name="ember" type="color" value="${escapeHtml(s.theme?.ember||"#ff6b1a")}"></label><label>Cor carvão<input name="coal" type="color" value="${escapeHtml(s.theme?.coal||"#18120f")}"></label><button class="button button-primary button-large" type="submit">Salvar aparência</button>`;$("#appearanceForm").onsubmit=e=>saveSettings(e,"appearance");
-  }
-  async function saveSettings(e,type){e.preventDefault();const fd=new FormData(e.currentTarget),payload=type==="store"?{name:fd.get("name"),support_email:fd.get("support_email"),whatsapp:fd.get("whatsapp").replace(/\D/g,""),address:fd.get("address"),city:fd.get("city"),state:fd.get("state"),zip_code:fd.get("zip_code"),manual_status:fd.get("manual_status"),minimum_order:numOrNull(fd.get("minimum_order"))||0,delivery_fee:numOrNull(fd.get("delivery_fee"))||0,delivery_enabled:fd.has("delivery_enabled"),pickup_enabled:fd.has("pickup_enabled"),maintenance_mode:fd.has("maintenance_mode")}:{banner_title:fd.get("banner_title"),banner_text:fd.get("banner_text"),logo_url:fd.get("logo_url")||null,theme:{...state.settings.theme,ember:fd.get("ember"),coal:fd.get("coal")}};const {data,error}=await db.from("store_settings").update(payload).eq("id",true).select().single();if(error)return toast("Não foi possível salvar.");state.settings=data;toast("Configuração salva.");}
-  function renderAuthChecklist(){
-    $("#authChecklist").innerHTML=[
-      ["ok","Código numérico compatível","Cadastro, login, recuperação e painel aceitam o OTP oficial configurado no Supabase."],
-      ["ok","Sem redirecionamento localhost","O aplicativo usa fluxo OTP digitado; não depende de clique em link para autenticar."],
-      ["ok","Antienumeração","A resposta não revela se um e-mail existe ou não existe."],
-      ["ok","Conta administrativa","Apenas churrascariacarnedosolgold@gmail.com recebe papel de administrador."],
-      ["warn","Entrega do provedor","HTTP 200 significa solicitação aceita; entrega real deve ser acompanhada nos logs de Auth/SMTP."],
-      ["warn","Modelos versionados","Os HTMLs oficiais ficam em supabase/email-templates para manter a configuração auditável."]
-    ].map(([c,t,p])=>`<article class="check-card ${c}"><strong>${t}</strong><p>${p}</p></article>`).join("");
+  async function toggleOrders() {
+    const button = $("#toggleOrders"); button.disabled = true; const { data, error } = await db.from("store_settings").update({ maintenance_mode:!state.settings.maintenance_mode }).eq("id", true).select().single(); button.disabled = false;
+    if (error) return toast("Não foi possível alterar o funcionamento."); state.settings = data; renderOperationBar(); renderSettings(); toast(state.settings.maintenance_mode ? "Novos pedidos foram desligados." : "Novos pedidos foram ligados.");
   }
 
-  function openEditor(title,fields){$("#editorTitle").textContent=title;$("#editorFields").innerHTML=fields;msg($("#editorMessage"),"");$("#adminEditor").showModal();}
-  async function saveEditor(e){e.preventDefault();const button=e.submitter;button.disabled=true;try{const {type,record,productId,groupId}=state.editor;if(type==="product")await saveProduct(e.currentTarget,record);if(type==="category")await saveCategory(e.currentTarget,record);if(type==="group")await saveGroup(e.currentTarget,record,productId);if(type==="option")await saveOption(e.currentTarget,record,groupId);$("#adminEditor").close();}catch(error){console.error(error);msg($("#editorMessage"),error.message||"Não foi possível salvar.","error");}finally{button.disabled=false;}}
-  function slug(s){return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")||"item";}
-  function numOrNull(v){if(v===null||String(v).trim()==="")return null;const n=Number(String(v).replace(",", "."));return Number.isFinite(n)?n:null;}
-  function msg(el,text,type=""){el.textContent=text;el.className=`form-message ${type}`;}
-  function toast(text){const e=document.createElement("div");e.className="toast";e.textContent=text;$("#toastRegion").append(e);setTimeout(()=>e.remove(),3300);}
-  function localImage(value){
-    if(!value)return "/assets/favicon.svg";
-    try{const url=new URL(value,location.origin);if(url.hostname==="carnedosol.envoi.com.br"&&url.pathname.includes("/midias/"))return "/products/"+url.pathname.split("/").pop();}catch{}
-    return value;
+  function renderProducts() {
+    const query = $("#productSearch").value.trim().toLocaleLowerCase("pt-BR"), category = $("#productCategoryFilter").value;
+    const products = state.products.filter(product => (!query || `${product.name} ${product.description || ""}`.toLocaleLowerCase("pt-BR").includes(query)) && (!category || product.category_id === category));
+    $("#adminProducts").innerHTML = products.map(product => `<article class="admin-row"><img src="${escapeHtml(product.image_url || "/assets/favicon.svg")}" alt=""><div><h3>${escapeHtml(product.name)}</h3><p>${escapeHtml(state.categories.find(category => category.id === product.category_id)?.name || "")}</p></div><div class="admin-secondary"><strong>${product.price == null ? "Preço por opção" : money(product.price)}</strong><br><span class="status-pill ${product.active ? "active" : ""}">${product.active ? "Ativo" : "Oculto"}</span></div><div class="admin-row-actions"><button data-action="toggle" data-id="${product.id}" title="Ativar/ocultar">${product.active ? "◉" : "○"}</button><button data-action="edit" data-id="${product.id}" title="Editar">✎</button></div></article>`).join("");
   }
+  async function productAction(event) {
+    const button = event.target.closest("[data-action]"); if (!button) return; const product = state.products.find(item => item.id === button.dataset.id);
+    if (button.dataset.action === "edit") editProduct(product);
+    if (button.dataset.action === "toggle") { const { error } = await db.from("products").update({ active:!product.active }).eq("id", product.id); if (!error) { product.active = !product.active; renderProducts(); toast("Disponibilidade atualizada."); } }
+  }
+  function editProduct(product = null) {
+    state.editor = { type:"product", record:product }; openEditor(product ? "Editar produto" : "Novo produto", `<div class="form-grid"><label class="field wide"><span>Nome *</span><input name="name" required value="${escapeHtml(product?.name || "")}"></label><label class="field wide"><span>Descrição</span><textarea name="description">${escapeHtml(product?.description || "")}</textarea></label><label class="field"><span>Categoria *</span><select name="category_id" required>${state.categories.map(category => `<option value="${category.id}" ${product?.category_id === category.id ? "selected" : ""}>${escapeHtml(category.name)}</option>`).join("")}</select></label><label class="field"><span>Ordem</span><input name="position" type="number" value="${product?.position ?? state.products.length * 10 + 10}"></label><label class="field"><span>Preço atual</span><input name="price" inputmode="decimal" value="${product?.price ?? ""}" placeholder="Vazio se vier da opção"></label><label class="field"><span>Preço antigo riscado</span><input name="old_price" inputmode="decimal" value="${product?.old_price ?? ""}"></label><label class="field wide"><span>URL da imagem</span><input name="image_url" value="${escapeHtml(product?.image_url || "")}"></label><label class="field wide"><span>Ou enviar nova imagem (máx. 5 MB)</span><input name="image_file" type="file" accept="image/jpeg,image/png,image/webp,image/avif"></label><label class="option-choice"><input name="active" type="checkbox" ${product?.active !== false ? "checked" : ""}><span>Produto ativo</span></label><label class="option-choice"><input name="featured" type="checkbox" ${product?.featured ? "checked" : ""}><span>Destacar promoção</span></label></div>`);
+  }
+  async function saveProduct(form, product) {
+    const data = new FormData(form); let image = data.get("image_url").trim(), file = data.get("image_file");
+    if (file?.size) { if (file.size > 5242880) throw new Error("A imagem deve ter no máximo 5 MB."); const extension = file.name.split(".").pop().toLowerCase(), path = `products/${crypto.randomUUID()}.${extension}`, upload = await db.storage.from("product-images").upload(path, file, { cacheControl:"31536000", upsert:false }); if (upload.error) throw upload.error; image = db.storage.from("product-images").getPublicUrl(path).data.publicUrl; }
+    const name = data.get("name").trim().toLocaleLowerCase("pt-BR"), payload = { name, description:data.get("description").trim() || null, category_id:data.get("category_id"), position:Number(data.get("position") || 0), price:numOrNull(data.get("price")), old_price:numOrNull(data.get("old_price")), image_url:image || null, active:data.has("active"), featured:data.has("featured"), slug:product?.slug || slug(name) + "-" + Date.now().toString(36) };
+    const result = product ? await db.from("products").update(payload).eq("id", product.id).select().single() : await db.from("products").insert(payload).select().single(); if (result.error) throw result.error;
+    if (product) Object.assign(product, result.data, { name:tools().displayName(result.data.name) }); else state.products.push({ ...result.data, name:tools().displayName(result.data.name) }); renderProducts(); renderOptionProductSelect(); toast("Produto salvo.");
+  }
+
+  function renderCategories() { $("#adminCategories").innerHTML = state.categories.map(category => `<article class="admin-row"><div class="brand-mark">☷</div><div><h3>${escapeHtml(category.name)}</h3><p>${state.products.filter(product => product.category_id === category.id).length} produtos • posição ${category.position}</p></div><div class="admin-secondary"><span class="status-pill ${category.active ? "active" : ""}">${category.active ? "Ativa" : "Oculta"}</span></div><div class="admin-row-actions"><button data-category-action="edit" data-id="${category.id}">✎</button></div></article>`).join(""); }
+  function categoryAction(event) { const button = event.target.closest("[data-category-action]"); if (button) editCategory(state.categories.find(category => category.id === button.dataset.id)); }
+  function editCategory(category = null) { state.editor = { type:"category", record:category }; openEditor(category ? "Editar categoria" : "Nova categoria", `<label class="field"><span>Nome *</span><input name="name" required value="${escapeHtml(category?.name || "")}"></label><label class="field"><span>Descrição</span><textarea name="description">${escapeHtml(category?.description || "")}</textarea></label><label class="field"><span>Ordem</span><input name="position" type="number" value="${category?.position ?? state.categories.length * 10 + 10}"></label><label class="option-choice"><input name="active" type="checkbox" ${category?.active !== false ? "checked" : ""}><span>Categoria ativa</span></label>`); }
+  async function saveCategory(form, category) { const data = new FormData(form), name = data.get("name").trim().toLocaleLowerCase("pt-BR"), payload = { name, source_name:category?.source_name || name, slug:category?.slug || slug(name) + "-" + Date.now().toString(36), description:data.get("description").trim() || null, position:Number(data.get("position") || 0), active:data.has("active") }; const result = category ? await db.from("categories").update(payload).eq("id", category.id).select().single() : await db.from("categories").insert(payload).select().single(); if (result.error) throw result.error; if (category) Object.assign(category, result.data, { name:tools().displayName(result.data.name) }); else state.categories.push({ ...result.data, name:tools().displayName(result.data.name) }); populateFilters(); renderCategories(); renderProducts(); toast("Categoria salva."); }
+
+  function renderOptionProductSelect() { $("#optionProductSelect").innerHTML = '<option value="">Selecione…</option>' + state.products.map(product => `<option value="${product.id}">${escapeHtml(product.name)}</option>`).join(""); }
+  function renderOptionGroups() {
+    const productId = $("#optionProductSelect").value, groups = state.groups.filter(group => group.product_id === productId);
+    $("#adminOptionGroups").innerHTML = productId ? groups.map(group => `<article class="option-admin-group"><header><div><h3>${escapeHtml(group.name)}</h3><p>${group.min_select > 0 ? "Obrigatório" : "Opcional"} • mínimo ${group.min_select}, máximo ${group.max_select}</p></div><div class="admin-row-actions"><button data-option-action="edit-group" data-id="${group.id}">Editar</button><button data-option-action="new-option" data-id="${group.id}">+ Opção</button></div></header><div class="option-admin-list">${state.options.filter(option => option.group_id === group.id).map(option => `<div class="option-admin-item"><span>${escapeHtml(option.name)} ${Number(option.price_delta) > 0 ? "• +" + money(option.price_delta) : ""}</span><button data-option-action="edit-option" data-id="${option.id}">Editar</button></div>`).join("")}</div></article>`).join("") + `<button class="button button-primary" data-option-action="new-group" data-id="${productId}">+ Novo grupo</button>` : "<p>Selecione um produto para editar suas opções.</p>";
+  }
+  function optionAction(event) { const button = event.target.closest("[data-option-action]"); if (!button) return; const action = button.dataset.optionAction; if (action === "new-group") editGroup(null, button.dataset.id); if (action === "edit-group") editGroup(state.groups.find(group => group.id === button.dataset.id)); if (action === "new-option") editOption(null, button.dataset.id); if (action === "edit-option") editOption(state.options.find(option => option.id === button.dataset.id)); }
+  function editGroup(group, productId) { state.editor = { type:"group", record:group, productId:productId || group.product_id }; openEditor(group ? "Editar grupo" : "Novo grupo", `<label class="field"><span>Nome *</span><input name="name" required value="${escapeHtml(group?.name || "")}"></label><div class="form-grid"><label class="field"><span>Mínimo</span><input name="min_select" type="number" min="0" value="${group?.min_select ?? 0}"></label><label class="field"><span>Máximo</span><input name="max_select" type="number" min="1" value="${group?.max_select ?? 1}"></label></div><label class="field"><span>Ordem</span><input name="position" type="number" value="${group?.position ?? state.groups.length * 10 + 10}"></label>`); }
+  async function saveGroup(form, group, productId) { const data = new FormData(form), min = Number(data.get("min_select") || 0), max = Number(data.get("max_select") || 1); if (max < Math.max(1, min)) throw new Error("O máximo deve ser maior ou igual ao mínimo."); const payload = { product_id:productId, name:data.get("name").trim(), source_group_id:group?.source_group_id || "admin-" + Date.now(), min_select:min, max_select:max, required:min > 0, selection_type:max === 1 ? "single" : "multiple", position:Number(data.get("position") || 0) }; const result = group ? await db.from("option_groups").update(payload).eq("id", group.id).select().single() : await db.from("option_groups").insert(payload).select().single(); if (result.error) throw result.error; if (group) Object.assign(group, result.data); else state.groups.push(result.data); renderOptionGroups(); toast("Grupo salvo."); }
+  function editOption(option, groupId) { state.editor = { type:"option", record:option, groupId:groupId || option.group_id }; openEditor(option ? "Editar opção" : "Nova opção", `<label class="field"><span>Nome *</span><input name="name" required value="${escapeHtml(option?.name || "")}"></label><label class="field"><span>Valor adicional</span><input name="price_delta" inputmode="decimal" value="${option?.price_delta ?? 0}"></label><label class="field"><span>Ordem</span><input name="position" type="number" value="${option?.position ?? state.options.length * 10 + 10}"></label><label class="option-choice"><input name="active" type="checkbox" ${option?.active !== false ? "checked" : ""}><span>Opção ativa</span></label>`); }
+  async function saveOption(form, option, groupId) { const data = new FormData(form), payload = { group_id:groupId, name:data.get("name").trim(), source_option_id:option?.source_option_id || "admin-" + Date.now(), price_delta:Number(String(data.get("price_delta") || 0).replace(",", ".")), position:Number(data.get("position") || 0), active:data.has("active") }; const result = option ? await db.from("product_options").update(payload).eq("id", option.id).select().single() : await db.from("product_options").insert(payload).select().single(); if (result.error) throw result.error; if (option) Object.assign(option, result.data); else state.options.push(result.data); renderOptionGroups(); toast("Opção salva."); }
+
+  function renderOrders() { const status = $("#orderStatusFilter").value, orders = state.orders.filter(order => !status || order.status === status); $("#adminOrders").innerHTML = orders.map(orderCard).join("") || "<p>Nenhum pedido encontrado.</p>"; }
+  function orderCard(order) {
+    const address = order.order_type === "delivery" && order.address ? tools().fullAddress(order.address) : "Retirada no estabelecimento";
+    const items = (order.order_items || []).map(item => `<li><strong>${item.quantity}x ${escapeHtml(tools().displayName(item.product_name))}</strong> — ${money(item.line_total)}${(item.selections || []).length ? `<small>${item.selections.map(selection => `${escapeHtml(tools().displayName(selection.group))}: ${escapeHtml(tools().displayName(selection.name))}`).join(" • ")}</small>` : ""}${item.notes ? `<small>Obs.: ${escapeHtml(item.notes)}</small>` : ""}</li>`).join("");
+    const map = tools().mapUrl(order.address);
+    return `<article class="order-card detailed"><header><div><h3>Pedido #${order.order_number} • ${escapeHtml(order.customer_name)}</h3><p>${tools().dateTime(order.created_at)} • ${tools().phone(order.phone)} • ${order.order_type === "delivery" ? "Entrega" : "Retirada"}</p></div><strong>${money(order.total)}</strong></header><details><summary>Ver pedido completo</summary><ul class="order-item-list">${items}</ul><p>${escapeHtml(address).replace(/\n/g, "<br>")}</p><p><b>Pagamento:</b> ${escapeHtml(tools().paymentLabel(order))} • <b>Prazo:</b> ${order.delivery_eta_minutes || 60} min</p>${order.notes ? `<p><b>Obs. geral:</b> ${escapeHtml(order.notes)}</p>` : ""}</details><div class="order-controls"><select data-order-id="${order.id}">${statuses.map(([value, label]) => `<option value="${value}" ${order.status === value ? "selected" : ""}>${label}</option>`).join("")}</select><div class="card-actions"><button class="button button-primary" data-order-action="whatsapp" data-id="${order.id}">📲 WhatsApp</button><button class="button button-ghost" data-order-action="pdf" data-id="${order.id}">📄 PDF</button>${map ? `<a class="button button-ghost" href="${map}" target="_blank" rel="noopener">🗺️ Mapa</a>` : ""}<button class="button button-ghost" data-order-action="edit" data-id="${order.id}">✎ Editar</button><button class="button button-danger" data-order-action="delete" data-id="${order.id}">Excluir</button></div></div></article>`;
+  }
+  async function orderStatusAction(event) { const select = event.target.closest("[data-order-id]"); if (!select) return; const { error } = await db.from("orders").update({ status:select.value }).eq("id", select.dataset.orderId); if (error) return toast("Falha ao atualizar."); const order = state.orders.find(item => item.id === select.dataset.orderId); order.status = select.value; renderDashboard(); toast("Status atualizado."); }
+  async function orderAction(button) {
+    const order = state.orders.find(item => item.id === button.dataset.id); if (!order) return; const action = button.dataset.orderAction;
+    if (action === "whatsapp") window.open(tools().whatsappUrl(order, state.settings.whatsapp), "_blank", "noopener");
+    if (action === "pdf") { try { await tools().downloadPdf(order, state.settings); } catch (error) { toast(error.message); } }
+    if (action === "edit") editOrder(order);
+    if (action === "delete") { if (!confirm(`Excluir definitivamente o pedido #${order.order_number}?`)) return; const { error } = await db.from("orders").delete().eq("id", order.id); if (error) return toast("Não foi possível excluir o pedido."); state.orders = state.orders.filter(item => item.id !== order.id); renderOrders(); renderDashboard(); toast("Pedido excluído."); }
+  }
+  function editOrder(order) {
+    const address = order.address || {}; state.editor = { type:"order", record:order };
+    openEditor(`Editar pedido #${order.order_number}`, `<div class="form-grid"><label class="field"><span>Cliente *</span><input name="customer_name" required value="${escapeHtml(order.customer_name)}"></label><label class="field"><span>WhatsApp *</span><input name="phone" required value="${escapeHtml(order.phone)}"></label><label class="field wide"><span>E-mail</span><input name="email" type="email" value="${escapeHtml(order.email || "")}"></label><label class="field"><span>Status</span><select name="status">${statuses.map(([value, label]) => `<option value="${value}" ${order.status === value ? "selected" : ""}>${label}</option>`).join("")}</select></label><label class="field"><span>Tipo</span><select name="order_type"><option value="delivery" ${order.order_type === "delivery" ? "selected" : ""}>Entrega</option><option value="pickup" ${order.order_type === "pickup" ? "selected" : ""}>Retirada</option></select></label><label class="field"><span>Pagamento</span><select name="payment_method"><option value="pix" ${order.payment_method === "pix" ? "selected" : ""}>Pix</option><option value="card" ${order.payment_method === "card" ? "selected" : ""}>Cartão</option><option value="cash" ${order.payment_method === "cash" ? "selected" : ""}>Dinheiro</option></select></label><label class="field"><span>Detalhe do cartão</span><select name="payment_detail"><option value="">—</option><option value="debit" ${order.payment_detail === "debit" ? "selected" : ""}>Débito</option><option value="credit" ${order.payment_detail === "credit" ? "selected" : ""}>Crédito</option></select></label><label class="field"><span>Prazo em minutos</span><input name="delivery_eta_minutes" type="number" min="10" max="240" value="${order.delivery_eta_minutes || 60}"></label><label class="field"><span>Taxa de entrega</span><input name="delivery_fee" inputmode="decimal" value="${order.delivery_fee}"></label><label class="field"><span>Desconto</span><input name="discount" inputmode="decimal" value="${order.discount}"></label><label class="field wide"><span>Rua</span><input name="street" value="${escapeHtml(address.street || "")}"></label><label class="field"><span>Número</span><input name="number" value="${escapeHtml(address.number || "")}"></label><label class="field"><span>Complemento</span><input name="complement" value="${escapeHtml(address.complement || "")}"></label><label class="field"><span>Bairro</span><input name="neighborhood" value="${escapeHtml(address.neighborhood || "")}"></label><label class="field"><span>CEP</span><input name="postal_code" value="${escapeHtml(address.postal_code || "")}"></label><label class="field"><span>Cidade</span><input name="city" value="${escapeHtml(address.city || "")}"></label><label class="field"><span>Estado</span><input name="state" maxlength="2" value="${escapeHtml(address.state || "")}"></label><label class="field wide"><span>Referência</span><input name="reference" value="${escapeHtml(address.reference || "")}"></label><label class="field wide"><span>Observações gerais</span><textarea name="notes">${escapeHtml(order.notes || "")}</textarea></label></div>`);
+  }
+  async function saveOrder(form, order) {
+    const data = new FormData(form), type = data.get("order_type"), deliveryFee = type === "delivery" ? Number(String(data.get("delivery_fee") || 0).replace(",", ".")) : 0, discount = Number(String(data.get("discount") || 0).replace(",", "."));
+    const address = type === "delivery" ? { street:data.get("street").trim(), number:data.get("number").trim(), complement:data.get("complement").trim(), neighborhood:data.get("neighborhood").trim(), postal_code:data.get("postal_code").trim(), city:data.get("city").trim(), state:data.get("state").trim().toUpperCase(), reference:data.get("reference").trim() } : null;
+    const payload = { customer_name:data.get("customer_name").trim(), phone:data.get("phone").replace(/\D/g, ""), email:data.get("email").trim() || null, status:data.get("status"), order_type:type, payment_method:data.get("payment_method"), payment_detail:data.get("payment_method") === "card" ? data.get("payment_detail") || null : null, delivery_eta_minutes:Number(data.get("delivery_eta_minutes") || 60), delivery_fee:deliveryFee, discount, total:Number(order.subtotal) - discount + deliveryFee, address, notes:data.get("notes").trim() || null };
+    const { data:updated, error } = await db.from("orders").update(payload).eq("id", order.id).select().single(); if (error) throw error; Object.assign(order, updated); renderOrders(); renderDashboard(); toast("Pedido atualizado.");
+  }
+
+  function renderCustomers() {
+    const query = $("#customerSearch").value.trim().toLocaleLowerCase("pt-BR");
+    const customers = state.customers.filter(customer => !query || `${customer.full_name || ""} ${customer.email || ""} ${customer.phone || ""}`.toLocaleLowerCase("pt-BR").includes(query));
+    $("#adminCustomers").innerHTML = customers.map(customer => { const count = state.orders.filter(order => order.customer_id === customer.id).length; return `<article class="admin-row customer-row"><div class="customer-avatar">${escapeHtml((customer.full_name || customer.email || "C").charAt(0).toUpperCase())}</div><div><h3>${escapeHtml(customer.full_name || "Cliente sem nome")}</h3><p>${escapeHtml(customer.email || "")} • ${escapeHtml(tools().phone(customer.phone))}</p>${customer.blocked_reason ? `<p>Motivo: ${escapeHtml(customer.blocked_reason)}</p>` : ""}</div><div class="admin-secondary"><strong>${count} pedido${count === 1 ? "" : "s"}</strong><br><span class="status-pill ${customer.is_blocked ? "cancelled" : "active"}">${customer.is_blocked ? "Bloqueado" : "Liberado"}</span></div><div class="admin-row-actions"><button class="button ${customer.is_blocked ? "button-primary" : "button-danger"}" data-customer-action="${customer.is_blocked ? "unblock" : "block"}" data-id="${customer.id}">${customer.is_blocked ? "Desbloquear" : "Bloquear"}</button></div></article>`; }).join("") || "<p>Nenhum cliente encontrado.</p>";
+  }
+  async function customerAction(button) {
+    const customer = state.customers.find(item => item.id === button.dataset.id); if (!customer) return; const blocked = button.dataset.customerAction === "block";
+    const reason = blocked ? prompt(`Motivo do bloqueio de ${customer.full_name || customer.email} (opcional):`, "") : null; if (blocked && reason === null) return;
+    const { data, error } = await db.rpc("set_customer_block", { customer_uuid:customer.id, blocked, reason }); if (error) return toast("Não foi possível alterar o cliente."); Object.assign(customer, data); renderCustomers(); toast(blocked ? "Cliente bloqueado para novos pedidos." : "Cliente desbloqueado.");
+  }
+
+  function renderSettings() {
+    const settings = state.settings;
+    $("#storeForm").innerHTML = `<label class="wide">Nome da loja<input name="name" value="${escapeHtml(settings.name)}"></label><label>E-mail de atendimento<input name="support_email" type="email" value="${escapeHtml(settings.support_email)}"></label><label>WhatsApp<input name="whatsapp" value="${escapeHtml(settings.whatsapp)}"></label><label class="wide">Endereço<input name="address" value="${escapeHtml(settings.address)}"></label><label>Cidade<input name="city" value="${escapeHtml(settings.city)}"></label><label>Estado<input name="state" value="${escapeHtml(settings.state)}"></label><label>CEP<input name="zip_code" value="${escapeHtml(settings.zip_code)}"></label><label>Status do horário<select name="manual_status"><option value="auto" ${settings.manual_status === "auto" ? "selected" : ""}>Automático pelo horário</option><option value="open" ${settings.manual_status === "open" ? "selected" : ""}>Forçar aberta</option><option value="closed" ${settings.manual_status === "closed" ? "selected" : ""}>Forçar fechada</option></select></label><label>Pedido mínimo<input name="minimum_order" inputmode="decimal" value="${settings.minimum_order}"></label><label>Taxa de entrega<input name="delivery_fee" inputmode="decimal" value="${settings.delivery_fee}"></label><label>Prazo padrão (minutos)<input name="delivery_eta_minutes" type="number" min="10" max="240" value="${settings.delivery_eta_minutes || 60}"></label><label class="option-choice"><input name="delivery_enabled" type="checkbox" ${settings.delivery_enabled ? "checked" : ""}><span>Entrega ativa</span></label><label class="option-choice"><input name="pickup_enabled" type="checkbox" ${settings.pickup_enabled ? "checked" : ""}><span>Retirada ativa</span></label><label class="option-choice wide accepting-choice"><input name="accepting_orders" type="checkbox" ${!settings.maintenance_mode ? "checked" : ""}><span>Receber novos pedidos</span></label><button class="button button-primary button-large" type="submit">Salvar loja</button>`;
+    $("#storeForm").onsubmit = event => saveSettings(event, "store");
+    $("#appearanceForm").innerHTML = `<label class="wide">Título principal<input name="banner_title" value="${escapeHtml(settings.banner_title)}"></label><label class="wide">Texto principal<textarea name="banner_text">${escapeHtml(settings.banner_text)}</textarea></label><label class="wide">URL do logotipo<input name="logo_url" value="${escapeHtml(settings.logo_url || "")}"></label><label>Cor brasa<input name="ember" type="color" value="${escapeHtml(settings.theme?.ember || "#ff6b1a")}"></label><label>Cor carvão<input name="coal" type="color" value="${escapeHtml(settings.theme?.coal || "#18120f")}"></label><button class="button button-primary button-large" type="submit">Salvar aparência</button>`; $("#appearanceForm").onsubmit = event => saveSettings(event, "appearance");
+  }
+  async function saveSettings(event, type) {
+    event.preventDefault(); const data = new FormData(event.currentTarget);
+    const payload = type === "store" ? { name:data.get("name"), support_email:data.get("support_email"), whatsapp:data.get("whatsapp").replace(/\D/g, ""), address:data.get("address"), city:data.get("city"), state:data.get("state"), zip_code:data.get("zip_code"), manual_status:data.get("manual_status"), minimum_order:numOrNull(data.get("minimum_order")) || 0, delivery_fee:numOrNull(data.get("delivery_fee")) || 0, delivery_eta_minutes:Number(data.get("delivery_eta_minutes") || 60), delivery_enabled:data.has("delivery_enabled"), pickup_enabled:data.has("pickup_enabled"), maintenance_mode:!data.has("accepting_orders") } : { banner_title:data.get("banner_title"), banner_text:data.get("banner_text"), logo_url:data.get("logo_url") || null, theme:{ ...state.settings.theme, ember:data.get("ember"), coal:data.get("coal") } };
+    const { data:updated, error } = await db.from("store_settings").update(payload).eq("id", true).select().single(); if (error) return toast("Não foi possível salvar."); state.settings = updated; renderOperationBar(); toast("Configuração salva.");
+  }
+  function renderAuthChecklist() { $("#authChecklist").innerHTML = [["ok","Conta e histórico individuais","Cada cliente acessa apenas os próprios endereços e pedidos."],["ok","Pedido sem duplicação","Uma tentativa repetida recupera o pedido já criado em vez de cadastrar outro."],["ok","Bloqueio administrativo","O painel bloqueia novos pedidos sem apagar o histórico do cliente."],["ok","Comprovante completo","WhatsApp, PDF e mapa usam os dados gravados no pedido."],["ok","Seleções validadas","Grupos de peso único são conferidos no site e novamente no banco."],["warn","Entrega do provedor","A entrega dos códigos depende do provedor de e-mail e deve ser acompanhada nos logs."]].map(([kind, title, text]) => `<article class="check-card ${kind}"><strong>${title}</strong><p>${text}</p></article>`).join(""); }
+
+  function openEditor(title, fields) { $("#editorTitle").textContent = title; $("#editorFields").innerHTML = fields; msg($("#editorMessage"), ""); $("#adminEditor").showModal(); }
+  async function saveEditor(event) { event.preventDefault(); const button = event.submitter; button.disabled = true; try { const { type, record, productId, groupId } = state.editor; if (type === "product") await saveProduct(event.currentTarget, record); if (type === "category") await saveCategory(event.currentTarget, record); if (type === "group") await saveGroup(event.currentTarget, record, productId); if (type === "option") await saveOption(event.currentTarget, record, groupId); if (type === "order") await saveOrder(event.currentTarget, record); $("#adminEditor").close(); } catch (error) { console.error(error); msg($("#editorMessage"), error.message || "Não foi possível salvar.", "error"); } finally { button.disabled = false; } }
+  function slug(value) { return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "item"; }
+  function numOrNull(value) { if (value === null || String(value).trim() === "") return null; const number = Number(String(value).replace(",", ".")); return Number.isFinite(number) ? number : null; }
+  function msg(element, text, type = "") { element.textContent = text; element.className = `form-message ${type}`; }
+  function toast(text) { const element = document.createElement("div"); element.className = "toast"; element.textContent = text; $("#toastRegion").append(element); setTimeout(() => element.remove(), 3800); }
+  function localImage(value) { if (!value) return "/assets/favicon.svg"; try { const url = new URL(value, location.origin); if (url.hostname === "carnedosol.envoi.com.br" && url.pathname.includes("/midias/")) return "/products/" + url.pathname.split("/").pop(); } catch {} return value; }
 })();

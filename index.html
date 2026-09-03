@@ -11,7 +11,9 @@
   <link rel="preconnect" href="https://pghbhyvhfiwdpyykikff.supabase.co">
   <link rel="stylesheet" href="/assets/styles.css">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script defer src="/assets/supabase.js"></script>
+  <script defer src="/assets/receipts.js"></script>
   <script defer src="/assets/app.js"></script>
 </head>
 <body>
@@ -125,6 +127,11 @@
         <label><input type="radio" name="order_type" value="pickup"><span>🏪 Retirada</span></label>
       </fieldset>
       <div class="form-grid address-fields">
+        <div class="field wide saved-address-area hidden" id="savedAddressArea">
+          <span>Endereço para este pedido</span>
+          <div class="inline-control"><select id="savedAddressSelect"><option value="new">Usar outro endereço</option></select><button class="button button-ghost" id="editCheckoutAddress" type="button">Editar salvo</button></div>
+          <small class="field-status">Escolha um endereço salvo ou preencha um local diferente.</small>
+        </div>
         <label class="field wide"><span>CEP *</span><input id="checkoutCep" name="postal_code" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000"><small class="field-status" id="cepStatus" aria-live="polite">Digite o CEP para preencher o endereço.</small></label>
         <label class="field wide"><span>Endereço *</span><input name="street" autocomplete="street-address"></label>
         <label class="field"><span>Número *</span><input name="number"></label>
@@ -133,11 +140,18 @@
         <label class="field"><span>Cidade *</span><input name="city" autocomplete="address-level2"></label>
         <label class="field"><span>Estado *</span><input name="state" maxlength="2" autocomplete="address-level1"></label>
         <label class="field wide"><span>Referência</span><input name="reference"></label>
+        <label class="option-choice wide save-address-choice"><input name="save_address" type="checkbox" checked><span>Salvar este endereço na minha conta</span></label>
+        <label class="field address-save-field"><span>Nome do endereço</span><input name="address_label" maxlength="40" value="Casa" placeholder="Ex.: Casa, Trabalho"></label>
+        <label class="option-choice address-save-field"><input name="set_default_address" type="checkbox"><span>Usar como principal</span></label>
       </div>
       <fieldset class="choice-cards"><legend>Pagamento</legend>
         <label><input type="radio" name="payment_method" value="pix" checked><span>Pix</span></label>
         <label><input type="radio" name="payment_method" value="card"><span>Cartão</span></label>
         <label><input type="radio" name="payment_method" value="cash"><span>Dinheiro</span></label>
+      </fieldset>
+      <fieldset class="choice-cards card-field hidden"><legend>Tipo do cartão</legend>
+        <label><input type="radio" name="payment_detail" value="debit" checked><span>Débito</span></label>
+        <label><input type="radio" name="payment_detail" value="credit"><span>Crédito</span></label>
       </fieldset>
       <label class="field cash-field hidden"><span>Troco para quanto?</span><input name="change_for" inputmode="decimal"></label>
       <label class="field"><span>Observações gerais</span><textarea name="notes" maxlength="500"></textarea></label>
@@ -148,32 +162,76 @@
   </dialog>
 
   <dialog class="form-dialog" id="authDialog">
-    <form class="dialog-frame auth-form" id="authForm">
+    <div class="dialog-frame auth-form">
       <button class="icon-button dialog-close" type="button" data-close="auth" aria-label="Fechar">×</button>
-      <span class="eyebrow">ACESSO SEGURO</span><h2 id="authTitle">Entrar com código</h2>
-      <p id="authHelp">Digite seu e-mail. Enviaremos um código numérico de acesso.</p>
-      <div id="authRequestStep">
-        <label class="field"><span>E-mail</span><input id="authEmail" type="email" required autocomplete="email"></label>
-        <label class="field signup-only hidden"><span>Nome</span><input id="authName" autocomplete="name"></label>
-        <button class="button button-primary button-large button-block" id="sendCodeButton" type="submit">Enviar código</button>
-        <div class="auth-switches">
-          <button type="button" data-auth-mode="login">Já tenho cadastro</button>
-          <button type="button" data-auth-mode="signup">Criar cadastro</button>
-          <button type="button" data-auth-mode="recovery">Esqueci a senha</button>
+      <form id="authForm">
+        <div id="authAccessPanel">
+          <span class="eyebrow">ACESSO SEGURO</span><h2 id="authTitle">Entrar com código</h2>
+          <p id="authHelp">Digite seu e-mail. Enviaremos um código numérico de acesso.</p>
+          <div id="authRequestStep">
+            <label class="field"><span>E-mail</span><input id="authEmail" type="email" required autocomplete="email"></label>
+            <label class="field signup-only hidden"><span>Nome</span><input id="authName" autocomplete="name"></label>
+            <button class="button button-primary button-large button-block" id="sendCodeButton" type="submit">Enviar código</button>
+            <div class="auth-switches">
+              <button type="button" data-auth-mode="login">Já tenho cadastro</button>
+              <button type="button" data-auth-mode="signup">Criar cadastro</button>
+              <button type="button" data-auth-mode="recovery">Esqueci a senha</button>
+            </div>
+          </div>
+          <div id="authVerifyStep" class="hidden">
+            <label class="field"><span>Código numérico</span><input id="authCode" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" placeholder="000000"></label>
+            <button class="button button-primary button-large button-block" id="verifyCodeButton" type="button">Confirmar código</button>
+            <button class="button button-ghost button-block" id="resendCodeButton" type="button">Reenviar código</button>
+          </div>
+          <div id="passwordStep" class="hidden">
+            <label class="field"><span>Crie sua senha</span><span class="password-control"><input id="newPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="newPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></span></label>
+            <label class="field"><span>Repita sua senha</span><span class="password-control"><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="confirmPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></span></label>
+            <button class="button button-primary button-large button-block" id="savePasswordButton" type="button">Salvar nova senha</button>
+          </div>
+          <p class="form-message" id="authMessage" aria-live="polite"></p>
         </div>
+      </form>
+      <section class="account-panel hidden" id="accountPanel">
+        <div class="account-heading"><div><span class="eyebrow">MINHA CONTA</span><h2>Olá, <span id="accountName">cliente</span></h2><p id="accountEmail"></p></div><button class="button button-ghost" id="accountSignOut" type="button">Sair</button></div>
+        <div class="account-section"><div class="panel-heading compact"><div><h3>Meus endereços</h3><p>Use, edite ou adicione locais de entrega.</p></div><button class="button button-primary" id="newAddress" type="button">+ Novo</button></div><div class="address-list" id="accountAddresses"></div></div>
+        <div class="account-section"><div class="panel-heading compact"><div><h3>Histórico de pedidos</h3><p>Comprovantes, mapa e detalhes sempre disponíveis.</p></div><button class="button button-ghost" id="refreshHistory" type="button">Atualizar</button></div><div class="history-list" id="accountOrders"></div></div>
+      </section>
+    </div>
+  </dialog>
+
+  <dialog class="form-dialog" id="addressDialog">
+    <form class="dialog-frame checkout-form" id="addressForm">
+      <button class="icon-button dialog-close" type="button" data-close="address" aria-label="Fechar">×</button>
+      <span class="eyebrow">MINHA CONTA</span><h2 id="addressDialogTitle">Novo endereço</h2>
+      <input type="hidden" name="id">
+      <div class="form-grid">
+        <label class="field"><span>Nome do endereço *</span><input name="label" required maxlength="40" placeholder="Casa, Trabalho..."></label>
+        <label class="field"><span>CEP *</span><input id="addressCep" name="postal_code" required inputmode="numeric" maxlength="9"><small class="field-status" id="addressCepStatus"></small></label>
+        <label class="field wide"><span>Endereço *</span><input name="street" required></label>
+        <label class="field"><span>Número *</span><input name="number" required></label>
+        <label class="field"><span>Complemento</span><input name="complement"></label>
+        <label class="field"><span>Bairro *</span><input name="neighborhood" required></label>
+        <label class="field"><span>Cidade *</span><input name="city" required></label>
+        <label class="field"><span>Estado *</span><input name="state" required maxlength="2"></label>
+        <label class="field wide"><span>Referência</span><input name="reference"></label>
+        <label class="option-choice wide"><input name="is_default" type="checkbox"><span>Definir como endereço principal</span></label>
       </div>
-      <div id="authVerifyStep" class="hidden">
-        <label class="field"><span>Código numérico</span><input id="authCode" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code" placeholder="000000"></label>
-        <button class="button button-primary button-large button-block" id="verifyCodeButton" type="button">Confirmar código</button>
-        <button class="button button-ghost button-block" id="resendCodeButton" type="button">Reenviar código</button>
-      </div>
-      <div id="passwordStep" class="hidden">
-        <label class="field"><span>Crie sua senha</span><span class="password-control"><input id="newPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="newPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></span></label>
-        <label class="field"><span>Repita sua senha</span><span class="password-control"><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="confirmPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></span></label>
-        <button class="button button-primary button-large button-block" id="savePasswordButton" type="button">Salvar nova senha</button>
-      </div>
-      <p class="form-message" id="authMessage" aria-live="polite"></p>
+      <p class="form-message" id="addressMessage"></p>
+      <button class="button button-primary button-large button-block" type="submit">Salvar endereço</button>
     </form>
+  </dialog>
+
+  <dialog class="form-dialog" id="successDialog">
+    <div class="dialog-frame success-card">
+      <button class="icon-button dialog-close" type="button" data-close="success" aria-label="Fechar">×</button>
+      <div class="success-icon">✓</div><span class="eyebrow">PEDIDO REGISTRADO</span><h2 id="successTitle">Pedido confirmado!</h2>
+      <p id="successSummary"></p><div class="success-actions">
+        <button class="button button-primary button-large" id="successWhatsapp" type="button">📲 Enviar no WhatsApp</button>
+        <button class="button button-ghost button-large" id="successPdf" type="button">📄 Baixar PDF</button>
+        <a class="button button-ghost button-large hidden" id="successMap" target="_blank" rel="noopener">🗺️ Abrir mapa</a>
+        <button class="button button-ghost button-large" id="successHistory" type="button">🧾 Ver histórico</button>
+      </div>
+    </div>
   </dialog>
 
   <div class="toast-region" id="toastRegion" aria-live="polite"></div>
