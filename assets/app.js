@@ -216,7 +216,7 @@
   function renderCart() {
     const count = state.cart.reduce((total, item) => total + item.quantity, 0), subtotal = state.cart.reduce((total, item) => total + item.unit_price * item.quantity, 0);
     const delivery = $("#checkoutForm [name=order_type]:checked")?.value === "pickup" ? 0 : Number(state.settings?.delivery_fee || 0);
-    els.cartCount.textContent = count; els.cartSubtotal.textContent = money(subtotal); $("#checkoutTotal").textContent = money(subtotal + delivery);
+    els.cartCount.textContent = count; $("#cartButton").classList.toggle("has-items", count > 0); els.cartSubtotal.textContent = money(subtotal); $("#checkoutTotal").textContent = money(subtotal + delivery);
     $("#cartSummaryItems").textContent = `${count} ${count === 1 ? "item" : "itens"}`;
     els.cartItems.innerHTML = state.cart.length ? state.cart.map((item, index) => {
       const choices = item.options.map(option => tools().displayName(option.name));
