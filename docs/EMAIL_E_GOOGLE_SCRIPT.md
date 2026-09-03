@@ -13,7 +13,9 @@ Configuração esperada em Authentication:
 - Sender name: `CHURRASCARIA CARNE DE SOL`
 - Sender email: e-mail comercial da churrascaria
 
-Nos modelos de confirmação, acesso, recuperação e troca de e-mail, usar os arquivos de `supabase/email-templates`. Todos usam `{{ .Token }}` e não contêm `localhost` nem `{{ .ConfirmationURL }}`.
+Os arquivos de `supabase/email-templates` mantêm a configuração de contingência versionada. O fluxo usado pelo site não depende mais do template padrão: a Edge Function `request-auth-code` gera o token oficial com `admin.generateLink`, valida que ele contém exatamente seis números e envia um HTML próprio pelo SMTP do Gmail. Cadastro, acesso, recuperação e painel deixam de enviar links de confirmação.
+
+As credenciais SMTP desse fluxo ficam criptografadas no Supabase Vault. A função pública de pré-autenticação tem lista de origem permitida, resposta neutra contra enumeração e limites persistentes por e-mail e por hora.
 
 ## Google Apps Script
 
