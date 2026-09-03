@@ -16,44 +16,44 @@
       <button class="button button-primary button-large button-block" id="adminSendCode">Enviar código</button>
       <div id="adminCodeArea" class="hidden"><label class="field"><span>Código numérico</span><input id="adminCode" inputmode="numeric" minlength="6" maxlength="6" pattern="[0-9]{6}" autocomplete="one-time-code"></label>
         <button class="button button-primary button-large button-block" id="adminVerifyCode">Confirmar código</button></div>
-      <p class="form-message" id="adminLoginMessage"></p><a href="/">← Voltar para a loja</a>
+      <p class="form-message" id="adminLoginMessage"></p><a href="/"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-arrow-left"></use></svg>Voltar para a loja</a>
     </div>
   </div>
   <div class="admin-app hidden" id="adminApp">
     <aside class="admin-sidebar">
       <a class="brand" href="/"><span class="brand-mark"><img src="/assets/logo-carne-de-sol.jpg" alt=""></span><span><strong>Carne de Sol</strong><small>Painel administrador</small></span></a>
       <nav id="adminNav">
-        <button class="active" data-view="dashboard">▦ Visão geral</button>
-        <button data-view="products">🍽 Produtos</button>
-        <button data-view="categories">☷ Categorias</button>
-        <button data-view="options">✓ Complementos</button>
-        <button data-view="orders">🧾 Pedidos</button>
-        <button data-view="customers">👥 Clientes</button>
-        <button data-view="store">🏪 Loja e entrega</button>
-        <button data-view="appearance">🔥 Aparência</button>
-        <button data-view="auth">✉ E-mail e acesso</button>
+        <button class="active" data-view="dashboard"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-dashboard"></use></svg>Visão geral</button>
+        <button data-view="products"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-utensils"></use></svg>Produtos</button>
+        <button data-view="categories"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-list"></use></svg>Categorias</button>
+        <button data-view="options"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-sliders"></use></svg>Complementos</button>
+        <button data-view="orders"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-receipt"></use></svg>Pedidos</button>
+        <button data-view="customers"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-users"></use></svg>Clientes</button>
+        <button data-view="store"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-store"></use></svg>Loja e entrega</button>
+        <button data-view="appearance"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-flame"></use></svg>Aparência</button>
+        <button data-view="auth"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-mail"></use></svg>E-mail e acesso</button>
       </nav>
       <button class="button button-ghost button-block" id="adminSignOut">Sair</button>
     </aside>
     <main class="admin-main">
-      <header class="admin-topbar"><button class="icon-button mobile-menu" id="adminMenu">☰</button><div><span class="eyebrow">CHURRASCARIA CARNE DE SOL</span><h1 id="viewTitle">Visão geral</h1></div><a class="button button-ghost" href="/" target="_blank">Abrir loja ↗</a></header>
+      <header class="admin-topbar"><button class="icon-button mobile-menu" id="adminMenu" aria-label="Abrir menu"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-menu"></use></svg></button><div><span class="eyebrow">CHURRASCARIA CARNE DE SOL</span><h1 id="viewTitle">Visão geral</h1></div><a class="button button-ghost" href="/" target="_blank">Abrir loja<svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-external"></use></svg></a></header>
       <section class="admin-view active" id="view-dashboard">
         <div class="operation-bar" id="operationBar"><div><strong id="operationTitle">Recebimento de pedidos</strong><p id="operationText">Consultando funcionamento…</p></div><button class="button button-primary" id="toggleOrders" type="button">Carregando…</button></div>
         <div class="metric-grid" id="metricGrid"></div><div class="admin-panel"><div class="panel-heading"><div><h2>Pedidos recentes</h2><p>Acompanhe o movimento da loja.</p></div><button class="button button-ghost" data-go="orders">Ver todos</button></div><div id="recentOrders"></div></div>
       </section>
       <section class="admin-view" id="view-products">
-        <div class="panel-heading"><div><h2>Cardápio completo</h2><p>Edite preço, preço riscado, foto, destaque, estoque e disponibilidade.</p></div><button class="button button-primary" id="newProduct">+ Novo produto</button></div>
+        <div class="panel-heading"><div><h2>Cardápio completo</h2><p>Edite preço, preço riscado, foto, destaque, estoque e disponibilidade.</p></div><button class="button button-primary" id="newProduct"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-plus"></use></svg>Novo produto</button></div>
         <div class="admin-toolbar"><input id="productSearch" type="search" placeholder="Buscar produto"><select id="productCategoryFilter"><option value="">Todas as categorias</option></select></div><div class="admin-list" id="adminProducts"></div>
       </section>
-      <section class="admin-view" id="view-categories"><div class="panel-heading"><div><h2>Categorias</h2><p>Organize a navegação vertical e a ordem do cardápio.</p></div><button class="button button-primary" id="newCategory">+ Nova categoria</button></div><div class="admin-list" id="adminCategories"></div></section>
+      <section class="admin-view" id="view-categories"><div class="panel-heading"><div><h2>Categorias</h2><p>Organize a navegação vertical e a ordem do cardápio.</p></div><button class="button button-primary" id="newCategory"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-plus"></use></svg>Nova categoria</button></div><div class="admin-list" id="adminCategories"></div></section>
       <section class="admin-view" id="view-options"><div class="panel-heading"><div><h2>Complementos e variações</h2><p>As 304 opções importadas podem ser editadas aqui.</p></div></div><label class="field"><span>Escolha um produto</span><select id="optionProductSelect"></select></label><div id="adminOptionGroups"></div></section>
-      <section class="admin-view" id="view-orders"><div class="panel-heading"><div><h2>Pedidos</h2><p>Detalhes, edição, comprovante, mapa, WhatsApp e exclusão.</p></div><button class="button button-ghost" id="refreshOrders">Atualizar</button></div><div class="admin-toolbar"><select id="orderStatusFilter"><option value="">Todos</option><option value="pending">Pendente</option><option value="confirmed">Confirmado</option><option value="preparing">Preparando</option><option value="ready">Pronto</option><option value="out_for_delivery">Saiu para entrega</option><option value="completed">Concluído</option><option value="cancelled">Cancelado</option></select></div><div id="adminOrders"></div></section>
-      <section class="admin-view" id="view-customers"><div class="panel-heading"><div><h2>Clientes</h2><p>Cadastros, pedidos e bloqueio seguro de novas compras.</p></div><button class="button button-ghost" id="refreshCustomers">Atualizar</button></div><div class="admin-toolbar"><input id="customerSearch" type="search" placeholder="Buscar nome, e-mail ou telefone"></div><div class="admin-list" id="adminCustomers"></div></section>
+      <section class="admin-view" id="view-orders"><div class="panel-heading"><div><h2>Pedidos</h2><p>Detalhes, edição, comprovante, mapa, WhatsApp e exclusão.</p></div><button class="button button-ghost" id="refreshOrders"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-refresh"></use></svg>Atualizar</button></div><div class="admin-toolbar"><select id="orderStatusFilter"><option value="">Todos</option><option value="pending">Pendente</option><option value="confirmed">Confirmado</option><option value="preparing">Preparando</option><option value="ready">Pronto</option><option value="out_for_delivery">Saiu para entrega</option><option value="completed">Concluído</option><option value="cancelled">Cancelado</option></select></div><div id="adminOrders"></div></section>
+      <section class="admin-view" id="view-customers"><div class="panel-heading"><div><h2>Clientes</h2><p>Cadastros, pedidos e bloqueio seguro de novas compras.</p></div><button class="button button-ghost" id="refreshCustomers"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-refresh"></use></svg>Atualizar</button></div><div class="admin-toolbar"><input id="customerSearch" type="search" placeholder="Buscar nome, e-mail ou telefone"></div><div class="admin-list" id="adminCustomers"></div></section>
       <section class="admin-view" id="view-store"><div class="panel-heading"><div><h2>Loja, horário e entrega</h2><p>Tudo salvo em tempo real.</p></div></div><form class="settings-form" id="storeForm"></form></section>
       <section class="admin-view" id="view-appearance"><div class="panel-heading"><div><h2>Aparência brasa</h2><p>Textos do destaque, logotipo e cores.</p></div></div><form class="settings-form" id="appearanceForm"></form></section>
       <section class="admin-view" id="view-auth"><div class="panel-heading"><div><h2>E-mail e acesso</h2><p>Diagnóstico preventivo do fluxo de código numérico.</p></div></div><div class="auth-checklist" id="authChecklist"></div></section>
     </main>
   </div>
-  <dialog class="form-dialog" id="adminEditor"><form class="dialog-frame admin-editor-form" id="editorForm"><button class="icon-button dialog-close" type="button" id="closeEditor">×</button><span class="eyebrow" id="editorEyebrow">EDITAR</span><h2 id="editorTitle"></h2><div id="editorFields"></div><p class="form-message" id="editorMessage"></p><button class="button button-primary button-large button-block" type="submit">Salvar alterações</button></form></dialog>
+  <dialog class="form-dialog" id="adminEditor"><form class="dialog-frame admin-editor-form" id="editorForm"><button class="icon-button dialog-close" type="button" id="closeEditor" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button><span class="eyebrow" id="editorEyebrow">EDITAR</span><h2 id="editorTitle"></h2><div id="editorFields"></div><p class="form-message" id="editorMessage"></p><button class="button button-primary button-large button-block" type="submit">Salvar alterações</button></form></dialog>
   <div class="toast-region" id="toastRegion"></div>
 </body></html>

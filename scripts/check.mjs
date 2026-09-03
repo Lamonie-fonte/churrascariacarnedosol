@@ -8,6 +8,7 @@ const admin = await readFile(new URL("assets/admin.js", root), "utf8");
 const receipts = await readFile(new URL("assets/receipts.js", root), "utf8");
 const storeHtml = await readFile(new URL("index.html", root), "utf8");
 const adminHtml = await readFile(new URL("admin.html", root), "utf8");
+const iconSprite = await readFile(new URL("assets/icons.svg", root), "utf8");
 const authFunction = await readFile(new URL("supabase/functions/request-auth-code/index.ts", root), "utf8");
 const verifyAuthFunction = await readFile(new URL("supabase/functions/verify-auth-code/index.ts", root), "utf8");
 const keepAliveWorkflow = await readFile(new URL(".github/workflows/manter-supabase-ativo.yml", root), "utf8");
@@ -54,4 +55,13 @@ if (!authFunction.includes("EdgeRuntime.waitUntil") || !authFunction.includes("p
 if (!receipts.includes("whatsappText") || !receipts.includes("downloadPdf") || !receipts.includes("maps.google.com")) throw new Error("WhatsApp detalhado, PDF ou mapa estão incompletos.");
 if (!adminHtml.includes('data-view="customers"') || !admin.includes('rpc("set_customer_block"') || !admin.includes('data-order-action="delete"')) throw new Error("Controles administrativos de clientes e pedidos estão incompletos.");
 if (!admin.includes("maintenance_mode:!data.has") || !adminHtml.includes('id="toggleOrders"')) throw new Error("O botão de ligar/desligar pedidos não está ativo.");
+const buttonEmoji = /[📷🖼📲📄🗺🧾🛵🏪👥🔥✉👁]/u;
+for (const [name, source] of [["loja", storeHtml], ["painel", adminHtml], ["ações da loja", app], ["ações do painel", admin]]) {
+  if (buttonEmoji.test(source)) throw new Error(`Ainda existe emoji de controle em ${name}.`);
+}
+for (const id of ["camera", "image", "chat-phone", "file-text", "map-pin", "receipt", "edit", "refresh"]) {
+  if (!iconSprite.includes(`id="icon-${id}"`)) throw new Error(`O ícone SVG ${id} está ausente.`);
+}
+if (!styles.includes("@media (max-width:560px)") || !styles.includes("overflow-x:hidden")) throw new Error("A conta ainda pode ultrapassar a largura da tela móvel.");
+if (!receipts.includes("🔥 *NOVO PEDIDO") || !receipts.includes("✅ Pedido registrado")) throw new Error("Os emojis da mensagem do WhatsApp devem ser preservados.");
 console.log(`OK: ${catalog.length} produtos, ${expected.size} imagens, ${options.length} opções, carrinho profissional, finalização fixa, foto de perfil, e-mail rápido, histórico, WhatsApp, PDF, mapa e painel administrativo.`);

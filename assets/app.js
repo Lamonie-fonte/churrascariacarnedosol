@@ -2,6 +2,7 @@
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const tools = () => window.OrderTools;
+  const icon = name => `<svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-${name}"></use></svg>`;
   const state = {
     settings: null, categories: [], products: [], cart: loadCart(), selected: null, quantity: 1,
     query: "", promoOnly: false, activeCategory: null, authMode: "login", backend: true,
@@ -165,7 +166,7 @@
 
   function productCard(product) {
     const old = Number(product.old_price) > Number(product.price || 0) ? `<span class="old-price">${money(product.old_price)}</span>` : "";
-    return `<article class="product-card"><div class="product-image">${product.featured ? '<span class="badge">PROMOÇÃO</span>' : ""}<img src="${escapeHtml(product.image_url || "/assets/favicon.svg")}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.src='/assets/favicon.svg'"></div><div class="product-info"><h3>${escapeHtml(product.name)}</h3><p class="product-description">${escapeHtml(product.description || "Escolha suas opções ao adicionar.")}</p><div class="product-footer"><div class="price-wrap">${old}<span class="current-price">${displayPrice(product)}</span></div><button type="button" class="add-button" data-product-id="${product.id}" aria-label="Adicionar ${escapeHtml(product.name)}">+</button></div></div></article>`;
+    return `<article class="product-card"><div class="product-image">${product.featured ? '<span class="badge">PROMOÇÃO</span>' : ""}<img src="${escapeHtml(product.image_url || "/assets/favicon.svg")}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.src='/assets/favicon.svg'"></div><div class="product-info"><h3>${escapeHtml(product.name)}</h3><p class="product-description">${escapeHtml(product.description || "Escolha suas opções ao adicionar.")}</p><div class="product-footer"><div class="price-wrap">${old}<span class="current-price">${displayPrice(product)}</span></div><button type="button" class="add-button" data-product-id="${product.id}" aria-label="Adicionar ${escapeHtml(product.name)}">${icon("plus")}</button></div></div></article>`;
   }
 
   function displayPrice(product) {
@@ -229,12 +230,12 @@
           <div class="cart-item-heading"><h3>${escapeHtml(item.name)}</h3><strong>${money(item.unit_price * item.quantity)}</strong></div>
           ${customization}${item.notes ? `<p class="cart-item-note"><b>Observação:</b> ${escapeHtml(item.notes)}</p>` : ""}
           <div class="cart-item-footer">
-            <div class="cart-item-actions" role="group" aria-label="Quantidade de ${escapeHtml(item.name)}"><button type="button" data-index="${index}" data-cart-action="minus" aria-label="Diminuir quantidade">−</button><b>${item.quantity}</b><button type="button" data-index="${index}" data-cart-action="plus" aria-label="Aumentar quantidade">+</button></div>
+            <div class="cart-item-actions" role="group" aria-label="Quantidade de ${escapeHtml(item.name)}"><button type="button" data-index="${index}" data-cart-action="minus" aria-label="Diminuir quantidade">${icon("minus")}</button><b>${item.quantity}</b><button type="button" data-index="${index}" data-cart-action="plus" aria-label="Aumentar quantidade">${icon("plus")}</button></div>
             <button type="button" class="remove-link" data-index="${index}" data-cart-action="remove">Remover</button>
           </div>
         </div>
       </article>`;
-    }).join("") : `<div class="empty-state"><span>🛒</span><h2>Seu carrinho está vazio</h2><p>Adicione um prato para continuar.</p></div>`;
+    }).join("") : `<div class="empty-state"><span class="empty-icon">${icon("receipt")}</span><h2>Seu carrinho está vazio</h2><p>Adicione um prato para continuar.</p></div>`;
     $("#checkoutButton").disabled = !state.cart.length || !state.backend || Boolean(state.settings?.maintenance_mode);
     $("#checkoutButton").textContent = state.settings?.maintenance_mode ? "Pedidos temporariamente desligados" : "Continuar pedido";
   }
@@ -423,7 +424,7 @@
   function customerOrderCard(order) {
     const map = tools().mapUrl(order.address);
     const itemHtml = (order.order_items || []).map(item => `<li><strong>${item.quantity}x ${escapeHtml(tools().displayName(item.product_name))}</strong> — ${money(item.line_total)}${(item.selections || []).length ? `<small>${(item.selections || []).map(selection => escapeHtml(tools().displayName(selection.name))).join(", ")}</small>` : ""}${item.notes ? `<small>Obs.: ${escapeHtml(item.notes)}</small>` : ""}</li>`).join("");
-    return `<article class="history-card"><header><div><h3>Pedido #${order.order_number}</h3><p>${tools().dateTime(order.created_at)} • ${tools().statusLabel(order.status)}</p></div><strong>${money(order.total)}</strong></header><details><summary>Ver detalhes</summary><ul>${itemHtml}</ul><p>${escapeHtml(tools().fullAddress(order.address)).replace(/\n/g, "<br>")}</p></details><div class="card-actions"><button class="button button-primary" type="button" data-order-action="whatsapp" data-id="${order.id}">📲 WhatsApp</button><button class="button button-ghost" type="button" data-order-action="pdf" data-id="${order.id}">📄 PDF</button>${map ? `<a class="button button-ghost" href="${map}" target="_blank" rel="noopener">🗺️ Mapa</a>` : ""}</div></article>`;
+    return `<article class="history-card"><header><div><h3>Pedido #${order.order_number}</h3><p>${tools().dateTime(order.created_at)} • ${tools().statusLabel(order.status)}</p></div><strong>${money(order.total)}</strong></header><details><summary>Ver detalhes</summary><ul>${itemHtml}</ul><p>${escapeHtml(tools().fullAddress(order.address)).replace(/\n/g, "<br>")}</p></details><div class="card-actions"><button class="button button-primary" type="button" data-order-action="whatsapp" data-id="${order.id}">${icon("chat-phone")}WhatsApp</button><button class="button button-ghost" type="button" data-order-action="pdf" data-id="${order.id}">${icon("file-text")}PDF</button>${map ? `<a class="button button-ghost" href="${map}" target="_blank" rel="noopener">${icon("map-pin")}Mapa</a>` : ""}</div></article>`;
   }
   async function accountAddressAction(event) {
     const button = event.target.closest("[data-address-action]"); if (!button) return; const address = state.addresses.find(item => item.id === button.dataset.id); if (!address) return;
@@ -461,8 +462,8 @@
     const button = $("#savePasswordButton"); button.disabled = true; const { error } = await db.auth.updateUser({ password }); button.disabled = false; if (error) return showMessage(els.authMessage, "Não foi possível salvar a senha. Tente novamente.", "error"); await finishLogin();
   }
   async function finishLogin() { $("#authButton").textContent = "Minha conta"; if (state.pendingCheckout) { state.pendingCheckout = false; els.authDialog.close(); await openCheckout(); return; } $("#authAccessPanel").classList.add("hidden"); $("#accountPanel").classList.remove("hidden"); renderAccount(); }
-  function togglePassword(button) { const input = $("#" + button.dataset.passwordToggle), show = input.type === "password"; input.type = show ? "text" : "password"; button.setAttribute("aria-pressed", String(show)); button.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha"); button.title = show ? "Ocultar senha" : "Mostrar senha"; input.focus(); }
-  function resetPasswordVisibility() { $$('[data-password-toggle]').forEach(button => { const input = $("#" + button.dataset.passwordToggle); input.type = "password"; button.setAttribute("aria-pressed", "false"); button.setAttribute("aria-label", "Mostrar senha"); button.title = "Mostrar senha"; }); }
+  function togglePassword(button) { const input = $("#" + button.dataset.passwordToggle), show = input.type === "password"; input.type = show ? "text" : "password"; button.setAttribute("aria-pressed", String(show)); button.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha"); button.title = show ? "Ocultar senha" : "Mostrar senha"; button.querySelector("use")?.setAttribute("href", `/assets/icons.svg#icon-${show ? "eye-off" : "eye"}`); input.focus(); }
+  function resetPasswordVisibility() { $$('[data-password-toggle]').forEach(button => { const input = $("#" + button.dataset.passwordToggle); input.type = "password"; button.setAttribute("aria-pressed", "false"); button.setAttribute("aria-label", "Mostrar senha"); button.title = "Mostrar senha"; button.querySelector("use")?.setAttribute("href", "/assets/icons.svg#icon-eye"); }); }
 
   function updateStoreInfo() {
     const settings = state.settings; if (!settings) return; $("#bannerTitle").textContent = settings.banner_title || $("#bannerTitle").textContent; $("#bannerText").textContent = settings.banner_text || $("#bannerText").textContent;
