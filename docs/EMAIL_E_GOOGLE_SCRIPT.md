@@ -27,3 +27,7 @@ Propriedades do script:
 - `WEBHOOK_SECRET`: valor aleatório longo, diferente de qualquer senha
 
 Depois de criar as propriedades, execute `testEmail` uma vez, autorize o Gmail e confirme o recebimento. Em seguida, publique como Aplicativo da Web, executando como proprietário e permitindo acesso a qualquer pessoa. O `WEBHOOK_SECRET` protege o envio pelo endpoint público.
+
+## Integração automática de pedidos
+
+A URL publicada e o `WEBHOOK_SECRET` ficam criptografados no Supabase Vault. A migração `20260903001000_order_email_webhook.sql` instala um gatilho interno que envia cada novo pedido ao Google Apps Script por `pg_net`. O navegador nunca recebe o segredo e uma falha de e-mail não impede a criação do pedido.
