@@ -198,7 +198,7 @@
   function setAuthMode(mode){state.authMode=mode;const signup=mode==="signup";$(".signup-only").classList.toggle("hidden",!signup);$("#authTitle").textContent=signup?"Criar cadastro":mode==="recovery"?"Recuperar acesso":"Entrar com código";$("#authHelp").textContent=mode==="recovery"?"Enviaremos um código de 6 dígitos. Depois você poderá criar uma nova senha.":"Digite seu e-mail. Enviaremos um código numérico de 6 dígitos.";}
   async function sendAuthCode(event){
     event?.preventDefault();const email=$("#authEmail").value.trim().toLowerCase();if(!email||!email.includes("@")){showMessage(els.authMessage,"Digite um e-mail válido.","error");return;}
-    const button=$("#sendCodeButton");button.disabled=true;const options={shouldCreateUser:state.authMode==="signup"};if(state.authMode==="signup")options.data={full_name:$("#authName").value.trim()};
+    const button=$("#sendCodeButton");button.disabled=true;const options={shouldCreateUser:state.authMode==="signup",emailRedirectTo:location.origin+"/"};if(state.authMode==="signup")options.data={full_name:$("#authName").value.trim()};
     await db.auth.signInWithOtp({email,options});button.disabled=false;
     $("#authRequestStep").classList.add("hidden");$("#authVerifyStep").classList.remove("hidden");showMessage(els.authMessage,"Se este e-mail estiver cadastrado, enviaremos um código de 6 dígitos.","success");$("#authCode").focus();
   }
