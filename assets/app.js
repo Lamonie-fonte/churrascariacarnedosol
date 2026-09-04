@@ -182,7 +182,7 @@
 
   function productCard(product) {
     const old = Number(product.old_price) > Number(product.price || 0) ? `<span class="old-price">${money(product.old_price)}</span>` : "";
-    return `<article class="product-card"><div class="product-image">${product.featured ? '<span class="badge">PROMOÇÃO</span>' : ""}<img src="${escapeHtml(product.image_url || "/assets/favicon.svg")}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.src='/assets/favicon.svg'"></div><div class="product-info"><h3>${escapeHtml(product.name)}</h3><p class="product-description">${escapeHtml(product.description || "Escolha suas opções ao adicionar.")}</p><div class="product-footer"><div class="price-wrap">${old}<span class="current-price">${displayPrice(product)}</span></div><button type="button" class="add-button" data-product-id="${product.id}" aria-label="Adicionar ${escapeHtml(product.name)}">${icon("plus")}</button></div></div></article>`;
+    return `<article class="product-card" data-product-id="${product.id}"><div class="product-image">${product.featured ? '<span class="badge">PROMOÇÃO</span>' : ""}<img src="${escapeHtml(product.image_url || "/assets/favicon.svg")}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='/assets/favicon.svg'}"></div><div class="product-info"><h3>${escapeHtml(product.name)}</h3><p class="product-description">${escapeHtml(product.description || "Escolha suas opções ao adicionar.")}</p><div class="product-footer"><div class="price-wrap">${old}<span class="current-price">${displayPrice(product)}</span></div><button type="button" class="add-button" aria-label="Abrir ${escapeHtml(product.name)}">${icon("plus")}</button></div></div></article>`;
   }
 
   function displayPrice(product) {
@@ -201,7 +201,9 @@
   function openProduct(id) {
     const product = state.products.find(item => item.id === id); if (!product) return;
     state.selected = product; state.quantity = 1;
-    $("#dialogImage").src = product.image_url || "/assets/favicon.svg"; $("#dialogImage").alt = product.name;
+    const dialogImage = $("#dialogImage"); delete dialogImage.dataset.fallback;
+    dialogImage.onerror = () => { if (!dialogImage.dataset.fallback) { dialogImage.dataset.fallback = "1"; dialogImage.src = "/assets/favicon.svg"; } };
+    dialogImage.src = product.image_url || "/assets/favicon.svg"; dialogImage.alt = product.name;
     $("#dialogCategory").textContent = state.categories.find(category => category.id === product.category_id)?.name || "";
     $("#dialogName").textContent = product.name; $("#dialogDescription").textContent = product.description || "Monte do seu jeito."; $("#dialogPrice").innerHTML = displayPrice(product);
     els.optionGroups.innerHTML = (product.option_groups || []).map(group => `<fieldset class="option-group" data-group-id="${group.id}" data-min="${group.min_select}" data-max="${group.max_select}"><legend class="option-heading"><span>${escapeHtml(group.name)}</span><small>${Number(group.min_select) > 0 ? "Obrigatório" : "Opcional"} • até ${group.max_select}</small></legend><div class="option-list">${(group.product_options || []).filter(option => option.active !== false).map(option => `<label class="option-choice"><input type="${Number(group.max_select) === 1 ? "radio" : "checkbox"}" name="group-${group.id}" value="${option.id}" data-price="${option.price_delta || 0}"><span>${escapeHtml(option.name)}</span><strong>${Number(option.price_delta) > 0 ? "+ " + money(option.price_delta) : ""}</strong></label>`).join("")}</div></fieldset>`).join("");
