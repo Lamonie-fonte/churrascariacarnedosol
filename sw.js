@@ -1,5 +1,5 @@
-const CACHE = "carne-de-sol-v13";
-const CORE = ["/", "/index.html", "/admin.html", "/assets/styles.css", "/assets/app.js", "/assets/admin.js", "/assets/icons.js", "/assets/receipts.js", "/assets/supabase.js", "/assets/favicon.svg", "/assets/logo-carne-de-sol.jpg", "/data/catalog.json"];
+const CACHE = "carne-de-sol-v21";
+const CORE = ["/", "/index.html", "/admin.html", "/assets/styles.css", "/assets/app.js", "/assets/admin.js", "/assets/receipts.js", "/assets/supabase.js", "/assets/icons.svg", "/assets/favicon.svg", "/assets/logo-carne-de-sol.jpg", "/assets/hero/carne-na-brasa.webp", "/assets/hero/galeto-na-brasa.webp", "/assets/hero/churrasco-na-grelha.webp", "/data/catalog.json"];
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
