@@ -258,6 +258,20 @@
     </div>
   </dialog>
 
+  <section class="orders-page hidden" id="ordersPage" aria-labelledby="ordersPageTitle">
+    <header class="orders-page-header">
+      <div class="orders-brand"><img src="/assets/logo-carne-de-sol.jpg" alt=""><div><span class="eyebrow">MINHA CONTA</span><h1 id="ordersPageTitle">Meus pedidos</h1></div></div>
+      <button class="icon-button" id="refreshOrdersPage" type="button" aria-label="Atualizar pedidos"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-refresh"></use></svg></button>
+    </header>
+    <div class="orders-page-content">
+      <div class="orders-tabs" id="ordersTabs" role="tablist" aria-label="Filtrar pedidos">
+        <button class="active" type="button" role="tab" aria-selected="true" data-order-filter="ongoing">Em andamento <b id="ongoingOrderCount">0</b></button>
+        <button type="button" role="tab" aria-selected="false" data-order-filter="finished">Finalizados <b id="finishedOrderCount">0</b></button>
+      </div>
+      <div class="orders-page-list" id="ordersPageList" aria-live="polite"></div>
+    </div>
+  </section>
+
   <dialog class="form-dialog" id="addressDialog">
     <form class="dialog-frame checkout-form" id="addressForm">
       <button class="icon-button dialog-close" type="button" data-close="address" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button>

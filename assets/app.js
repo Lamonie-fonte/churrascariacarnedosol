@@ -6,7 +6,7 @@
   const state = {
     settings: null, categories: [], products: [], cart: loadCart(), selected: null, quantity: 1,
     query: "", promoOnly: false, activeCategory: null, authMode: "login", backend: true,
-    session: null, profile: null, addresses: [], orders: [], promotions: [], pendingCheckout: false, lastOrder: null,
+    session: null, profile: null, addresses: [], orders: [], promotions: [], pendingCheckout: false, pendingAccountView: null, orderFilter: "ongoing", lastOrder: null,
     heroSlide: 0, heroTimer: null
   };
   const els = {};
@@ -22,7 +22,7 @@
     Object.assign(els, {
       categories: $("#categoryList"), sections: $("#productSections"), loading: $("#loadingGrid"), empty: $("#emptyState"),
       search: $("#searchInput"), promo: $("#promoFilter"), productDialog: $("#productDialog"), cartDialog: $("#cartDialog"),
-      checkoutDialog: $("#checkoutDialog"), authDialog: $("#authDialog"), addressDialog: $("#addressDialog"), successDialog: $("#successDialog"), promotionDialog: $("#promotionDialog"),
+      checkoutDialog: $("#checkoutDialog"), authDialog: $("#authDialog"), addressDialog: $("#addressDialog"), successDialog: $("#successDialog"), promotionDialog: $("#promotionDialog"), ordersPage: $("#ordersPage"),
       cartCount: $("#cartCount"), cartItems: $("#cartItems"), cartSubtotal: $("#cartSubtotal"), optionGroups: $("#optionGroups"), authMessage: $("#authMessage")
     });
     bindEvents();
@@ -70,13 +70,16 @@
     $("#cancelProfilePhoto").addEventListener("click", cancelProfilePhotoEdit);
     $("#saveProfilePhoto").addEventListener("click", saveProfilePhoto);
     $("#accountAvatar").addEventListener("error", () => showAvatarFallback());
-    els.authDialog.addEventListener("close", cancelProfilePhotoEdit);
+    els.authDialog.addEventListener("close", () => { cancelProfilePhotoEdit(); if (!state.session) state.pendingAccountView = null; });
     $("#newAddress").addEventListener("click", () => openAddressEditor());
     $("#refreshHistory").addEventListener("click", async () => { await loadAccountData(); toast("Histórico atualizado."); });
+    $("#refreshOrdersPage").addEventListener("click", async () => { await loadAccountData(); toast("Pedidos atualizados."); });
+    $("#ordersTabs").addEventListener("click", changeOrderFilter);
+    $("#ordersPageList").addEventListener("click", ordersPageAction);
     $("#addressForm").addEventListener("submit", saveAddress);
     $("#successWhatsapp").addEventListener("click", () => openWhatsapp(state.lastOrder));
     $("#successPdf").addEventListener("click", () => downloadOrderPdf(state.lastOrder));
-    $("#successHistory").addEventListener("click", async () => { els.successDialog.close(); await openAuth(); });
+    $("#successHistory").addEventListener("click", async () => { els.successDialog.close(); await openOrdersPage(); });
     $$('[data-password-toggle]').forEach(button => button.addEventListener("click", () => togglePassword(button)));
     $$("#authForm [data-auth-mode]").forEach(button => button.addEventListener("click", () => setAuthMode(button.dataset.authMode)));
     $("#authCode").addEventListener("input", event => event.target.value = event.target.value.replace(/\D/g, "").slice(0, 6));
@@ -349,7 +352,7 @@
       db.from("profiles").select("*").eq("id", state.session.user.id).maybeSingle(), db.from("saved_addresses").select("*").order("is_default", { ascending: false }).order("last_used_at", { ascending: false }),
       db.from("orders").select("*,order_items(*)").order("created_at", { ascending: false }).limit(100)
     ]);
-    if (!profile.error) state.profile = profile.data; if (!addresses.error) state.addresses = addresses.data || []; if (!orders.error) state.orders = orders.data || []; renderAccount();
+    if (!profile.error) state.profile = profile.data; if (!addresses.error) state.addresses = addresses.data || []; if (!orders.error) state.orders = orders.data || []; renderAccount(); renderOrdersPage();
   }
   async function openAuth() {
     showMessage(els.authMessage, "");
@@ -478,7 +481,43 @@
   function customerOrderCard(order) {
     const map = tools().mapUrl(order.address);
     const itemHtml = (order.order_items || []).map(item => `<li><strong>${item.quantity}x ${escapeHtml(tools().displayName(item.product_name))}</strong> — ${money(item.line_total)}${(item.selections || []).length ? `<small>${(item.selections || []).map(selection => escapeHtml(tools().displayName(selection.name))).join(", ")}</small>` : ""}${item.notes ? `<small>Obs.: ${escapeHtml(item.notes)}</small>` : ""}</li>`).join("");
-    return `<article class="history-card"><header><div><h3>Pedido #${order.order_number}</h3><p>${tools().dateTime(order.created_at)} • ${tools().statusLabel(order.status)}</p></div><strong>${money(order.total)}</strong></header><details><summary>Ver detalhes</summary><ul>${itemHtml}</ul><p>${escapeHtml(tools().fullAddress(order.address)).replace(/\n/g, "<br>")}</p></details><div class="card-actions"><button class="button button-primary" type="button" data-order-action="whatsapp" data-id="${order.id}">${icon("chat-phone")}WhatsApp</button><button class="button button-ghost" type="button" data-order-action="pdf" data-id="${order.id}">${icon("file-text")}PDF</button>${map ? `<a class="button button-ghost" href="${map}" target="_blank" rel="noopener">${icon("map-pin")}Mapa</a>` : ""}</div></article>`;
+    const status = String(order.status || "pending").replace(/[^a-z_]/g, "");
+    return `<article class="history-card"><header><div><h3>Pedido #${order.order_number}</h3><p>${tools().dateTime(order.created_at)}</p><span class="status-pill ${status}">${escapeHtml(tools().statusLabel(order.status))}</span></div><strong>${money(order.total)}</strong></header><details><summary>Ver detalhes</summary><ul>${itemHtml}</ul><p>${escapeHtml(tools().fullAddress(order.address)).replace(/\n/g, "<br>")}</p></details><div class="card-actions"><button class="button button-primary" type="button" data-order-action="whatsapp" data-id="${order.id}">${icon("chat-phone")}WhatsApp</button><button class="button button-ghost" type="button" data-order-action="pdf" data-id="${order.id}">${icon("file-text")}PDF</button>${map ? `<a class="button button-ghost" href="${map}" target="_blank" rel="noopener">${icon("map-pin")}Mapa</a>` : ""}</div></article>`;
+  }
+  function orderGroups() {
+    const finishedStatuses = new Set(["completed", "cancelled", "delivered"]);
+    return {
+      ongoing: state.orders.filter(order => !finishedStatuses.has(order.status)),
+      finished: state.orders.filter(order => finishedStatuses.has(order.status))
+    };
+  }
+  function renderOrdersPage() {
+    if (!els.ordersPage) return;
+    const groups = orderGroups(), selected = groups[state.orderFilter] || groups.ongoing;
+    $("#ongoingOrderCount").textContent = groups.ongoing.length; $("#finishedOrderCount").textContent = groups.finished.length;
+    $$("[data-order-filter]", $("#ordersTabs")).forEach(button => {
+      const active = button.dataset.orderFilter === state.orderFilter; button.classList.toggle("active", active); button.setAttribute("aria-selected", String(active));
+    });
+    if (selected.length) { $("#ordersPageList").innerHTML = selected.map(customerOrderCard).join(""); return; }
+    const ongoing = state.orderFilter === "ongoing";
+    $("#ordersPageList").innerHTML = `<div class="orders-empty"><span class="orders-empty-icon">${icon("receipt")}</span><h2>${ongoing ? "Nenhum pedido em andamento" : "Nenhum pedido finalizado"}</h2><p>${ongoing ? "Quando você finalizar um pedido, poderá acompanhar o preparo e a entrega por aqui." : "Seus pedidos concluídos ou cancelados aparecerão aqui."}</p>${ongoing ? '<button class="button button-primary" type="button" data-orders-action="browse">Ver cardápio</button>' : ""}</div>`;
+  }
+  function changeOrderFilter(event) {
+    const button = event.target.closest("[data-order-filter]"); if (!button) return;
+    state.orderFilter = button.dataset.orderFilter; renderOrdersPage();
+  }
+  function ordersPageAction(event) {
+    const browse = event.target.closest('[data-orders-action="browse"]');
+    if (browse) { hideOrdersPage(); setCustomerNavActive("home"); scrollTo({ top:0, behavior:"smooth" }); return; }
+    accountOrderAction(event);
+  }
+  function setCustomerNavActive(action) { $$(".customer-nav-item").forEach(item => item.classList.toggle("active", item.dataset.navAction === action)); }
+  function hideOrdersPage() { els.ordersPage?.classList.add("hidden"); }
+  async function openOrdersPage() {
+    const session = await ensureSession();
+    if (!session) { state.pendingAccountView = "orders"; await openAuth(); showMessage(els.authMessage, "Entre na sua conta para acompanhar seus pedidos.", "success"); return; }
+    state.pendingAccountView = null; if (els.authDialog.open) els.authDialog.close();
+    await loadAccountData(); renderOrdersPage(); els.ordersPage.classList.remove("hidden"); setCustomerNavActive("orders");
   }
   async function accountAddressAction(event) {
     const button = event.target.closest("[data-address-action]"); if (!button) return; const address = state.addresses.find(item => item.id === button.dataset.id); if (!address) return;
@@ -536,7 +575,7 @@
     const password = $("#newPassword").value, confirmation = $("#confirmPassword").value; if (password.length < 8) return showMessage(els.authMessage, "Use pelo menos 8 caracteres.", "error"); if (password !== confirmation) return showMessage(els.authMessage, "As senhas não são iguais. Confira e tente novamente.", "error");
     const button = $("#savePasswordButton"); button.disabled = true; const { error } = await db.auth.updateUser({ password }); button.disabled = false; if (error) return showMessage(els.authMessage, "Não foi possível salvar a senha. Tente novamente.", "error"); await finishLogin();
   }
-  async function finishLogin() { document.body.classList.add("customer-signed-in"); if (state.pendingCheckout) { state.pendingCheckout = false; els.authDialog.close(); await openCheckout(); return; } $("#authAccessPanel").classList.add("hidden"); $("#accountPanel").classList.remove("hidden"); renderAccount(); }
+  async function finishLogin() { document.body.classList.add("customer-signed-in"); if (state.pendingCheckout) { state.pendingCheckout = false; els.authDialog.close(); await openCheckout(); return; } if (state.pendingAccountView === "orders") { state.pendingAccountView = null; els.authDialog.close(); await openOrdersPage(); return; } $("#authAccessPanel").classList.add("hidden"); $("#accountPanel").classList.remove("hidden"); renderAccount(); }
   function togglePassword(button) { const input = $("#" + button.dataset.passwordToggle), show = input.type === "password"; input.type = show ? "text" : "password"; button.setAttribute("aria-pressed", String(show)); button.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha"); button.title = show ? "Ocultar senha" : "Mostrar senha"; button.querySelector("use")?.setAttribute("href", `/assets/icons.svg#icon-${show ? "eye-off" : "eye"}`); input.focus(); }
   function resetPasswordVisibility() { $$('[data-password-toggle]').forEach(button => { const input = $("#" + button.dataset.passwordToggle); input.type = "password"; button.setAttribute("aria-pressed", "false"); button.setAttribute("aria-label", "Mostrar senha"); button.title = "Mostrar senha"; button.querySelector("use")?.setAttribute("href", "/assets/icons.svg#icon-eye"); }); }
 
@@ -578,12 +617,12 @@
   }
   async function handleCustomerNavigation(event) {
     const button = event.target.closest("[data-nav-action]"); if (!button) return; const action = button.dataset.navAction;
-    $$(".customer-nav-item").forEach(item => item.classList.toggle("active", item === button));
-    if (action === "home") { scrollTo({ top:0, behavior:"smooth" }); return; }
-    if (action === "cart") { renderCart(); els.cartDialog.showModal(); return; }
-    if (action === "promotions") { renderPromotions(); els.promotionDialog.showModal(); return; }
-    await openAuth();
-    if (action === "orders" && state.session) setTimeout(() => $("#accountOrders")?.scrollIntoView({ behavior:"smooth", block:"start" }), 80);
+    setCustomerNavActive(action);
+    if (action === "home") { hideOrdersPage(); scrollTo({ top:0, behavior:"smooth" }); return; }
+    if (action === "cart") { hideOrdersPage(); renderCart(); els.cartDialog.showModal(); return; }
+    if (action === "promotions") { hideOrdersPage(); renderPromotions(); els.promotionDialog.showModal(); return; }
+    if (action === "orders") { await openOrdersPage(); return; }
+    hideOrdersPage(); state.pendingAccountView = "profile"; await openAuth();
   }
   function isStoreOpen(settings) { if (settings.manual_status === "open") return true; if (settings.manual_status === "closed") return false; const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "America/Fortaleza", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date()).map(part => [part.type, part.value])); const day = ({ Sun:"0", Mon:"1", Tue:"2", Wed:"3", Thu:"4", Fri:"5", Sat:"6" })[parts.weekday], hours = settings.opening_hours?.[day]; if (!hours) return false; const now = parts.hour.padStart(2, "0") + ":" + parts.minute; return now >= hours[0] && now < hours[1]; }
   function showMessage(element, text, type = "") { element.textContent = text; element.className = `form-message ${type}`; }
