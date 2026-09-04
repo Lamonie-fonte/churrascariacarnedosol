@@ -14,6 +14,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script defer src="/assets/supabase.js"></script>
   <script defer src="/assets/receipts.js"></script>
+  <script defer src="/assets/icons.js"></script>
   <script defer src="/assets/app.js"></script>
 </head>
 <body>
@@ -23,20 +24,30 @@
       <span class="brand-mark"><img src="/assets/logo-carne-de-sol.jpg" alt=""></span>
       <span><strong>Carne de Sol</strong><small>Churrascaria & Marmitaria</small></span>
     </a>
-    <span class="header-message">Feito na brasa, servido com carinho</span>
+    <nav class="header-actions" aria-label="Ações">
+      <button class="button button-ghost" id="authButton" type="button">Entrar</button>
+      <a class="button button-ghost desktop-only" href="/admin.html">Painel</a>
+      <button class="button cart-button" id="cartButton" type="button" aria-label="Abrir carrinho">
+        <svg class="cart-icon" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+          <path d="M6 9h5.2l3.5 20.1a4 4 0 0 0 3.9 3.3h17.2a4 4 0 0 0 3.9-3.1L43 15H13"/>
+          <path d="M17.5 22.5h21.8"/>
+          <circle cx="20" cy="39" r="2.8"/>
+          <circle cx="36" cy="39" r="2.8"/>
+        </svg>
+        <span class="cart-count" id="cartCount" aria-live="polite">0</span>
+      </button>
+    </nav>
   </header>
 
   <main>
     <section class="hero">
-      <div class="hero-carousel" id="heroCarousel" aria-label="Destaques da churrascaria"></div>
-      <div class="hero-shade" aria-hidden="true"></div>
       <div class="hero-fire" aria-hidden="true"></div>
       <div class="hero-copy">
-        <span class="eyebrow" id="bannerEyebrow">CHURRASCARIA CARNE DE SOL</span>
+        <span class="eyebrow">CHURRASCARIA CARNE DE SOL</span>
         <h1 id="bannerTitle">Sabor de brasa, comida de verdade</h1>
         <p id="bannerText">Marmitas, galetos, carnes e combos preparados todos os dias.</p>
         <div class="hero-actions">
-          <a class="button button-primary button-large" href="#cardapio" id="heroPrimary">Ver cardápio</a>
+          <a class="button button-primary button-large" href="#cardapio">Ver cardápio</a>
           <a class="button button-light button-large" href="https://wa.me/5585986129964" id="whatsappHero">Falar no WhatsApp</a>
         </div>
       </div>
@@ -56,7 +67,7 @@
       <div class="catalog-main">
         <div class="catalog-toolbar">
           <label class="search-box">
-            <svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-search"></use></svg>
+            <span aria-hidden="true">⌕</span>
             <input id="searchInput" type="search" placeholder="Buscar prato ou bebida" autocomplete="off">
           </label>
           <button class="button button-ghost" id="promoFilter" type="button">Só promoções</button>
@@ -79,37 +90,9 @@
     <div><strong>Endereço</strong><p>Av. Castelo de Castro, 643 — Jangurussu<br>Fortaleza — CE, 60866-681</p></div>
   </footer>
 
-  <nav class="customer-nav" id="customerNav" aria-label="Navegação principal">
-    <button type="button" class="customer-nav-item active" data-nav-action="home" aria-label="Início">
-      <svg class="nav-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-home"></use></svg><span>Início</span>
-    </button>
-    <button type="button" class="customer-nav-item" data-nav-action="orders" aria-label="Pedidos">
-      <svg class="nav-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-orders"></use></svg><span>Pedidos</span>
-    </button>
-    <button type="button" class="customer-nav-item customer-nav-cart" data-nav-action="cart" aria-label="Abrir sacola">
-      <span class="nav-cart-circle"><svg class="nav-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-bag"></use></svg><b class="cart-count" id="cartCount" aria-live="polite">0</b></span><span>Sacola</span>
-    </button>
-    <button type="button" class="customer-nav-item" data-nav-action="promotions" aria-label="Promoções">
-      <svg class="nav-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-ticket"></use></svg><span>Promoções</span>
-    </button>
-    <button type="button" class="customer-nav-item" data-nav-action="profile" aria-label="Perfil">
-      <svg class="nav-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-user"></use></svg><span>Perfil</span>
-    </button>
-  </nav>
-
-  <dialog class="form-dialog promotion-dialog" id="promotionDialog">
-    <div class="dialog-frame promotion-frame">
-      <button class="icon-button dialog-close" type="button" data-close="promotion" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button>
-      <span class="eyebrow">OFERTAS ESPECIAIS</span>
-      <h2 id="promotionTitle">Promoções de hoje</h2>
-      <p id="promotionText">Escolha uma oferta e adicione à sua sacola.</p>
-      <div class="promotion-list" id="promotionList"></div>
-    </div>
-  </dialog>
-
   <dialog class="product-dialog" id="productDialog">
     <form method="dialog" class="dialog-frame" id="productForm">
-      <button class="icon-button dialog-close" value="cancel" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button>
+      <button class="icon-button dialog-close" value="cancel" aria-label="Fechar"><i class="button-icon-slot" data-svg-icon="close" aria-hidden="true"></i></button>
       <div class="dialog-product-image"><img id="dialogImage" alt=""></div>
       <div class="dialog-content">
         <span class="eyebrow" id="dialogCategory"></span>
@@ -119,9 +102,9 @@
         <div id="optionGroups"></div>
         <label class="field"><span>Observação do item</span><textarea id="itemNotes" maxlength="200" placeholder="Ex.: sem cebola"></textarea></label>
         <div class="quantity-row">
-          <button class="quantity-button" id="qtyMinus" type="button" aria-label="Diminuir"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-minus"></use></svg></button>
+          <button class="quantity-button" id="qtyMinus" type="button" aria-label="Diminuir"><i class="button-icon-slot" data-svg-icon="minus" aria-hidden="true"></i></button>
           <output id="qtyValue">1</output>
-          <button class="quantity-button" id="qtyPlus" type="button" aria-label="Aumentar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-plus"></use></svg></button>
+          <button class="quantity-button" id="qtyPlus" type="button" aria-label="Aumentar"><i class="button-icon-slot" data-svg-icon="plus" aria-hidden="true"></i></button>
           <button class="button button-primary add-cart-button" id="addToCart" type="button">Adicionar • <span id="addTotal"></span></button>
         </div>
       </div>
@@ -130,7 +113,7 @@
 
   <dialog class="side-dialog" id="cartDialog">
     <form method="dialog" class="side-panel">
-      <div class="side-header"><div><span class="eyebrow">SEU PEDIDO</span><h2>Carrinho</h2></div><button class="icon-button" value="cancel" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button></div>
+      <div class="side-header"><div><span class="eyebrow">SEU PEDIDO</span><h2>Carrinho</h2></div><button class="icon-button" value="cancel" aria-label="Fechar"><i class="button-icon-slot" data-svg-icon="close" aria-hidden="true"></i></button></div>
       <div class="cart-items" id="cartItems"></div>
       <footer class="cart-footer">
         <div class="cart-summary"><span>Subtotal<small id="cartSummaryItems">0 itens</small></span><strong id="cartSubtotal">R$ 0,00</strong></div>
@@ -142,7 +125,7 @@
 
   <dialog class="form-dialog" id="checkoutDialog">
     <form class="dialog-frame checkout-form" id="checkoutForm">
-      <button class="icon-button dialog-close" type="button" data-close="checkout" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button>
+      <button class="icon-button dialog-close" type="button" data-close="checkout" aria-label="Fechar"><i class="button-icon-slot" data-svg-icon="close" aria-hidden="true"></i></button>
       <span class="eyebrow">FINALIZAR PEDIDO</span><h2>Seus dados</h2>
       <div class="form-grid">
         <label class="field"><span>Nome completo *</span><input name="customer_name" required minlength="2" autocomplete="name"></label>
@@ -150,13 +133,13 @@
         <label class="field wide"><span>E-mail</span><input name="email" type="email" autocomplete="email"></label>
       </div>
       <fieldset class="choice-cards"><legend>Como deseja receber?</legend>
-        <label><input type="radio" name="order_type" value="delivery" checked><span><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-truck"></use></svg>Entrega</span></label>
-        <label><input type="radio" name="order_type" value="pickup"><span><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-store"></use></svg>Retirada</span></label>
+        <label><input type="radio" name="order_type" value="delivery" checked><span><i class="button-icon-slot" data-svg-icon="delivery" aria-hidden="true"></i>Entrega</span></label>
+        <label><input type="radio" name="order_type" value="pickup"><span><i class="button-icon-slot" data-svg-icon="pickup" aria-hidden="true"></i>Retirada</span></label>
       </fieldset>
       <div class="form-grid address-fields">
         <div class="field wide saved-address-area hidden" id="savedAddressArea">
           <span>Endereço para este pedido</span>
-          <div class="inline-control"><select id="savedAddressSelect"><option value="new">Usar outro endereço</option></select><button class="button button-ghost" id="editCheckoutAddress" type="button">Editar salvo</button></div>
+          <div class="inline-control"><select id="savedAddressSelect"><option value="new">Usar outro endereço</option></select><button class="button button-ghost" id="editCheckoutAddress" type="button"><i class="button-icon-slot" data-svg-icon="edit" aria-hidden="true"></i>Editar salvo</button></div>
           <small class="field-status">Escolha um endereço salvo ou preencha um local diferente.</small>
         </div>
         <label class="field wide"><span>CEP *</span><input id="checkoutCep" name="postal_code" inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000"><small class="field-status" id="cepStatus" aria-live="polite">Digite o CEP para preencher o endereço.</small></label>
@@ -192,7 +175,7 @@
 
   <dialog class="form-dialog" id="authDialog">
     <div class="dialog-frame auth-form">
-      <button class="icon-button dialog-close" type="button" data-close="auth" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button>
+      <button class="icon-button dialog-close" type="button" data-close="auth" aria-label="Fechar"><i class="button-icon-slot" data-svg-icon="close" aria-hidden="true"></i></button>
       <form id="authForm">
         <div id="authAccessPanel">
           <span class="eyebrow">ACESSO SEGURO</span><h2 id="authTitle">Entrar com código</h2>
@@ -200,11 +183,9 @@
           <div id="authRequestStep">
             <label class="field"><span>E-mail</span><input id="authEmail" type="email" required autocomplete="email"></label>
             <label class="field signup-only hidden"><span>Nome</span><input id="authName" autocomplete="name"></label>
-            <label class="field password-login-only hidden"><span>Senha</span><span class="password-control"><input id="authPassword" type="password" minlength="8" autocomplete="current-password"><button class="password-toggle" type="button" data-password-toggle="authPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-eye"></use></svg></button></span></label>
             <button class="button button-primary button-large button-block" id="sendCodeButton" type="submit">Enviar código</button>
             <div class="auth-switches">
-              <button type="button" data-auth-mode="login">Entrar com código</button>
-              <button type="button" data-auth-mode="password">Entrar com senha</button>
+              <button type="button" data-auth-mode="login">Já tenho cadastro</button>
               <button type="button" data-auth-mode="signup">Criar cadastro</button>
               <button type="button" data-auth-mode="recovery">Esqueci a senha</button>
             </div>
@@ -215,8 +196,8 @@
             <button class="button button-ghost button-block" id="resendCodeButton" type="button">Reenviar código</button>
           </div>
           <div id="passwordStep" class="hidden">
-            <label class="field"><span>Crie sua senha</span><span class="password-control"><input id="newPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="newPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-eye"></use></svg></button></span></label>
-            <label class="field"><span>Repita sua senha</span><span class="password-control"><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="confirmPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-eye"></use></svg></button></span></label>
+            <label class="field"><span>Crie sua senha</span><span class="password-control"><input id="newPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="newPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha"><i class="button-icon-slot" data-svg-icon="eye" aria-hidden="true"></i></button></span></label>
+            <label class="field"><span>Repita sua senha</span><span class="password-control"><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password"><button class="password-toggle" type="button" data-password-toggle="confirmPassword" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha"><i class="button-icon-slot" data-svg-icon="eye" aria-hidden="true"></i></button></span></label>
             <button class="button button-primary button-large button-block" id="savePasswordButton" type="button">Salvar nova senha</button>
           </div>
           <p class="form-message" id="authMessage" aria-live="polite"></p>
@@ -231,50 +212,27 @@
             </div>
             <div class="account-identity">
               <span class="eyebrow">MINHA CONTA</span><h2>Olá, <span id="accountName">cliente</span></h2><p id="accountEmail"></p>
-              <button class="button button-ghost profile-edit-button" id="editProfilePhoto" type="button"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-edit"></use></svg>Editar perfil</button>
-            </div>
-            <div class="profile-photo-editor hidden" id="profilePhotoEditor">
-              <strong>Foto do perfil</strong>
-              <p>Escolha uma imagem para visualizar antes de salvar.</p>
               <div class="profile-photo-actions">
-                <button class="button button-primary" id="takeProfilePhoto" type="button"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-camera"></use></svg>Tirar foto</button>
-                <button class="button button-ghost" id="chooseProfilePhoto" type="button"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-image"></use></svg>Galeria ou arquivo</button>
-                <button class="profile-remove hidden" id="removeProfilePhoto" type="button">Remover foto</button>
+                <button class="button button-primary" id="takeProfilePhoto" type="button"><i class="button-icon-slot" data-svg-icon="camera" aria-hidden="true"></i>Tirar foto</button>
+                <button class="button button-ghost" id="chooseProfilePhoto" type="button"><i class="button-icon-slot" data-svg-icon="image" aria-hidden="true"></i>Galeria ou arquivo</button>
+                <button class="profile-remove hidden" id="removeProfilePhoto" type="button"><i class="button-icon-slot" data-svg-icon="trash" aria-hidden="true"></i>Remover foto</button>
               </div>
-              <small class="profile-photo-status" id="profilePhotoStatus" aria-live="polite">A foto só será alterada depois que você tocar em Salvar.</small>
-              <div class="profile-editor-actions">
-                <button class="button button-ghost" id="cancelProfilePhoto" type="button">Cancelar</button>
-                <button class="button button-primary" id="saveProfilePhoto" type="button" disabled><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-check"></use></svg>Salvar</button>
-              </div>
-              <input id="profileCameraInput" type="file" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.avif" capture="user" hidden>
-              <input id="profileFileInput" type="file" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.avif" hidden>
+              <small class="profile-photo-status" id="profilePhotoStatus">A foto será ajustada automaticamente para o perfil.</small>
             </div>
           </div>
           <button class="button button-ghost" id="accountSignOut" type="button">Sair</button>
+          <input id="profileCameraInput" type="file" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.avif" capture="user" hidden>
+          <input id="profileFileInput" type="file" accept="image/*,.heic,.heif,.tif,.tiff,.bmp,.avif" hidden>
         </div>
-        <div class="account-section"><div class="panel-heading compact"><div><h3>Meus endereços</h3><p>Use, edite ou adicione locais de entrega.</p></div><button class="button button-primary" id="newAddress" type="button"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-plus"></use></svg>Novo</button></div><div class="address-list" id="accountAddresses"></div></div>
-        <div class="account-section"><div class="panel-heading compact"><div><h3>Histórico de pedidos</h3><p>Comprovantes, mapa e detalhes sempre disponíveis.</p></div><button class="button button-ghost" id="refreshHistory" type="button"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-refresh"></use></svg>Atualizar</button></div><div class="history-list" id="accountOrders"></div></div>
+        <div class="account-section"><div class="panel-heading compact"><div><h3>Meus endereços</h3><p>Use, edite ou adicione locais de entrega.</p></div><button class="button button-primary" id="newAddress" type="button"><i class="button-icon-slot" data-svg-icon="plus" aria-hidden="true"></i>Novo</button></div><div class="address-list" id="accountAddresses"></div></div>
+        <div class="account-section"><div class="panel-heading compact"><div><h3>Histórico de pedidos</h3><p>Comprovantes, mapa e detalhes sempre disponíveis.</p></div><button class="button button-ghost" id="refreshHistory" type="button"><i class="button-icon-slot" data-svg-icon="refresh" aria-hidden="true"></i>Atualizar</button></div><div class="history-list" id="accountOrders"></div></div>
       </section>
     </div>
   </dialog>
 
-  <section class="orders-page hidden" id="ordersPage" aria-labelledby="ordersPageTitle">
-    <header class="orders-page-header">
-      <div class="orders-brand"><img src="/assets/logo-carne-de-sol.jpg" alt=""><div><span class="eyebrow">MINHA CONTA</span><h1 id="ordersPageTitle">Meus pedidos</h1></div></div>
-      <button class="icon-button" id="refreshOrdersPage" type="button" aria-label="Atualizar pedidos"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-refresh"></use></svg></button>
-    </header>
-    <div class="orders-page-content">
-      <div class="orders-tabs" id="ordersTabs" role="tablist" aria-label="Filtrar pedidos">
-        <button class="active" type="button" role="tab" aria-selected="true" data-order-filter="ongoing">Em andamento <b id="ongoingOrderCount">0</b></button>
-        <button type="button" role="tab" aria-selected="false" data-order-filter="finished">Finalizados <b id="finishedOrderCount">0</b></button>
-      </div>
-      <div class="orders-page-list" id="ordersPageList" aria-live="polite"></div>
-    </div>
-  </section>
-
   <dialog class="form-dialog" id="addressDialog">
     <form class="dialog-frame checkout-form" id="addressForm">
-      <button class="icon-button dialog-close" type="button" data-close="address" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button>
+      <button class="icon-button dialog-close" type="button" data-close="address" aria-label="Fechar"><i class="button-icon-slot" data-svg-icon="close" aria-hidden="true"></i></button>
       <span class="eyebrow">MINHA CONTA</span><h2 id="addressDialogTitle">Novo endereço</h2>
       <input type="hidden" name="id">
       <div class="form-grid">
@@ -296,13 +254,13 @@
 
   <dialog class="form-dialog" id="successDialog">
     <div class="dialog-frame success-card">
-      <button class="icon-button dialog-close" type="button" data-close="success" aria-label="Fechar"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-close"></use></svg></button>
-      <div class="success-icon"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-check"></use></svg></div><span class="eyebrow">PEDIDO REGISTRADO</span><h2 id="successTitle">Pedido confirmado!</h2>
+      <button class="icon-button dialog-close" type="button" data-close="success" aria-label="Fechar"><i class="button-icon-slot" data-svg-icon="close" aria-hidden="true"></i></button>
+      <div class="success-icon">✓</div><span class="eyebrow">PEDIDO REGISTRADO</span><h2 id="successTitle">Pedido confirmado!</h2>
       <p id="successSummary"></p><div class="success-actions">
-        <button class="button button-primary button-large" id="successWhatsapp" type="button"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-chat-phone"></use></svg>Enviar no WhatsApp</button>
-        <button class="button button-ghost button-large" id="successPdf" type="button"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-file-text"></use></svg>Baixar PDF</button>
-        <a class="button button-ghost button-large hidden" id="successMap" target="_blank" rel="noopener"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-map-pin"></use></svg>Abrir mapa</a>
-        <button class="button button-ghost button-large" id="successHistory" type="button"><svg class="ui-icon" aria-hidden="true"><use href="/assets/icons.svg#icon-receipt"></use></svg>Ver histórico</button>
+        <button class="button button-primary button-large" id="successWhatsapp" type="button"><i class="button-icon-slot" data-svg-icon="whatsapp" aria-hidden="true"></i>Enviar no WhatsApp</button>
+        <button class="button button-ghost button-large" id="successPdf" type="button"><i class="button-icon-slot" data-svg-icon="pdf" aria-hidden="true"></i>Baixar PDF</button>
+        <a class="button button-ghost button-large hidden" id="successMap" target="_blank" rel="noopener"><i class="button-icon-slot" data-svg-icon="map" aria-hidden="true"></i>Abrir mapa</a>
+        <button class="button button-ghost button-large" id="successHistory" type="button"><i class="button-icon-slot" data-svg-icon="history" aria-hidden="true"></i>Ver histórico</button>
       </div>
     </div>
   </dialog>
